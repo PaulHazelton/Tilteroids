@@ -1,6 +1,6 @@
 using System;
 
-namespace Veedja.MG.Engine.Utilities
+namespace SpaceshipArcade.MG.Engine.Utilities
 {
 	public static class EnumHelpers
 	{

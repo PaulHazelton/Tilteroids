@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace Veedja.MG.Engine.Timers
+namespace SpaceshipArcade.MG.Engine.Timers
 {
 	public enum TimerType
 	{

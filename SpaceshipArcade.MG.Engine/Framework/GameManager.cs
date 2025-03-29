@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Veedja.MG.Engine.Input;
+using SpaceshipArcade.MG.Engine.Input;
 
-namespace Veedja.MG.Engine.Framework
+namespace SpaceshipArcade.MG.Engine.Framework
 {
 	public abstract class GameManager : Game
 	{

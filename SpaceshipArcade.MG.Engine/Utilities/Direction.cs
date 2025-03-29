@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace Veedja.MG.Engine.Utilities
+namespace SpaceshipArcade.MG.Engine.Utilities
 {
 	public enum Direction
 	{

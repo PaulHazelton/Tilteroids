@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Veedja.MG.Engine.Effects
+namespace SpaceshipArcade.MG.Engine.Effects
 {
 	public class BloomFilter : IDisposable
 	{

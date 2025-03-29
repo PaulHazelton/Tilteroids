@@ -1,6 +1,6 @@
 using System;
 
-namespace Veedja.MG.Engine.Extensions
+namespace SpaceshipArcade.MG.Engine.Extensions
 {
 	public static class ServiceProviderExtensions
 	{

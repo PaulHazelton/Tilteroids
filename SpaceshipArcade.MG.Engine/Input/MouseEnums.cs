@@ -1,4 +1,4 @@
-namespace Veedja.MG.Engine.Input
+namespace SpaceshipArcade.MG.Engine.Input
 {
 	public enum MouseButton : byte
 	{

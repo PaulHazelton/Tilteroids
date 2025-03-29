@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Veedja.MG.Engine.Extensions;
+namespace SpaceshipArcade.MG.Engine.Extensions;
 
 public static class VectorExtensions
 {

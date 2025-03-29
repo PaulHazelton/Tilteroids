@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace Veedja.MG.Engine.Cameras
+namespace SpaceshipArcade.MG.Engine.Cameras
 {
 	public class CameraShaker
 	{

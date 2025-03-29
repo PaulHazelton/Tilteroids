@@ -1,4 +1,4 @@
-namespace Veedja.MG.Engine.Effects
+namespace SpaceshipArcade.MG.Engine.Effects
 {
 	public interface IEmissive
 	{

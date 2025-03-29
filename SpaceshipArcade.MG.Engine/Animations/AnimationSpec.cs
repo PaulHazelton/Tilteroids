@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Veedja.MG.Engine.Animations
+namespace SpaceshipArcade.MG.Engine.Animations
 {
 	public class AnimationSpec
 	{

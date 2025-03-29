@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Veedja.MG.Engine.Utilities
+namespace SpaceshipArcade.MG.Engine.Utilities
 {
 	/// <summary>
 	/// Holds a list of strings to draw to the screen

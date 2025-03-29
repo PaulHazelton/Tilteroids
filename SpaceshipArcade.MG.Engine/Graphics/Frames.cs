@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Veedja.MG.Engine.Graphics;
+namespace SpaceshipArcade.MG.Engine.Graphics;
 
 public class Frames
 {

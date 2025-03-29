@@ -1,8 +1,8 @@
 using System;
 using Microsoft.Xna.Framework;
-using Veedja.MG.Engine.Utilities;
+using SpaceshipArcade.MG.Engine.Utilities;
 
-namespace Veedja.MG.Engine.Extensions;
+namespace SpaceshipArcade.MG.Engine.Extensions;
 
 public static class RandomExtensions
 {

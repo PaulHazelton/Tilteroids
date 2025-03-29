@@ -2,7 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace Veedja.MG.Engine.Cameras
+namespace SpaceshipArcade.MG.Engine.Cameras
 {
 	public class Camera
 	{

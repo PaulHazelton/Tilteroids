@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Veedja.MG.Engine.Framework;
+namespace SpaceshipArcade.MG.Engine.Framework;
 
 public abstract class GameEnvironment : IDisposable
 {

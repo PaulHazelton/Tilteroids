@@ -2,7 +2,7 @@ using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Veedja.MG.Engine.Utilities;
+namespace SpaceshipArcade.MG.Engine.Utilities;
 
 public enum RootPath
 {

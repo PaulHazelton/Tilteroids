@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Veedja.MG.Engine.Animations;
+namespace SpaceshipArcade.MG.Engine.Animations;
 
 public class Animation
 {

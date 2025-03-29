@@ -5,7 +5,7 @@
 
 using Microsoft.Xna.Framework;
 
-namespace Veedja.MG.Engine.Cameras
+namespace SpaceshipArcade.MG.Engine.Cameras
 {
 	/// <summary>Convert units between display and simulation units.</summary>
 	public static class ConvertUnits
