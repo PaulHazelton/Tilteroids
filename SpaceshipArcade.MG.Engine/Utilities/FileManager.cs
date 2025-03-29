@@ -15,10 +15,9 @@ public enum RootPath
 public static class FileManager
 {
 	// Basic Paths where relevant files are
-	// TODO: Generalize this for other games besides Recoil
-	public static readonly string AppDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Recoil");
+	public static readonly string AppDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Tilteroids");
 	public static readonly string AssetsFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
-	public static readonly string SourceFolder = "C:\\Projects\\Recoil\\Recoil.Main";
+	public static readonly string SourceFolder = "C:\\Projects\\Tilteroids\\Tilteroids.Main";
 
 	private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
@@ -47,15 +46,12 @@ public static class FileManager
 
 	public static Texture2D LoadImage(RootPath rootPath, string relativePath, GraphicsDevice device)
 	{
-		switch (rootPath)
+		return rootPath switch
 		{
-			case RootPath.AssetsFolder:
-				return Texture2D.FromFile(device, Path.Combine(AssetsFolder, relativePath));
-			case RootPath.Source:
-				return Texture2D.FromFile(device, Path.Combine(SourceFolder, relativePath));
-			default:
-				throw new NotImplementedException($"File source {rootPath} not implemented for {nameof(LoadImage)}");
-		}
+			RootPath.AssetsFolder => Texture2D.FromFile(device, Path.Combine(AssetsFolder, relativePath)),
+			RootPath.Source => Texture2D.FromFile(device, Path.Combine(SourceFolder, relativePath)),
+			_ => throw new NotImplementedException($"File source {rootPath} not implemented for {nameof(LoadImage)}"),
+		};
 	}
 	public static void SaveImage(RootPath rootPath, string relativePath, Texture2D texture)
 	{
