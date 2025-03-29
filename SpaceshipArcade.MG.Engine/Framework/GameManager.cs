@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpaceshipArcade.MG.Engine.Input;
@@ -12,7 +11,7 @@ namespace SpaceshipArcade.MG.Engine.Framework
 		protected SpriteBatch? _spriteBatch;
 
 		// Manager stuff
-		private GameEnvironment? _environment;
+		private Scene? _scene;
 
 		// FPS
 		private int _frameCount = 0;
@@ -34,20 +33,20 @@ namespace SpaceshipArcade.MG.Engine.Framework
 			Window.ClientSizeChanged += (sender, e) => WindowSizeChanged();
 		}
 
-		public void SwitchEnvironment(Func<GameManager, GraphicsDevice, GameServiceContainer, GameEnvironment> createEnvironment)
+		public void ChangeScene(Func<GameManager, GraphicsDevice, GameServiceContainer, Scene> createScene)
 		{
-			_environment?.Dispose();
-			_environment = createEnvironment(this, GraphicsDevice, Services);
+			_scene?.Dispose();
+			_scene = createScene(this, GraphicsDevice, Services);
 			WindowSizeChanged();
 		}
 
-		protected void WindowSizeChanged() => _environment?.WindowSizeChanged(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+		protected void WindowSizeChanged() => _scene?.WindowSizeChanged(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
 
 		protected override void Update(GameTime gameTime)
 		{
 			InputManager.BeginUpdate();
 
-			_environment?.Update(new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime));
+			_scene?.Update(new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime));
 			base.Update(gameTime);	// TODO Look into removing this
 
 			InputManager.EndUpdate();
@@ -64,7 +63,7 @@ namespace SpaceshipArcade.MG.Engine.Framework
 				_frameCount = 0;
 			}
 
-			_environment?.Draw(_spriteBatch!, gameTime);
+			_scene?.Draw(_spriteBatch!, gameTime);
 			base.Draw(gameTime);
 		}
 		protected override void Dispose(bool disposing)
@@ -73,7 +72,7 @@ namespace SpaceshipArcade.MG.Engine.Framework
 			{
 				_graphics.Dispose();
 				_spriteBatch?.Dispose();
-				_environment?.Dispose();
+				_scene?.Dispose();
 			}
 			base.Dispose(disposing);
 		}

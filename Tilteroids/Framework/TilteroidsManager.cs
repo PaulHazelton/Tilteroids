@@ -36,7 +36,7 @@ public sealed class TilteroidsManager : GameManager
 		Primitives.LoadContent(GraphicsDevice);
 		Services.AddService<IUserSettingsService>(new UserSettingsService());
 
-		SwitchEnvironment((gm, gd, sc) => new StartMenu(gm, gd, sc));
+		ChangeScene((gm, gd, sc) => new StartMenu(gm, gd, sc));
 
 		base.LoadContent();
 	}

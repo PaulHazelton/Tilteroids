@@ -2,11 +2,12 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpaceshipArcade.MG.Engine.Framework;
+using SpaceshipArcade.MG.Engine.Input;
 using Tilteroids.Main.Graphics;
 
 namespace Tilteroids.Main.Scenes;
 
-public class StartMenu : GameEnvironment
+public class StartMenu : Scene
 {
 	public StartMenu(GameManager manager, GraphicsDevice device, IServiceProvider serviceProvider)
 		: base(manager, device, serviceProvider)
@@ -21,7 +22,7 @@ public class StartMenu : GameEnvironment
 
 	public override void Update(GameTime gameTime)
 	{
-		// throw new NotImplementedException();
+		
 	}
 
 	public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)

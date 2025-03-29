@@ -1,11 +1,10 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace SpaceshipArcade.MG.Engine.Framework;
 
-public abstract class GameEnvironment : IDisposable
+public abstract class Scene : IDisposable
 {
 	// Parent
 	protected GameManager GameManager { get; private set; }
@@ -21,7 +20,7 @@ public abstract class GameEnvironment : IDisposable
 	protected Color BackgroundColor { get; set; }
 
 	// Constructors
-	protected GameEnvironment(GameManager manager, GraphicsDevice device, IServiceProvider serviceProvider)
+	protected Scene(GameManager manager, GraphicsDevice device, IServiceProvider serviceProvider)
 	{
 		GameManager = manager;
 		GraphicsDevice = device;
