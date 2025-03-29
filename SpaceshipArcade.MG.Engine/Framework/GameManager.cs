@@ -33,10 +33,10 @@ namespace SpaceshipArcade.MG.Engine.Framework
 			Window.ClientSizeChanged += (sender, e) => WindowSizeChanged();
 		}
 
-		public void ChangeScene(Func<GameManager, GraphicsDevice, GameServiceContainer, Scene> createScene)
+		public void ChangeScene(Func<GameManager, Scene> createScene)
 		{
 			_scene?.Dispose();
-			_scene = createScene(this, GraphicsDevice, Services);
+			_scene = createScene(this);
 			WindowSizeChanged();
 		}
 
@@ -46,7 +46,8 @@ namespace SpaceshipArcade.MG.Engine.Framework
 		{
 			InputManager.BeginUpdate();
 
-			_scene?.Update(new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime));
+			// _scene?.Update(new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime));
+			_scene?.Update(gameTime);
 			base.Update(gameTime);	// TODO Look into removing this
 
 			InputManager.EndUpdate();

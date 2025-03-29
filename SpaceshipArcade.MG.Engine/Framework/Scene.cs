@@ -10,28 +10,27 @@ public abstract class Scene : IDisposable
 	protected GameManager GameManager { get; private set; }
 
 	// Services
-	public IServiceProvider ServiceProvider { get; private set; }
+	public IServiceProvider ServiceProvider => GameManager.Services;
 
 	// Graphics Data
 	public ContentManager ContentManager { get; private set; }
-	public GraphicsDevice GraphicsDevice { get; set; }
+	public GraphicsDevice GraphicsDevice => GameManager.GraphicsDevice;
 	protected int ScreenWidth { get; private set; }
 	protected int ScreenHeight { get; private set; }
 	protected Color BackgroundColor { get; set; }
 
 	// Constructors
-	protected Scene(GameManager manager, GraphicsDevice device, IServiceProvider serviceProvider)
+	protected Scene(GameManager manager)
 	{
 		GameManager = manager;
-		GraphicsDevice = device;
-		ServiceProvider = serviceProvider;
 
-		ContentManager = new ContentManager(serviceProvider, "Content");
+		ContentManager = new ContentManager(ServiceProvider, "Content");
 		ScreenWidth = GraphicsDevice.Viewport.Width;
 		ScreenHeight = GraphicsDevice.Viewport.Height;
 	}
 	public virtual void Dispose()
 	{
+		GC.SuppressFinalize(this);
 		ContentManager.Dispose();
 	}
 
