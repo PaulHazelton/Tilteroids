@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tilteroids.Main", "Tilteroids\Tilteroids.Main.csproj", "{A781838F-B845-4E54-90A9-3960AE320B12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tilteroids.Main", "Tilteroids.Main\Tilteroids.Main.csproj", "{A781838F-B845-4E54-90A9-3960AE320B12}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceshipArcade.MG.Engine", "SpaceshipArcade.MG.Engine\SpaceshipArcade.MG.Engine.csproj", "{ECA9CA73-8EF8-4527-AA74-60191C369118}"
 EndProject
