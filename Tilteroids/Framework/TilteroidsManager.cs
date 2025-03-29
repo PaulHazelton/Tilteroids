@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using SpaceshipArcade.MG.Engine.Framework;
+using Tilteroids.Main.Graphics;
 using Tilteroids.Main.Scenes;
 using Tilteroids.Main.Services.Implementations;
 using Tilteroids.Main.Services.Interfaces;
@@ -32,7 +33,7 @@ public sealed class TilteroidsManager : GameManager
 		_spriteBatch = new SpriteBatch(GraphicsDevice);
 
 		// Load all content
-		// Primitives.LoadContent(GraphicsDevice);
+		Primitives.LoadContent(GraphicsDevice);
 		Services.AddService<IUserSettingsService>(new UserSettingsService());
 
 		SwitchEnvironment((gm, gd, sc) => new StartMenu(gm, gd, sc));
