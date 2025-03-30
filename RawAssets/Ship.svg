@@ -27,15 +27,15 @@
      inkscape:deskcolor="#6a6860"
      inkscape:document-units="px"
      showgrid="true"
-     inkscape:zoom="0.66666667"
-     inkscape:cx="463.5"
-     inkscape:cy="414.75"
-     inkscape:window-width="2560"
-     inkscape:window-height="1411"
-     inkscape:window-x="-9"
-     inkscape:window-y="-9"
+     inkscape:zoom="1"
+     inkscape:cx="410"
+     inkscape:cy="522"
+     inkscape:window-width="1920"
+     inkscape:window-height="1080"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1">
+     inkscape:current-layer="layer2">
     <inkscape:grid
        type="xygrid"
        id="grid458"
@@ -49,7 +49,8 @@
      inkscape:label="Primary"
      inkscape:groupmode="layer"
      id="layer1"
-     style="display:inline">
+     style="display:none"
+     sodipodi:insensitive="true">
     <path
        style="fill:#ffffff;stroke-width:4;stroke-linecap:square"
        d="M 436.11037,254.67097 638.31694,395.66906"
@@ -57,7 +58,7 @@
     <path
        id="path460"
        style="fill:#808080;fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:square"
-       d="M 512 64 L 448 128 L 320 448 L 64 960 L 128 960 L 320 864 L 352 880 L 384 864 L 640 864 L 672 880 L 704 864 L 896 960 L 960 960 L 704 448 L 576 128 L 512 64 z " />
+       d="M 512,64 448,128 320,448 64,960 h 64 l 192,-96 32,16 32,-16 h 256 l 32,16 32,-16 192,96 h 64 L 704,448 576,128 Z" />
     <g
        id="g42114">
       <path
@@ -91,14 +92,13 @@
     <path
        id="path34998"
        style="opacity:1;fill:#40d0f0;fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:square"
-       d="M 512 80 L 464 128 L 423.38477 236.30859 L 512 256 L 600.61523 236.30859 L 560 128 L 512 80 z " />
+       d="M 512,80 464,128 423.38477,236.30859 512,256 600.61523,236.30859 560,128 Z" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Overlay"
-     style="display:none;opacity:0.2"
-     sodipodi:insensitive="true">
+     style="display:inline;opacity:0.2">
     <path
        style="display:inline;fill:#ff6600;fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:square"
        d="M 64,960 512,64 960,960 512,768 Z"

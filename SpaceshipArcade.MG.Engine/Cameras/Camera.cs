@@ -27,6 +27,7 @@ namespace SpaceshipArcade.MG.Engine.Cameras
 		public Vector2 ScreenCenter { get; private set; }
 		public CameraSmoothingMode SmoothingMode { get; set; }
 		public float CameraSpeed { get; set; }
+		public float MetersPerPixel { get; set; }
 
 		// Private details
 		private int _screenWidth;
@@ -41,7 +42,7 @@ namespace SpaceshipArcade.MG.Engine.Cameras
 
 
 		// Constructor
-		public Camera(int screenX, int screenY)
+		public Camera(int screenX, int screenY, float metersPerPixel = 1)
 		{
 			_screenWidth = screenX;
 			_screenHeight = screenY;
@@ -59,6 +60,7 @@ namespace SpaceshipArcade.MG.Engine.Cameras
 			TargetScale = 1f;
 			SmoothingMode = CameraSmoothingMode.Lerp;
 			CameraSpeed = 6.0f;
+			MetersPerPixel = metersPerPixel;
 
 			ScreenCenter = new Vector2(screenX / 2, screenY / 2);
 			View = Matrix.Identity;
@@ -149,10 +151,7 @@ namespace SpaceshipArcade.MG.Engine.Cameras
 		// Utilities
 		public Vector2 GetMouseWorld()
 		{
-			return ConvertUnits.ToSimUnits(Vector2.Transform(
-				Mouse.GetState().Position.ToVector2(),
-				Matrix.Invert(View)
-			));
+			return Vector2.Transform(Mouse.GetState().Position.ToVector2(), Matrix.Invert(View)) * MetersPerPixel;
 		}
 
 		// Privates
@@ -168,7 +167,7 @@ namespace SpaceshipArcade.MG.Engine.Cameras
 				* Matrix.CreateTranslation(new Vector3(ScreenCenter, 0f));
 
 			SimView
-				= Matrix.CreateTranslation(new Vector3(ConvertUnits.ToSimUnits(-Position), 0))
+				= Matrix.CreateTranslation(new Vector3(-Position * MetersPerPixel, 0))
 				* Matrix.CreateRotationZ(-Rotation)
 				* Matrix.CreateScale(Scale, Scale, 1);
 		}
