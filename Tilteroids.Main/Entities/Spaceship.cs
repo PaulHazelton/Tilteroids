@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using nkast.Aether.Physics2D.Collision.Shapes;
@@ -39,7 +40,7 @@ public class Spaceship
 
 		Body.Add(CreateShipFixture());
 
-		Body.AngularDamping = 20;
+		// Body.AngularDamping = 20;
 
 		static Fixture CreateShipFixture()
 		{
@@ -77,23 +78,16 @@ public class Spaceship
 		// Aim
 		aimVector.Normalize();
 		float aimAngle = (float)(Math.Atan2(aimVector.Y, aimVector.X) + (Math.PI / 2));
-		// float targetRotation = (float)(Math.Atan2(aimVector.Y, aimVector.X) + (Math.PI / 2));
 
 		// Body rotation vector
-		Vector2 bodyRotation = PMath.PolarToCartesian(1, Body.Rotation);
-
-		// float torque = -Vector3.Cross(new(aimVector, 0), new(bodyRotation, 0)).Z;
-		// torque *= Math.Abs(torque);
-
 		float angleDifference = -(float)Math.Atan2(Math.Sin(Body.Rotation - aimAngle), Math.Cos(Body.Rotation - aimAngle));
-		float angleDiffAbs = Math.Abs(angleDifference);
+		// float angleDiffAbs = Math.Abs(angleDifference);
 		
-		// float torque = -angleDifference;
-		// torque = (float)(Math.Tan(torque / Math.PI) * Math.PI);
+		// float torque = 5 * (angleDiffAbs < 1
+		// 	? angleDifference
+		// 	: angleDifference * angleDiffAbs * 2);
 
-		float torque = 5 * (angleDiffAbs < 1
-			? angleDifference
-			: angleDifference * angleDiffAbs * 2);
+		float torque = ComputeTorque(Body.Rotation, Body.AngularVelocity, aimAngle);
 
 		DebugPanel.AddLine($"Angle Difference: {angleDifference}");
 
@@ -104,6 +98,20 @@ public class Spaceship
 
 		if (InputManager.IsButtonHeld(MouseButton.Right))
 			Body.ApplyForce(forceVector, Body.WorldCenter);
+	}
+
+	private const float proportionalGain = 400.0f;
+	private const float derivativeGain = 30.0f;
+
+	private float ComputeTorque(float currentAngle, float currentAngularVelocity, float targetAngle)
+	{
+		float angleDiff = -(float)Math.Atan2(Math.Sin(currentAngle - targetAngle), Math.Cos(currentAngle - targetAngle));
+
+		float targetAcceleration = proportionalGain * angleDiff - derivativeGain * currentAngularVelocity;
+
+		float torque = Body.Inertia * targetAcceleration;
+
+		return MathHelper.Clamp(torque, -20, 20);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
@@ -119,13 +127,13 @@ public class Spaceship
 			effects: SpriteEffects.None,
 			layerDepth: 0.1f);
 
-		Vector2 diagramCenter = Body.Position * Constants.PixelsPerMeter;
+		// Vector2 diagramCenter = Body.Position * Constants.PixelsPerMeter;
 
-		Vector2 bodyRotation = PMath.PolarToCartesian(100, (float)(Body.Rotation - (Math.PI / 2)));
+		// Vector2 bodyRotation = PMath.PolarToCartesian(100, (float)(Body.Rotation - (Math.PI / 2)));
 
-		Primitives.DrawLine(diagramCenter, diagramCenter + bodyRotation, 1, Color.White);
-		Primitives.DrawLine(diagramCenter, diagramCenter + _aimVector, 1, Color.Lime);
+		// Primitives.DrawLine(diagramCenter, diagramCenter + bodyRotation, 1, Color.White);
+		// Primitives.DrawLine(diagramCenter, diagramCenter + _aimVector, 1, Color.Lime);
 
-		DebugPanel.Draw(spriteBatch);
+		// DebugPanel.Draw(spriteBatch);
 	}
 }
