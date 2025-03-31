@@ -30,6 +30,7 @@ public class BasicGameplay : Scene
 		ContentBucket = contentBucket;
 
 		World = new World(new Vector2(0, 9.82f));
+		World = new World(new Vector2(0, 0));
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
 
 		Camera.SnapScale(1);
@@ -78,6 +79,10 @@ public class BasicGameplay : Scene
 		if (InputManager.WasButtonPressed(Keys.Escape))
 			GameManager.Exit();
 
+		Vector2 aimVector = InputManager.MouseState.Position.ToVector2() - new Vector2(ScreenWidth / 2, ScreenHeight / 2);
+
+		Spaceship.Update(aimVector);
+
 		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
 
 		Camera.SetPosition(Vector2.Zero);
@@ -92,7 +97,7 @@ public class BasicGameplay : Scene
 		spriteBatch.Begin(
 			transformMatrix: Camera.View
 		);
-
+		
 		Spaceship.Draw(spriteBatch);
 
 		DebugDraw();
@@ -104,7 +109,8 @@ public class BasicGameplay : Scene
 	{
 		_debugView.AppendFlags(DebugViewFlags.ContactNormals);
 		_debugView.AppendFlags(DebugViewFlags.ContactPoints);
-		_debugView.AppendFlags(DebugViewFlags.DebugPanel);
+		// _debugView.AppendFlags(DebugViewFlags.DebugPanel);
+		// _debugView.AppendFlags(DebugViewFlags.CenterOfMass);
 		_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Additive, alpha: alpha);
 	}
 }
