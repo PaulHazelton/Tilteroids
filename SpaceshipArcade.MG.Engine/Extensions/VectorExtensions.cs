@@ -18,7 +18,7 @@ public static class VectorExtensions
 
 	public static float Angle(this Vector2 v)
 	{
-		return (float)System.Math.Atan2(v.Y, v.X);
+		return (float)Math.Atan2(v.Y, v.X);
 	}
 
 	public static bool IsOrthogonal(this Vector2 v, float tolerance = 0.1f)
