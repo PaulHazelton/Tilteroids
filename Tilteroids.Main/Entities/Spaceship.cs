@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using nkast.Aether.Physics2D.Collision.Shapes;
@@ -18,8 +17,6 @@ public class Spaceship
 	public Body Body { get; private init; }
 
 	// Private
-	private const float HalfPi = (float)(Math.PI / 2);
-
 	private readonly Vector2 origin;
 	private readonly float scale;
 	private readonly TorqueController torqueController;
@@ -38,16 +35,9 @@ public class Spaceship
 
 		Body CreateBody()
 		{
-			// var shipVertices = new Vertices([
-			// 	new(8, 1),
-			// 	new(15, 15),
-			// 	// new(8, 12),
-			// 	new(1, 15)
-			// ]);
 			var shipVertices = new Vertices([
 				new(0, -7),
 				new(7, 7),
-				// new(8, 12),
 				new(-7, 7)
 			]);
 			shipVertices.Scale(new(1/16f));
@@ -74,12 +64,12 @@ public class Spaceship
 	public void Update(Vector2 aimVector)
 	{
 		// Aim
-		float aimAngle = aimVector.Angle() + HalfPi;
+		float aimAngle = aimVector.Angle() + MathHelper.PiOver2;
 		float torque = torqueController.ComputeTorque(Body.Rotation, Body.AngularVelocity, aimAngle);
 		Body.ApplyTorque(torque);
 
 		// Thrust
-		var forceVector = PMath.PolarToCartesian(10, Body.Rotation - HalfPi);
+		var forceVector = PMath.PolarToCartesian(10, Body.Rotation - MathHelper.PiOver2);
 
 		if (InputManager.IsButtonHeld(MouseButton.Right))
 			Body.ApplyForce(forceVector, Body.WorldCenter);

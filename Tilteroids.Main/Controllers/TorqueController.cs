@@ -1,5 +1,5 @@
-using System;
 using Microsoft.Xna.Framework;
+using SpaceshipArcade.MG.Engine.Utilities;
 
 namespace Tilteroids.Main.Controllers;
 
@@ -18,7 +18,7 @@ public class TorqueController(
 
 	public float ComputeTorque(float currentAngle, float currentAngularVelocity, float targetAngle)
 	{
-		float angleDiff = -(float)Math.Atan2(Math.Sin(currentAngle - targetAngle), Math.Cos(currentAngle - targetAngle));
+		float angleDiff = PMath.AngleDifference(targetAngle, currentAngle);
 
 		float targetAcceleration = ProportionalGain * angleDiff - DerivativeGain * currentAngularVelocity;
 
