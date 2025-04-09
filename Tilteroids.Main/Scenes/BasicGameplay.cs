@@ -100,7 +100,7 @@ public class BasicGameplay : Scene
 		
 		Spaceship.Draw(spriteBatch);
 
-		// DebugDraw();
+		DebugDraw();
 
 		spriteBatch.End();
 	}

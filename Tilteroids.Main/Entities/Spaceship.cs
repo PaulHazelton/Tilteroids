@@ -36,8 +36,8 @@ public class Spaceship
 		Body CreateBody()
 		{
 			var shipVertices = new Vertices([
-				new(0, -7),
-				new(7, 7),
+				new(-7, -7),
+				new(7, 0),
 				new(-7, 7)
 			]);
 			shipVertices.Scale(new(1/16f));
@@ -64,12 +64,12 @@ public class Spaceship
 	public void Update(Vector2 aimVector)
 	{
 		// Aim
-		float aimAngle = aimVector.Angle() + MathHelper.PiOver2;
+		float aimAngle = aimVector.Angle();
 		float torque = torqueController.ComputeTorque(Body.Rotation, Body.AngularVelocity, aimAngle);
 		Body.ApplyTorque(torque);
 
 		// Thrust
-		var forceVector = PMath.PolarToCartesian(10, Body.Rotation - MathHelper.PiOver2);
+		var forceVector = PMath.PolarToCartesian(10, Body.Rotation);
 
 		if (InputManager.IsButtonHeld(MouseButton.Right))
 			Body.ApplyForce(forceVector, Body.WorldCenter);
