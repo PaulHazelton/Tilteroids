@@ -8,9 +8,8 @@ using SpaceshipArcade.MG.Engine.Input;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Main.Controllers;
 using Tilteroids.Main.Data;
-using Tilteroids.Main.Gameplay;
 
-namespace Tilteroids.Main.Entities;
+namespace Tilteroids.Main.Gameplay.Entities;
 
 public class Spaceship : IGameObject, IPhysicsObject
 {

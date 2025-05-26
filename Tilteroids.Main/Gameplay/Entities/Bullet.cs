@@ -4,10 +4,9 @@ using nkast.Aether.Physics2D.Dynamics;
 using nkast.Aether.Physics2D.Dynamics.Contacts;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Main.Data;
-using Tilteroids.Main.Gameplay;
 using Tilteroids.Main.Graphics;
 
-namespace Tilteroids.Main.Entities;
+namespace Tilteroids.Main.Gameplay.Entities;
 
 public class Bullet : IGameObject, IPhysicsObject
 {

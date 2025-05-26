@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Tilteroids.Main.Entities;
+namespace Tilteroids.Main.Gameplay;
 
 public interface IGameObject
 {

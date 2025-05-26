@@ -1,6 +1,5 @@
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Main.Data;
-using Tilteroids.Main.Entities;
 
 namespace Tilteroids.Main.Gameplay;
 

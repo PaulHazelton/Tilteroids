@@ -1,15 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using nkast.Aether.Physics2D.Diagnostics;
-using nkast.Aether.Physics2D.Dynamics;
-using SpaceshipArcade.MG.Engine.Cameras;
 using SpaceshipArcade.MG.Engine.Framework;
-using SpaceshipArcade.MG.Engine.Input;
 using Tilteroids.Main.Data;
-using Tilteroids.Main.Entities;
 using Tilteroids.Main.Gameplay;
-using Tilteroids.Main.Graphics;
 
 namespace Tilteroids.Main.Scenes;
 

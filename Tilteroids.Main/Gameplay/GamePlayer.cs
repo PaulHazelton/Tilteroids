@@ -9,7 +9,7 @@ using SpaceshipArcade.MG.Engine.Framework;
 using SpaceshipArcade.MG.Engine.Input;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Main.Data;
-using Tilteroids.Main.Entities;
+using Tilteroids.Main.Gameplay.Entities;
 using Tilteroids.Main.Graphics;
 
 namespace Tilteroids.Main.Gameplay;
