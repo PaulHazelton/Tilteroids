@@ -8,6 +8,7 @@ using SpaceshipArcade.MG.Engine.Input;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Main.Controllers;
 using Tilteroids.Main.Data;
+using Tilteroids.Main.Gameplay.Guns;
 
 namespace Tilteroids.Main.Gameplay.Entities;
 
@@ -23,6 +24,8 @@ public class Spaceship : IGameObject, IPhysicsObject
 	private readonly float _scale;
 	private readonly TorqueController _torqueController;
 
+	private readonly Clipper _gunClipper;
+
 	public Spaceship(IGameObjectHandler handler, Vector2 startingPos)
 	{
 		Body = CreateBody();
@@ -36,6 +39,8 @@ public class Spaceship : IGameObject, IPhysicsObject
 		_scale = (float)Constants.PixelsPerMeter / _shipTexture.Width;
 
 		_torqueController = new(inertia: Body.Inertia);
+
+		_gunClipper = new();
 
 		Body CreateBody()
 		{
@@ -69,6 +74,9 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 	public void Update(GameTime gameTime)
 	{
+		// Gun cooldowns
+		_gunClipper.Update(gameTime);
+
 		// Aim
 		float aimAngle = GetAimAngle();
 		float torque = _torqueController.ComputeTorque(Body.Rotation, Body.AngularVelocity, aimAngle);
@@ -82,8 +90,8 @@ public class Spaceship : IGameObject, IPhysicsObject
 		}
 
 		// Fire
-		if (InputManager.WasButtonPressed(MouseButton.Left))
-			Fire(aimAngle, 0.3f);
+		if (InputManager.IsButtonHeld(MouseButton.Left))
+			FireCommand(aimAngle, _gunClipper);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
@@ -106,16 +114,23 @@ public class Spaceship : IGameObject, IPhysicsObject
 		return aimVector.Angle();
 	}
 
-	private void Fire(float aimAngle, float recoilMagnitude)
+	private void FireCommand(float aimAngle, Gun gunSettings)
 	{
 		// Don't fire if bullet will be outside bounds
 		if (!_handler.Bounds.Contains(Body.Position + PMath.PolarToCartesian(Bullet.MuzzleOffset, aimAngle)))
 			return;
-			
+
+		// Check cooldown
+		if (!gunSettings.ReadyToFire)
+			return;
+
 		// Add bullet object
-		_handler.AddGameObject(new Bullet(_handler, Body.Position, aimAngle));
+		_handler.AddGameObject(new Bullet(_handler, Body.Position, aimAngle, gunSettings));
 
 		// Apply recoil
-		Body.ApplyLinearImpulse(PMath.PolarToCartesian(recoilMagnitude, aimAngle - MathHelper.Pi));
+		Body.ApplyLinearImpulse(PMath.PolarToCartesian(gunSettings.RecoilMagnitude, aimAngle - MathHelper.Pi));
+
+		// Limit fire rate
+		gunSettings.ResetCooldown();
 	}
 }

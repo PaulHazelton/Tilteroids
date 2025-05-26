@@ -4,6 +4,7 @@ using nkast.Aether.Physics2D.Dynamics;
 using nkast.Aether.Physics2D.Dynamics.Contacts;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Main.Data;
+using Tilteroids.Main.Gameplay.Guns;
 using Tilteroids.Main.Graphics;
 
 namespace Tilteroids.Main.Gameplay.Entities;
@@ -23,7 +24,7 @@ public class Bullet : IGameObject, IPhysicsObject
 	public const float Length = 0.4f;
 	public const float Density = 1.0f;
 
-	public Bullet(IGameObjectHandler handler, Vector2 position, float aimAngle)
+	public Bullet(IGameObjectHandler handler, Vector2 position, float aimAngle, Gun gunSettings)
 	{
 		_handler = handler;
 
