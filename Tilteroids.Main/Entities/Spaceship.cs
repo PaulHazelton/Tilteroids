@@ -8,6 +8,7 @@ using SpaceshipArcade.MG.Engine.Input;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Main.Controllers;
 using Tilteroids.Main.Data;
+using Tilteroids.Main.Gameplay;
 
 namespace Tilteroids.Main.Entities;
 
@@ -17,21 +18,25 @@ public class Spaceship
 	public Body Body { get; private init; }
 
 	// Private
-	private readonly Vector2 origin;
-	private readonly float scale;
-	private readonly TorqueController torqueController;
-	private readonly Texture2D shipTexture;
+	private readonly IGameObjectHandler _handler;
+	private readonly Texture2D _shipTexture;
+	private readonly Vector2 _origin;
+	private readonly float _scale;
+	private readonly TorqueController _torqueController;
 
-	public Spaceship(ContentBucket contentBucket, Vector2 startingPos)
+	public Spaceship(IGameObjectHandler handler, Vector2 startingPos)
 	{
-		shipTexture = contentBucket.Textures.Ship;
-
-		origin = new Vector2(shipTexture.Width / 2, shipTexture.Height / 2);
-		scale = (float)Constants.PixelsPerMeter / shipTexture.Width;
-
 		Body = CreateBody();
 
-		torqueController = new(inertia: Body.Inertia);
+		_handler = handler;
+
+		_shipTexture = handler.ContentBucket.Textures.Ship;
+
+		_origin = new Vector2(_shipTexture.Width / 2, _shipTexture.Height / 2);
+		
+		_scale = (float)Constants.PixelsPerMeter / _shipTexture.Width;
+
+		_torqueController = new(inertia: Body.Inertia);
 
 		Body CreateBody()
 		{
@@ -61,11 +66,11 @@ public class Spaceship
 		}
 	}
 
-	public void Update(Vector2 aimVector)
+	public void Update(GameTime gameTime)
 	{
 		// Aim
-		float aimAngle = aimVector.Angle();
-		float torque = torqueController.ComputeTorque(Body.Rotation, Body.AngularVelocity, aimAngle);
+		float aimAngle = GetAimAngle();
+		float torque = _torqueController.ComputeTorque(Body.Rotation, Body.AngularVelocity, aimAngle);
 		Body.ApplyTorque(torque);
 
 		// Thrust
@@ -78,14 +83,20 @@ public class Spaceship
 	public void Draw(SpriteBatch spriteBatch)
 	{
 		spriteBatch.Draw(
-			texture: shipTexture,
+			texture: _shipTexture,
 			position: Body.Position * Constants.PixelsPerMeter,
 			sourceRectangle: null,
 			color: Color.White,
 			rotation: Body.Rotation,
-			origin: origin,
-			scale: scale,
+			origin: _origin,
+			scale: _scale,
 			effects: SpriteEffects.None,
 			layerDepth: 0.1f);
+	}
+
+	private float GetAimAngle()
+	{
+		var aimVector = InputManager.MouseState.Position.ToVector2() - new Vector2(_handler.ScreenWidth / 2, _handler.ScreenHeight / 2);
+		return aimVector.Angle();
 	}
 }
