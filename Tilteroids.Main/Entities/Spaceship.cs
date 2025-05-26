@@ -33,7 +33,7 @@ public class Spaceship : IGameObject, IPhysicsObject
 		_shipTexture = handler.ContentBucket.Textures.Ship;
 
 		_origin = new Vector2(_shipTexture.Width / 2, _shipTexture.Height / 2);
-		
+
 		_scale = (float)Constants.PixelsPerMeter / _shipTexture.Width;
 
 		_torqueController = new(inertia: Body.Inertia);
@@ -45,13 +45,13 @@ public class Spaceship : IGameObject, IPhysicsObject
 				new(7, 0),
 				new(-7, 7)
 			]);
-			shipVertices.Scale(new(1/16f));
+			shipVertices.Scale(new(1 / 16f));
 
 			PolygonShape shipShape = new(shipVertices, 1);
 
 			var fixture = new Fixture(shipShape)
 			{
-				Restitution = 0.5f
+				Restitution = 0.5f,
 			};
 
 			var body = new Body()
@@ -61,6 +61,8 @@ public class Spaceship : IGameObject, IPhysicsObject
 			};
 
 			body.Add(fixture);
+
+			body.FixtureList[0].CollisionCategories = Category.Cat2;
 
 			return body;
 		}
@@ -74,10 +76,15 @@ public class Spaceship : IGameObject, IPhysicsObject
 		Body.ApplyTorque(torque);
 
 		// Thrust
-		var forceVector = PMath.PolarToCartesian(10, Body.Rotation);
-
 		if (InputManager.IsButtonHeld(MouseButton.Right))
+		{
+			var forceVector = PMath.PolarToCartesian(10, Body.Rotation);
 			Body.ApplyForce(forceVector, Body.WorldCenter);
+		}
+
+		// Fire
+		if (InputManager.WasButtonPressed(MouseButton.Left))
+			Fire(aimAngle, 0.3f);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
@@ -98,5 +105,18 @@ public class Spaceship : IGameObject, IPhysicsObject
 	{
 		var aimVector = InputManager.MouseState.Position.ToVector2() - new Vector2(_handler.ScreenWidth / 2, _handler.ScreenHeight / 2);
 		return aimVector.Angle();
+	}
+
+	private void Fire(float aimAngle, float recoilMagnitude)
+	{
+		// Don't fire if bullet will be outside bounds
+		if (!_handler.Bounds.Contains(Body.Position + PMath.PolarToCartesian(Bullet.MuzzleOffset, aimAngle)))
+			return;
+			
+		// Add bullet object
+		_handler.AddGameObject(new Bullet(_handler, Body.Position, aimAngle));
+
+		// Apply recoil
+		Body.ApplyLinearImpulse(PMath.PolarToCartesian(recoilMagnitude, aimAngle - MathHelper.Pi));
 	}
 }

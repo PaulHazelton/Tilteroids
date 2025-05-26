@@ -33,7 +33,7 @@ public class BasicGameplay : Scene
 	{
 		GraphicsDevice.Clear(BackgroundColor);
 
-		gamePlayer.Draw(spriteBatch, gameTime);
+		gamePlayer.Draw(spriteBatch);
 	}
 
 	protected override void UpdateSize()

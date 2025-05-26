@@ -7,6 +7,7 @@ using nkast.Aether.Physics2D.Dynamics;
 using SpaceshipArcade.MG.Engine.Cameras;
 using SpaceshipArcade.MG.Engine.Framework;
 using SpaceshipArcade.MG.Engine.Input;
+using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Main.Data;
 using Tilteroids.Main.Entities;
 using Tilteroids.Main.Graphics;
@@ -21,19 +22,22 @@ public class GamePlayer : IGameObjectHandler
 	// Dependencies
 	public ContentBucket ContentBucket { get; }
 
-	// External data
 	public int ScreenWidth { get; private set; }
 	public int ScreenHeight { get; private set; }
+	
+	public RectangleF Bounds { get; private set; }
 
 	// Internal data
-	
+
 	// Debug Draw for Physics
 	private readonly DebugView _debugView;
 	private Matrix _projection;
 
 	private World World { get; set; }
 	private Camera Camera { get; set; }
-	private List<IGameObject> GameObjects { get; set; }
+	private readonly List<IGameObject> _gameObjectsToAdd;
+	private readonly List<IGameObject> _gameObjectsToRemove;
+	private readonly List<IGameObject> GameObjects;
 
 	// TODO PAUL: Only pass in what's needed.
 	// Pass a func for onExit or something
@@ -43,9 +47,10 @@ public class GamePlayer : IGameObjectHandler
 		ContentBucket = contentBucket;
 		ScreenWidth = screenWidth;
 		ScreenHeight = screenHeight;
+		_gameObjectsToAdd = [];
+		_gameObjectsToRemove = [];
 		GameObjects = [];
 
-		World = new World(new Vector2(0, 9.82f));
 		World = new World(new Vector2(0, 0));
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
 
@@ -78,8 +83,7 @@ public class GamePlayer : IGameObjectHandler
 			gameManager.Exit();
 
 		// Update all game objects
-		foreach (var gameObject in GameObjects)
-			gameObject.Update(gameTime);
+		UpdateGameObjects(gameTime);
 
 		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -87,17 +91,38 @@ public class GamePlayer : IGameObjectHandler
 		Camera.SetRotation(0);
 	}
 
-	public void AddGameObject(IGameObject gameObject)
+	public void AddGameObject(IGameObject gameObject) => _gameObjectsToAdd.Add(gameObject);
+	public void RemoveGameObject(IGameObject gameObject) => _gameObjectsToRemove.Add(gameObject);
+	private void Add(IGameObject gameObject)
 	{
 		GameObjects.Add(gameObject);
 
 		if (gameObject is IPhysicsObject po)
 			World.Add(po.Body);
 	}
-
-	public void RemoveGameObject(IGameObject gameObject)
+	private void Remove(IGameObject gameObject)
 	{
-		throw new System.NotImplementedException();
+		if (GameObjects.Remove(gameObject))
+		{
+			// gameObject.Dispose();
+			if (gameObject is IPhysicsObject po && World.BodyList.Contains(po.Body))
+				World.RemoveAsync(po.Body);
+		}
+	}
+	private void UpdateGameObjects(GameTime gameTime)
+	{
+		// Update objects
+		foreach (IGameObject gameObject in GameObjects)
+			gameObject.Update(gameTime);
+
+		// Handle queued objects
+		foreach (var gameObject in _gameObjectsToAdd)
+			Add(gameObject);
+		foreach (var gameObject in _gameObjectsToRemove)
+			Remove(gameObject);
+
+		_gameObjectsToAdd.Clear();
+		_gameObjectsToRemove.Clear();
 	}
 
 	private void AddWorldBorder(Vector2 size, Vector2 center = default)
@@ -118,9 +143,11 @@ public class GamePlayer : IGameObjectHandler
 		body.CreateEdge(v4, v1);
 
 		World.Add(body);
+
+		Bounds = new(v1, size);
 	}
 
-	public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+	public void Draw(SpriteBatch spriteBatch)
 	{
 		Primitives.SetSpriteBatch(spriteBatch);
 
@@ -132,6 +159,9 @@ public class GamePlayer : IGameObjectHandler
 			gameObject.Draw(spriteBatch);
 
 		DebugDraw();
+
+		Primitives.DrawRectangleOutline(Scale(Bounds, Constants.PixelsPerMeter), Color.Blue, 2.0f, 0);
+		static Rectangle Scale(RectangleF rec, float scale) => new((int)(rec.X * scale), (int)(rec.Y * scale), (int)(rec.Width * scale), (int)(rec.Height * scale));
 
 		spriteBatch.End();
 	}
