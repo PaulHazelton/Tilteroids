@@ -158,7 +158,7 @@ public class GamePlayer : IGameObjectHandler
 		foreach (var gameObject in GameObjects)
 			gameObject.Draw(spriteBatch);
 
-		DebugDraw();
+		// DebugDraw();
 
 		Primitives.DrawRectangleOutline(Scale(Bounds, Constants.PixelsPerMeter), Color.Blue, 2.0f, 0);
 		static Rectangle Scale(RectangleF rec, float scale) => new((int)(rec.X * scale), (int)(rec.Y * scale), (int)(rec.Width * scale), (int)(rec.Height * scale));

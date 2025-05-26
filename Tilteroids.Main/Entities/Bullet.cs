@@ -3,7 +3,9 @@ using Microsoft.Xna.Framework.Graphics;
 using nkast.Aether.Physics2D.Dynamics;
 using nkast.Aether.Physics2D.Dynamics.Contacts;
 using SpaceshipArcade.MG.Engine.Utilities;
+using Tilteroids.Main.Data;
 using Tilteroids.Main.Gameplay;
+using Tilteroids.Main.Graphics;
 
 namespace Tilteroids.Main.Entities;
 
@@ -64,6 +66,6 @@ public class Bullet : IGameObject, IPhysicsObject
 
 	public void Draw(SpriteBatch spriteBatch)
 	{
-		// throw new System.NotImplementedException();
+		Primitives.DrawRectangle(Body.Position * Constants.PixelsPerMeter, new Vector2(Length, Width) * Constants.PixelsPerMeter, Body.Rotation, Color.White, layerDepth: 1);
 	}
 }
