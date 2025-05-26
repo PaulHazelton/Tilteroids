@@ -41,8 +41,6 @@ public sealed class TilteroidsManager : GameManager
 		// ChangeScene((gm) => new StartMenu(gm, contentBucket));
 		ChangeScene((gm) => new BasicGameplay(gm, contentBucket));
 
-		// this.Components.Add()
-
 		base.LoadContent();
 	}
 }

@@ -15,99 +15,29 @@ namespace Tilteroids.Main.Scenes;
 
 public class BasicGameplay : Scene
 {
-	// Debug Draw for Physics
-	private readonly DebugView _debugView;
-	private Matrix _projection;
-
-	public World World { get; set; }
-	public Camera Camera { get; set; }
-
-	private readonly Spaceship Spaceship;
+	private readonly GamePlayer gamePlayer;
 
 	public BasicGameplay(GameManager manager, ContentBucket contentBucket) : base(manager)
 	{
-		World = new World(new Vector2(0, 9.82f));
-		World = new World(new Vector2(0, 0));
-		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
-
-		Camera.SnapScale(1);
-
-		_debugView = new DebugView(World);
-		_debugView.LoadContent(manager.GraphicsDevice, manager.Content);
-
-		var gamePlayer = new GamePlayer(contentBucket, ScreenWidth, ScreenHeight);
-
-		AddWorldBorder(size: new(24, 13.5f));
-		Spaceship = new(gamePlayer, new Vector2(0, 0));
-		World.Add(Spaceship.Body);
+		gamePlayer = new GamePlayer(manager, contentBucket, ScreenWidth, ScreenHeight);
 
 		UpdateSize();
 	}
 
 	public override void Update(GameTime gameTime)
 	{
-		if (InputManager.WasButtonPressed(Keys.Escape))
-			GameManager.Exit();
-
-		Spaceship.Update(gameTime);
-
-		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
-
-		Camera.SetPosition(Vector2.Zero);
-		Camera.SetRotation(0);
+		gamePlayer.Update(gameTime);
 	}
 
 	public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
 	{
 		GraphicsDevice.Clear(BackgroundColor);
-		Primitives.SetSpriteBatch(spriteBatch);
 
-		spriteBatch.Begin(
-			transformMatrix: Camera.View
-		);
-
-		Spaceship.Draw(spriteBatch);
-
-		DebugDraw();
-
-		spriteBatch.End();
+		gamePlayer.Draw(spriteBatch, gameTime);
 	}
 
 	protected override void UpdateSize()
 	{
-		Camera.UpdateScreenSize(ScreenWidth, ScreenHeight);
-
-		float halfWidthMeters = Constants.MetersPerPixel * (ScreenWidth / 2);
-		float halfHeightMeters = Constants.MetersPerPixel * (ScreenHeight / 2);
-		_projection = Matrix.CreateOrthographicOffCenter(-halfWidthMeters, halfWidthMeters, halfHeightMeters, -halfHeightMeters, -1, 1);
-	}
-
-	private void AddWorldBorder(Vector2 size, Vector2 center = default)
-	{
-		var body = new Body
-		{
-			BodyType = BodyType.Static
-		};
-
-		var v1 = center + new Vector2(-size.X / 2, -size.Y / 2);
-		var v2 = center + new Vector2( size.X / 2, -size.Y / 2);
-		var v3 = center + new Vector2( size.X / 2,  size.Y / 2);
-		var v4 = center + new Vector2(-size.X / 2,  size.Y / 2);
-
-		body.CreateEdge(v1, v2);
-		body.CreateEdge(v2, v3);
-		body.CreateEdge(v3, v4);
-		body.CreateEdge(v4, v1);
-
-		World.Add(body);
-	}
-
-	private void DebugDraw(float alpha = 1)
-	{
-		_debugView.AppendFlags(DebugViewFlags.ContactNormals);
-		_debugView.AppendFlags(DebugViewFlags.ContactPoints);
-		// _debugView.AppendFlags(DebugViewFlags.DebugPanel);
-		// _debugView.AppendFlags(DebugViewFlags.CenterOfMass);
-		_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Additive, alpha: alpha);
+		gamePlayer.UpdateSize(ScreenWidth, ScreenHeight);
 	}
 }

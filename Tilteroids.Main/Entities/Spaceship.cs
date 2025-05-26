@@ -12,7 +12,7 @@ using Tilteroids.Main.Gameplay;
 
 namespace Tilteroids.Main.Entities;
 
-public class Spaceship
+public class Spaceship : IGameObject, IPhysicsObject
 {
 	// Public
 	public Body Body { get; private init; }
