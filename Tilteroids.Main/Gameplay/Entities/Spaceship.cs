@@ -24,7 +24,7 @@ public class Spaceship : IGameObject, IPhysicsObject
 	private readonly float _scale;
 	private readonly TorqueController _torqueController;
 
-	private readonly Clipper _gunClipper;
+	private readonly Gun _gunSelection;
 
 	public Spaceship(IGameObjectHandler handler, Vector2 startingPos)
 	{
@@ -40,7 +40,7 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 		_torqueController = new(inertia: Body.Inertia);
 
-		_gunClipper = new();
+		_gunSelection = new RotaryCannon();
 
 		Body CreateBody()
 		{
@@ -75,7 +75,7 @@ public class Spaceship : IGameObject, IPhysicsObject
 	public void Update(GameTime gameTime)
 	{
 		// Gun cooldowns
-		_gunClipper.Update(gameTime);
+		_gunSelection.Update(gameTime);
 
 		// Aim
 		float aimAngle = GetAimAngle();
@@ -91,7 +91,7 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 		// Fire
 		if (InputManager.IsButtonHeld(MouseButton.Left))
-			FireCommand(aimAngle, _gunClipper);
+			FireCommand(aimAngle, _gunSelection);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
