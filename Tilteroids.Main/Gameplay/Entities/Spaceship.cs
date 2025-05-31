@@ -91,7 +91,7 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 		// Fire
 		if (InputManager.IsButtonHeld(MouseButton.Left))
-			FireCommand(aimAngle, _gunSelection);
+			FireCommand(Body.Rotation, _gunSelection);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
