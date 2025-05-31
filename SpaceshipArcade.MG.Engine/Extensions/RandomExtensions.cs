@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using SpaceshipArcade.MG.Engine.Utilities;
 
@@ -11,6 +10,15 @@ public static class RandomExtensions
 	{
 		return r.NextSingle() < 0.5f;
 	}
+
+	/// <summary>
+	/// Returns a random float that is within a specified range.
+	/// </summary>
+	/// <param name="min">The inclusive lower bound of the random number returned.</param>
+	/// <param name="max">The exclusive upper bound of the random number returned.
+	/// max must be greater than or equal to min.</param>
+	/// <returns></returns>
+	public static int NextInt(this Random r, int min, int max) => (int)r.NextInt64(min, max);
 
 	/// <summary>
 	/// Returns a random float that is within a specified range.

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -5,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using nkast.Aether.Physics2D.Diagnostics;
 using nkast.Aether.Physics2D.Dynamics;
 using SpaceshipArcade.MG.Engine.Cameras;
+using SpaceshipArcade.MG.Engine.Extensions;
 using SpaceshipArcade.MG.Engine.Framework;
 using SpaceshipArcade.MG.Engine.Input;
 using SpaceshipArcade.MG.Engine.Utilities;
@@ -39,6 +41,9 @@ public class GamePlayer : IGameObjectHandler
 	private readonly List<IGameObject> _gameObjectsToRemove;
 	private readonly List<IGameObject> GameObjects;
 
+	// Settings
+	private bool DoDebugDraw { get; set; } = false;
+
 	// TODO PAUL: Only pass in what's needed.
 	// Pass a func for onExit or something
 	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight)
@@ -59,10 +64,45 @@ public class GamePlayer : IGameObjectHandler
 		_debugView = new DebugView(World);
 		_debugView.LoadContent(manager.GraphicsDevice, manager.Content);
 
+		AddGameplayObjects();
+	}
+
+	private void Reset()
+	{
+		RemoveAllGameObjects();
+		AddGameplayObjects();
+	}
+
+	private void AddGameplayObjects()
+	{
+		Vector2 worldSize = new(24, 13.5f);
+
+		// World border
+		AddWorldBorder(worldSize);
+
+		// Spaceship
 		var spaceship = new Spaceship(this, new Vector2(0, 0));
 		AddGameObject(spaceship);
 
-		AddWorldBorder(size: new(24, 13.5f));
+		// Asteroids
+		var generator = new Random();
+
+		float maxX = (worldSize.X / 2) - 2.0f;
+		float maxY = (worldSize.Y / 2) - 2.0f;
+
+		for (int i = 0; i < 10; i++)
+		{
+			int size = generator.NextInt(1, 4);
+
+			var asteroid = new Asteroid(this,
+				size: size,
+				initialPosition: new Vector2(generator.NextSingle(-maxX, maxX), generator.NextSingle(-maxY, maxY)),
+				initialRotation: generator.NextSingle() * MathHelper.TwoPi,
+				initialVelocity: generator.NextVector(0.3f, 2f) * (4 - size),
+				initialAngularVelocity: generator.NextSingle(-1, 1));
+
+			AddGameObject(asteroid);
+		}
 	}
 
 	public void UpdateSize(int screenWidth, int screenHeight)
@@ -82,8 +122,14 @@ public class GamePlayer : IGameObjectHandler
 		if (InputManager.WasButtonPressed(Keys.Escape))
 			gameManager.Exit();
 
+		if (InputManager.WasButtonPressed(Keys.F1))
+			DoDebugDraw = !DoDebugDraw;
+
+		if (InputManager.WasButtonPressed(Keys.R))
+			Reset();
+
 		// Update all game objects
-		UpdateGameObjects(gameTime);
+			UpdateGameObjects(gameTime);
 
 		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -124,6 +170,14 @@ public class GamePlayer : IGameObjectHandler
 		_gameObjectsToAdd.Clear();
 		_gameObjectsToRemove.Clear();
 	}
+	private void RemoveAllGameObjects()
+	{
+		_gameObjectsToAdd.Clear();
+		_gameObjectsToRemove.Clear();
+
+		GameObjects.Clear();
+		World.Clear();
+	}
 
 	private void AddWorldBorder(Vector2 size, Vector2 center = default)
 	{
@@ -158,7 +212,8 @@ public class GamePlayer : IGameObjectHandler
 		foreach (var gameObject in GameObjects)
 			gameObject.Draw(spriteBatch);
 
-		// DebugDraw();
+		if (DoDebugDraw)
+			DebugDraw();
 
 		Primitives.DrawRectangleOutline(Scale(Bounds, Constants.PixelsPerMeter), Color.Blue, 2.0f, 0);
 		static Rectangle Scale(RectangleF rec, float scale) => new((int)(rec.X * scale), (int)(rec.Y * scale), (int)(rec.Width * scale), (int)(rec.Height * scale));

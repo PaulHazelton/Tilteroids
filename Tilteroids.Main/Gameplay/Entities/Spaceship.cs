@@ -14,17 +14,16 @@ namespace Tilteroids.Main.Gameplay.Entities;
 
 public class Spaceship : IGameObject, IPhysicsObject
 {
-	// Public
-	public Body Body { get; private init; }
-
 	// Private
 	private readonly IGameObjectHandler _handler;
 	private readonly Texture2D _shipTexture;
 	private readonly Vector2 _origin;
 	private readonly float _scale;
 	private readonly TorqueController _torqueController;
-
 	private readonly Gun _gunSelection;
+
+	// Public
+	public Body Body { get; private init; }
 
 	public Spaceship(IGameObjectHandler handler, Vector2 startingPos)
 	{

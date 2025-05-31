@@ -11,12 +11,12 @@ namespace Tilteroids.Main.Gameplay.Entities;
 
 public class Bullet : IGameObject, IPhysicsObject
 {
-	// Public
-	public Body Body { get; private init; }
-
 	// Private
 	private readonly IGameObjectHandler _handler;
 	private readonly Gun _gunSettings;
+
+	// Public
+	public Body Body { get; private init; }
 
 	public Bullet(IGameObjectHandler handler, Vector2 position, float aimAngle, Gun gunSettings)
 	{
@@ -29,11 +29,11 @@ public class Bullet : IGameObject, IPhysicsObject
 		{
 			var body = new Body()
 			{
+				Tag = this,
+				BodyType = BodyType.Dynamic,
 				Position = position + PMath.PolarToCartesian(_gunSettings.MuzzleOffset, aimAngle),
 				Rotation = aimAngle,
-				BodyType = BodyType.Dynamic,
 				LinearVelocity = PMath.PolarToCartesian(_gunSettings.MuzzleVelocity, aimAngle),
-				Tag = this,
 			};
 
 			body.CreateRectangle(_gunSettings.Length, _gunSettings.Width, _gunSettings.Density, Vector2.Zero);
