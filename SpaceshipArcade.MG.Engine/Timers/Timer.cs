@@ -1,65 +1,63 @@
-using System;
 using Microsoft.Xna.Framework;
 
-namespace SpaceshipArcade.MG.Engine.Timers
+namespace SpaceshipArcade.MG.Engine.Timers;
+
+public enum TimerType
 {
-	public enum TimerType
+	LoopOnce,
+	LoopCount,
+	LoopUntil,
+	LoopForever,
+}
+
+public class Timer
+{
+	private double _elapsedTime;
+
+	public readonly double Delay;
+	public readonly Action Function;
+	public readonly TimerType TimerType = TimerType.LoopOnce;
+	public readonly int LoopCount;
+	public readonly Func<bool>? LoopCondition;
+
+	public int IterationsComplete { get; private set; } = 0;
+	public bool IsComplete { get; private set; } = false;
+
+
+	public static Timer CreateOnceTimer(double delay, Action function)
+		=> new(delay, function, TimerType.LoopOnce);
+	public static Timer CreateCountTimer(double delay, Action function, int loopCount)
+		=> new(delay, function, TimerType.LoopCount, loopCount: loopCount);
+	public static Timer CreateUntilTimer(double delay, Action function, Func<bool> loopCondition)
+		=> new(delay, function, TimerType.LoopUntil, loopCondition: loopCondition);
+	public static Timer CreateForeverTimer(double delay, Action function)
+		=> new(delay, function, TimerType.LoopForever);
+
+	private Timer(double delay, Action function, TimerType timerType = TimerType.LoopOnce, int loopCount = 1, Func<bool>? loopCondition = null)
 	{
-		LoopOnce,
-		LoopCount,
-		LoopUntil,
-		LoopForever,
+		Delay = delay;
+		Function = function;
+		TimerType = timerType;
+
+		LoopCount = loopCount;
+		LoopCondition = loopCondition;
 	}
 
-	public class Timer
+	public void Update(GameTime deltaTime)
 	{
-		private double _elapsedTime;
+		_elapsedTime += deltaTime.ElapsedGameTime.TotalSeconds;
 
-		public readonly double Delay;
-		public readonly Action Function;
-		public readonly TimerType TimerType = TimerType.LoopOnce;
-		public readonly int LoopCount;
-		public readonly Func<bool>? LoopCondition;
+		if (TimerType == TimerType.LoopUntil && (LoopCondition?.Invoke() ?? false))
+			IsComplete = true;
 
-		public int IterationsComplete { get; private set; } = 0;
-		public bool IsComplete { get; private set; } = false;
-
-
-		public static Timer CreateOnceTimer(double delay, Action function)
-			=> new Timer(delay, function, TimerType.LoopOnce);
-		public static Timer CreateCountTimer(double delay, Action function, int loopCount)
-			=> new Timer(delay, function, TimerType.LoopCount, loopCount: loopCount);
-		public static Timer CreateUntilTimer(double delay, Action function, Func<bool> loopCondition)
-			=> new Timer(delay, function, TimerType.LoopUntil, loopCondition: loopCondition);
-		public static Timer CreateForeverTimer(double delay, Action function)
-			=> new Timer(delay, function, TimerType.LoopForever);
-
-		private Timer(double delay, Action function, TimerType timerType = TimerType.LoopOnce, int loopCount = 1, Func<bool>? loopCondition = null)
+		if (_elapsedTime >= Delay)
 		{
-			Delay = delay;
-			Function = function;
-			TimerType = timerType;
+			Function();
+			_elapsedTime -= Delay;
+			IterationsComplete++;
 
-			LoopCount = loopCount;
-			LoopCondition = loopCondition;
-		}
-
-		public void Update(GameTime deltaTime)
-		{
-			_elapsedTime += deltaTime.ElapsedGameTime.TotalSeconds;
-
-			if (TimerType == TimerType.LoopUntil && (LoopCondition?.Invoke() ?? false))
+			if (TimerType == TimerType.LoopOnce || (TimerType == TimerType.LoopCount && IterationsComplete >= LoopCount))
 				IsComplete = true;
-
-			if (_elapsedTime >= Delay)
-			{
-				Function();
-				_elapsedTime -= Delay;
-				IterationsComplete++;
-
-				if (TimerType == TimerType.LoopOnce || (TimerType == TimerType.LoopCount && IterationsComplete >= LoopCount))
-					IsComplete = true;
-			}
 		}
 	}
 }
