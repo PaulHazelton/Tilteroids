@@ -196,6 +196,9 @@ public class GamePlayer : IGameObjectHandler
 		body.CreateEdge(v3, v4);
 		body.CreateEdge(v4, v1);
 
+		foreach (var fixture in body.FixtureList)
+			fixture.Restitution = 1.0f;
+
 		World.Add(body);
 
 		Bounds = new(v1, size);
