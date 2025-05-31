@@ -117,7 +117,7 @@ public class Spaceship : IGameObject, IPhysicsObject
 	private void FireCommand(float aimAngle, Gun gunSettings)
 	{
 		// Don't fire if bullet will be outside bounds
-		if (!_handler.Bounds.Contains(Body.Position + PMath.PolarToCartesian(Bullet.MuzzleOffset, aimAngle)))
+		if (!_handler.Bounds.Contains(Body.Position + PMath.PolarToCartesian(gunSettings.MuzzleOffset, aimAngle)))
 			return;
 
 		// Check cooldown
