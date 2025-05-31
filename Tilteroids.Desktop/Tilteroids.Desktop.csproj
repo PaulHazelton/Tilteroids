@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
-	<Nullable>enable</Nullable>
+  <Nullable>enable</Nullable>
     <RollForward>Major</RollForward>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
@@ -33,6 +33,7 @@
     <ProjectReference Include="..\SpaceshipArcade.MG.Engine\SpaceshipArcade.MG.Engine.csproj" />
     <ProjectReference Include="..\Tilteroids.Core\Tilteroids.Core.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
     <Folder Include="Services\" />
     <Folder Include="Services\Implementations\" />
@@ -42,4 +43,5 @@
     <Message Text="Restoring dotnet tools" Importance="High" />
     <Exec Command="dotnet tool restore" />
   </Target>
+  <Import Project="..\Tilteroids.Shared\Tilteroids.Shared.projitems" Label="Shared" />
 </Project>
