@@ -6,5 +6,9 @@ bld/
 [Bb]in/
 [Oo]bj/
 
+# User Specific Settings
+.vs/
+.idea/
+
 # Temp Files
 ~$*

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tilteroids.Main", "Tilteroi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceshipArcade.MG.Engine", "SpaceshipArcade.MG.Engine\SpaceshipArcade.MG.Engine.csproj", "{ECA9CA73-8EF8-4527-AA74-60191C369118}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tilteriods.Android", "Tilteriods.Android\Tilteriods.Android.csproj", "{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,8 +43,24 @@ Global
 		{ECA9CA73-8EF8-4527-AA74-60191C369118}.Release|x64.Build.0 = Release|Any CPU
 		{ECA9CA73-8EF8-4527-AA74-60191C369118}.Release|x86.ActiveCfg = Release|Any CPU
 		{ECA9CA73-8EF8-4527-AA74-60191C369118}.Release|x86.Build.0 = Release|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Debug|x64.Build.0 = Debug|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Debug|x86.Build.0 = Debug|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Release|x64.ActiveCfg = Release|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Release|x64.Build.0 = Release|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Release|x86.ActiveCfg = Release|Any CPU
+		{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {41935527-0871-48CC-9420-7793D6A5F82C}
 	EndGlobalSection
 EndGlobal
