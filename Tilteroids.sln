@@ -81,5 +81,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Tilteroids.Shared\Tilteroids.Shared.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
+		Tilteroids.Shared\Tilteroids.Shared.projitems*{a781838f-b845-4e54-90a9-3960ae320b12}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

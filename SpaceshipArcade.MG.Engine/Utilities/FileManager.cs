@@ -17,7 +17,7 @@ public static class FileManager
 	// Basic Paths where relevant files are
 	public static readonly string AppDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Tilteroids");
 	public static readonly string AssetsFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
-	public static readonly string SourceFolder = "C:\\Projects\\Tilteroids\\Tilteroids.Main";
+	public static readonly string SourceFolder = "C:\\Projects\\Tilteroids\\Tilteroids.Core";
 
 	private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 

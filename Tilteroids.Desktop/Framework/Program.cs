@@ -1,2 +1,2 @@
-﻿using var game = new Tilteroids.Main.Framework.TilteroidsManager();
+﻿using var game = new Tilteroids.Core.Framework.TilteroidsManager();
 game.Run();
