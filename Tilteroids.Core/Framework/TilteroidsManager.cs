@@ -10,21 +10,21 @@ namespace Tilteroids.Core.Framework;
 
 public sealed class TilteroidsManager : GameManager
 {
-	public TilteroidsManager() : base(false, 144) { }
+	public TilteroidsManager() : base(false, 60) { }
 
 	protected override void Initialize()
 	{
 		// Initialize graphics stuff
-		_graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-		_graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-		_graphics.IsFullScreen = true;
-		_graphics.ApplyChanges();
+		//_graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+		//_graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+		//_graphics.IsFullScreen = true;
+		//_graphics.ApplyChanges();
 
-		Window.AllowUserResizing = true;
-		Window.IsBorderless = true;
+		//Window.AllowUserResizing = true;
+		//Window.IsBorderless = true;
 
-		Window.Title = "Tilteroids - Dev";
-		IsMouseVisible = true;
+		//Window.Title = "Tilteroids - Dev";
+		//IsMouseVisible = true;
 
 		base.Initialize();
 	}

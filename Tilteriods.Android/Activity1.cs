@@ -17,14 +17,14 @@ namespace Tilteriods.Android
 	)]
 	public class Activity1 : AndroidGameActivity
 	{
-		private Game1 _game;
+		private Tilteroids.Core.Framework.TilteroidsManager _game;
 		private View _view;
 
 		protected override void OnCreate(Bundle bundle)
 		{
 			base.OnCreate(bundle);
 
-			_game = new Game1();
+			_game = new Tilteroids.Core.Framework.TilteroidsManager();
 			_view = _game.Services.GetService(typeof(View)) as View;
 
 			SetContentView(_view);
