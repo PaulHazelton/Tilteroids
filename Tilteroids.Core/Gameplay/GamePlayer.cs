@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
 using nkast.Aether.Physics2D.Diagnostics;
 using nkast.Aether.Physics2D.Dynamics;
 using SpaceshipArcade.MG.Engine.Cameras;
@@ -128,8 +129,17 @@ public class GamePlayer : IGameObjectHandler
 		if (InputManager.WasButtonPressed(Keys.R))
 			Reset();
 
+		TouchCollection touchCollection = TouchPanel.GetState();
+
+		if (touchCollection.Count > 0)
+		{
+			TouchLocation touch = touchCollection[0];
+			if (touch.State == TouchLocationState.Pressed)
+				Reset();
+		}
+
 		// Update all game objects
-			UpdateGameObjects(gameTime);
+		UpdateGameObjects(gameTime);
 
 		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
 
