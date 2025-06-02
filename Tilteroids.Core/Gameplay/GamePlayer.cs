@@ -76,7 +76,7 @@ public class GamePlayer : IGameObjectHandler
 
 	private void AddGameplayObjects()
 	{
-		Vector2 worldSize = new(24, 13.5f);
+		Vector2 worldSize = new(ScreenWidth * Constants.MetersPerPixel, ScreenHeight * Constants.MetersPerPixel);
 
 		// World border
 		AddWorldBorder(worldSize);

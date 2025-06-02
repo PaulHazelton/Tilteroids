@@ -9,7 +9,6 @@ using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Guns;
 using Tilteroids.Core.Controllers;
-using Tilteroids.Core.Gameplay.Entities;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
