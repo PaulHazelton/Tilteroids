@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Framework.Utilities;
 using SpaceshipArcade.MG.Engine.Framework;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Graphics;
@@ -10,23 +12,47 @@ namespace Tilteroids.Core.Framework;
 
 public sealed class TilteroidsManager : GameManager
 {
-	public TilteroidsManager() : base(false, 60) { }
-
 	protected override void Initialize()
 	{
-		// Initialize graphics stuff
-		//_graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-		//_graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-		//_graphics.IsFullScreen = true;
-		//_graphics.ApplyChanges();
-
-		//Window.AllowUserResizing = true;
-		//Window.IsBorderless = true;
-
-		//Window.Title = "Tilteroids - Dev";
-		//IsMouseVisible = true;
+		switch (PlatformInfo.MonoGamePlatform)
+		{
+			case MonoGamePlatform.DesktopGL: InitializeDesktopGl(true, 143.91d); break;
+			case MonoGamePlatform.Android: InitializeAndroid(120); break;
+			default: throw new NotSupportedException($"Platform {PlatformInfo.MonoGamePlatform} not supported.");
+		}
 
 		base.Initialize();
+	}
+
+	private void InitializeDesktopGl(bool fullScreen, double targetFps, bool hardwareModeSwitch = false)
+	{
+		// Initialize graphics stuff
+		_graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+		_graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+
+		// _graphics.SynchronizeWithVerticalRetrace = true;
+
+		_graphics.HardwareModeSwitch = hardwareModeSwitch;
+		_graphics.IsFullScreen = fullScreen;
+
+		_graphics.ApplyChanges();
+
+		// Window stuff
+		Window.AllowUserResizing = true;
+		Window.IsBorderless = true;
+
+		Window.Title = "Tilteroids - Dev";
+
+		// Other
+		TargetElapsedTime = TimeSpan.FromSeconds(1.0d / targetFps);
+
+		IsMouseVisible = true;
+	}
+
+	private void InitializeAndroid(double targetFps = 120)
+	{
+		// Other
+		TargetElapsedTime = TimeSpan.FromSeconds(1.0d / targetFps);
 	}
 
 	protected override void LoadContent()

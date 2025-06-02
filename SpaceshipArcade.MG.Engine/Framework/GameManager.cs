@@ -19,16 +19,13 @@ public abstract class GameManager : Game
 	public int CurrentFPS { get; private set; }
 
 
-	public GameManager(bool fullScreen, int targetFps)
+	public GameManager()
 	{
 		Content.RootDirectory = "Content";
 		_graphics = new GraphicsDeviceManager(this)
 		{
 			PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8,
-			HardwareModeSwitch = fullScreen,
-			IsFullScreen = fullScreen,
 		};
-		TargetElapsedTime = TimeSpan.FromSeconds(1.0d / targetFps);
 
 		Window.ClientSizeChanged += (sender, e) => WindowSizeChanged();
 	}
