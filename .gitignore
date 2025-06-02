@@ -9,6 +9,7 @@ bld/
 # User Specific Settings
 .vs/
 .idea/
+*.user
 
 # Temp Files
 ~$*
