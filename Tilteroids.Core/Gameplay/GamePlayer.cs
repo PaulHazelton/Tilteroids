@@ -32,6 +32,7 @@ public class GamePlayer : IGameObjectHandler
 	private World World { get; set; }
 	private Camera Camera { get; set; }
 	private Matrix _projection;
+	private Spaceship? _spaceShip;
 
 	// Settings
 	private bool DoDebugDraw { get; set; } = false;
@@ -82,8 +83,8 @@ public class GamePlayer : IGameObjectHandler
 		AddWorldBorder(worldSize);
 
 		// Spaceship
-		var spaceship = new Spaceship(this, new Vector2(0, 0));
-		AddGameObject(spaceship);
+		_spaceShip = new Spaceship(this, new Vector2(0, 0));
+		AddGameObject(_spaceShip);
 
 		// Asteroids
 		var generator = new Random();
@@ -137,8 +138,23 @@ public class GamePlayer : IGameObjectHandler
 		if (touchCollection.Count > 0)
 		{
 			TouchLocation touch = touchCollection[0];
-			if (touch.State == TouchLocationState.Pressed)
-				_tiltController.Calibrate();
+			if (touch.State == TouchLocationState.Pressed || touch.State == TouchLocationState.Moved)
+			{
+				// Top Left => Calibrate
+				if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y < ScreenHeight / 2)
+					_tiltController.Calibrate();
+
+				if (_spaceShip is not null)
+				{
+					// Bottom Left => Thrust
+					if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
+						_spaceShip.Thrust();
+
+					// Bottom Right => Fire
+					if (touch.Position.X > ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
+						_spaceShip.Fire();
+				}
+			}
 		}
 
 		// Update all game objects

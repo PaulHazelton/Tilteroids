@@ -9,6 +9,7 @@ using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Guns;
 using Tilteroids.Core.Controllers;
+using Microsoft.Xna.Framework.Input.Touch;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
@@ -71,26 +72,50 @@ public class Spaceship : IGameObject, IPhysicsObject
 		}
 	}
 
+	public void Thrust()
+	{
+		var forceVector = PMath.PolarToCartesian(10, Body.Rotation);
+		Body.ApplyForce(forceVector, Body.WorldCenter);
+	}
+
+	public void Fire()
+	{
+		TryShoot(Body.Rotation, _gunSelection);
+	}
+
+
 	public void Update(GameTime gameTime)
 	{
 		// Gun cooldowns
 		_gunSelection.Update(gameTime);
 
 		// Aim
-		float aimAngle = GetAimAngle();
-		float torque = _torqueController.ComputeTorque(Body.Rotation, Body.AngularVelocity, aimAngle);
-		Body.ApplyTorque(torque);
+		Aim();		
 
 		// Thrust
 		if (InputManager.IsButtonHeld(MouseButton.Right))
-		{
-			var forceVector = PMath.PolarToCartesian(10, Body.Rotation);
-			Body.ApplyForce(forceVector, Body.WorldCenter);
-		}
+			Thrust();
 
 		// Fire
 		if (InputManager.IsButtonHeld(MouseButton.Left))
-			FireCommand(Body.Rotation, _gunSelection);
+			Fire();
+	}
+
+	private void Aim()
+	{
+		Vector2 aimVector = GetAimVector();
+
+		if (aimVector == Vector2.Zero || float.IsNaN(aimVector.X) || float.IsNaN(aimVector.Y) || aimVector.LengthSquared() < 0.0025f)
+		{
+			float torque = _torqueController.ComputeTorque(Body.Rotation, Body.AngularVelocity, Body.Rotation);
+			Body.ApplyTorque(torque);
+		}
+		else
+		{
+			float aimAngle = aimVector.Angle();
+			float torque = _torqueController.ComputeTorque(Body.Rotation, Body.AngularVelocity, aimAngle);
+			Body.ApplyTorque(torque);
+		}
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
@@ -107,21 +132,19 @@ public class Spaceship : IGameObject, IPhysicsObject
 			layerDepth: 0.1f);
 	}
 
-	private float GetAimAngle()
+	private Vector2 GetAimVector()
 	{
 		// TODO: Move this logic to game player / input manager
 		// Get using Tilt thing
-		if (_handler.AimVector == Vector2.Zero || float.IsNaN(_handler.AimVector.X) || float.IsNaN(_handler.AimVector.Y))
-			return 0;
 
-		return _handler.AimVector.Angle();
+		return _handler.AimVector;
 
 		// Get Using Mouse
 		// var aimVector = InputManager.MouseState.Position.ToVector2() - new Vector2(_handler.ScreenWidth / 2, _handler.ScreenHeight / 2);
 		// return aimVector.Angle();
 	}
 
-	private void FireCommand(float aimAngle, Gun gunSettings)
+	private void TryShoot(float aimAngle, Gun gunSettings)
 	{
 		// Don't fire if bullet will be outside bounds
 		if (!_handler.Bounds.Contains(Body.Position + PMath.PolarToCartesian(gunSettings.MuzzleOffset, aimAngle)))

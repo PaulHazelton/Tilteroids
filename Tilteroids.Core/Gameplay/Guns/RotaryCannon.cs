@@ -8,5 +8,5 @@ public class RotaryCannon : Gun
 	public override float Width => 0.05f;
 	public override float Length => 0.4f;
 	public override float Density => 1.0f;
-	public override double Cooldown => 0.05f;
+	public override double Cooldown => 0.1f;
 }
