@@ -10,6 +10,8 @@ using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Guns;
 using Tilteroids.Core.Controllers;
 using Microsoft.Xna.Framework.Input.Touch;
+using Microsoft.Xna.Framework.Audio;
+using System;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
@@ -23,11 +25,17 @@ public class Spaceship : IGameObject, IPhysicsObject
 	private readonly TorqueController _torqueController;
 	private readonly Gun _gunSelection;
 
+	private readonly SoundEffect _gunShotSound;
+	private readonly Random _random;
+
 	// Public
 	public Body Body { get; private init; }
 
 	public Spaceship(IGameObjectHandler handler, Vector2 startingPos)
 	{
+		_gunShotSound = handler.ContentBucket.SoundEffects.Gun;
+		_random = new();
+
 		Body = CreateBody();
 
 		_handler = handler;
@@ -162,5 +170,8 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 		// Limit fire rate
 		gunSettings.ResetCooldown();
+
+		// Play Sound
+		_gunShotSound.Play(0.5f, _random.NextSingle(-0.25f, 0.25f), 0);
 	}
 }

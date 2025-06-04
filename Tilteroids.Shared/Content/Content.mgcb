@@ -39,3 +39,8 @@
 /processorParam:TextureFormat=Color
 /build:Textures/Ship.png
 
+#begin SoundEffects/Gun/Recoil-Gun.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Gun/Recoil-Gun.mp3
