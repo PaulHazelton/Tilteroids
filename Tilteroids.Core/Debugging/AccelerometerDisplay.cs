@@ -13,26 +13,45 @@ public class AccelerometerDisplay(ContentBucket contentBucket, Accelerometer acc
 {
 	private readonly Accelerometer _accelerometer = accelerometer;
 	private readonly TextPanel _textPanel = new(contentBucket.Fonts.FallbackFont, position: new Vector2(200, 800), TextPanel.AnchorCorner.TopLeft);
+	private readonly Vector3 _targetVector = new(0, 0, 1);
 
 	private Vector3 _currentVector = new();
 	private Vector3 _calibrationVector = new();
+	private Matrix _transformationMatrix = Matrix.Identity;
 
 	public void Calibrate()
 	{
 		_calibrationVector = _currentVector;
+
+		_transformationMatrix = GetRotationMatrix(_calibrationVector, _targetVector);
+	}
+
+	private Matrix GetRotationMatrix(Vector3 n, Vector3 target)
+	{
+		float dot = Vector3.Dot(_calibrationVector, _targetVector);
+
+		if (Math.Abs(dot - 1.0f) < 1e-6f)
+			return Matrix.Identity;
+
+		if (Math.Abs(dot + 1.0f) < 1e-6)
+			return Matrix.CreateFromAxisAngle(Vector3.UnitY, MathHelper.Pi);
+
+		Vector3 axis = Vector3.Normalize(Vector3.Cross(_calibrationVector, _targetVector));
+		float angle = (float)Math.Acos(dot);
+		return Matrix.CreateFromAxisAngle(axis, angle);
 	}
 
 	public void Update(GameTime gameTime)
 	{
 		// Graphics
-		_currentVector = _accelerometer.CurrentValue.Acceleration;
+		_currentVector = Vector3.Normalize(_accelerometer.CurrentValue.Acceleration);
 
 		// Text
 		_textPanel.ClearLines();
 		_textPanel.AddLine($"Valid: {_accelerometer.IsDataValid}");
-		_textPanel.AddLine($"X: {_accelerometer.CurrentValue.Acceleration.X}");
-		_textPanel.AddLine($"Y: {_accelerometer.CurrentValue.Acceleration.Y}");
-		_textPanel.AddLine($"Z: {_accelerometer.CurrentValue.Acceleration.Z}");
+		_textPanel.AddLine($"X: {_currentVector.X}");
+		_textPanel.AddLine($"Y: {_currentVector.Y}");
+		_textPanel.AddLine($"Z: {_currentVector.Z}");
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
@@ -68,9 +87,9 @@ public class AccelerometerDisplay(ContentBucket contentBucket, Accelerometer acc
 		}
 
 		// Aim Angle
+		var calibratedVector = Vector3.Transform(_currentVector, _transformationMatrix);
 		// Swap x and y because it's landscape
-		// Negate because gravity points down
-		Vector2 aimAngle = new(-_currentVector.Y, -_currentVector.X);
+		Vector2 aimAngle = new(calibratedVector.Y, calibratedVector.X);
 		
 		float r = 100;
 		Vector2 circleCenter = new(800 + r, 450 - r);
