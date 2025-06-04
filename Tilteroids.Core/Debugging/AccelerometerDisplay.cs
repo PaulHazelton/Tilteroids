@@ -43,7 +43,6 @@ public class AccelerometerDisplay(ContentBucket contentBucket, Accelerometer acc
 
 	public void Update(GameTime gameTime)
 	{
-		// Graphics
 		_currentVector = Vector3.Normalize(_accelerometer.CurrentValue.Acceleration);
 
 		// Text
@@ -90,12 +89,12 @@ public class AccelerometerDisplay(ContentBucket contentBucket, Accelerometer acc
 		var calibratedVector = Vector3.Transform(_currentVector, _transformationMatrix);
 		// Swap x and y because it's landscape
 		Vector2 aimAngle = new(calibratedVector.Y, calibratedVector.X);
-		
+
 		float r = 100;
 		Vector2 circleCenter = new(800 + r, 450 - r);
 		Primitives.DrawCircle(circleCenter, r, new Color(50, 50, 50), 0.9f);
 
-		aimAngle.Normalize();
+		// aimAngle.Normalize();
 		Primitives.DrawLine(circleCenter, circleCenter + (aimAngle * r * 0.9f), 4.0f, Color.Yellow, 1.0f);
 
 		// Text Panel

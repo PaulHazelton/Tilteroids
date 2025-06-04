@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
+using MonoGame.Framework.Devices.Sensors;
 using nkast.Aether.Physics2D.Diagnostics;
 using nkast.Aether.Physics2D.Dynamics;
 using SpaceshipArcade.MG.Engine.Cameras;
@@ -11,6 +12,7 @@ using SpaceshipArcade.MG.Engine.Extensions;
 using SpaceshipArcade.MG.Engine.Framework;
 using SpaceshipArcade.MG.Engine.Input;
 using SpaceshipArcade.MG.Engine.Utilities;
+using Tilteroids.Core.Controllers;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Entities;
 using Tilteroids.Core.Graphics;
@@ -22,37 +24,35 @@ public class GamePlayer : IGameObjectHandler
 	// Parent
 	private readonly GameManager gameManager;
 
-	// Dependencies
-	public ContentBucket ContentBucket { get; }
-
-	public int ScreenWidth { get; private set; }
-	public int ScreenHeight { get; private set; }
-	
-	public RectangleF Bounds { get; private set; }
-
-	// Internal data
-
-	// Debug Draw for Physics
 	private readonly DebugView _debugView;
-	private Matrix _projection;
-
-	private World World { get; set; }
-	private Camera Camera { get; set; }
+	private readonly List<IGameObject> GameObjects;
 	private readonly List<IGameObject> _gameObjectsToAdd;
 	private readonly List<IGameObject> _gameObjectsToRemove;
-	private readonly List<IGameObject> GameObjects;
+	private readonly TiltController _tiltController;
+	private World World { get; set; }
+	private Camera Camera { get; set; }
+	private Matrix _projection;
 
 	// Settings
 	private bool DoDebugDraw { get; set; } = false;
 
+	// Public Interface Stuff
+	public ContentBucket ContentBucket { get; }
+	public int ScreenWidth { get; private set; }
+	public int ScreenHeight { get; private set; }
+	public RectangleF Bounds { get; private set; }
+	public Vector2 AimVector => _tiltController.AimVector;
+
+
 	// TODO PAUL: Only pass in what's needed.
 	// Pass a func for onExit or something
-	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight)
+	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight, Accelerometer accelerometer)
 	{
 		gameManager = manager;
 		ContentBucket = contentBucket;
 		ScreenWidth = screenWidth;
 		ScreenHeight = screenHeight;
+		_tiltController = new(accelerometer);
 		_gameObjectsToAdd = [];
 		_gameObjectsToRemove = [];
 		GameObjects = [];
@@ -129,11 +129,25 @@ public class GamePlayer : IGameObjectHandler
 		if (InputManager.WasButtonPressed(Keys.R))
 			Reset();
 
+		// Update Input
+		_tiltController.Update();
+
+		TouchCollection touchCollection = TouchPanel.GetState();
+
+		if (touchCollection.Count > 0)
+		{
+			TouchLocation touch = touchCollection[0];
+			if (touch.State == TouchLocationState.Pressed)
+				_tiltController.Calibrate();
+		}
+
 		// Update all game objects
 		UpdateGameObjects(gameTime);
 
+		// Update World
 		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
 
+		// Update Camera
 		Camera.SetPosition(Vector2.Zero);
 		Camera.SetRotation(0);
 	}

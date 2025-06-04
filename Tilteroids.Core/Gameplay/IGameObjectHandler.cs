@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Data;
 
@@ -11,4 +12,6 @@ public interface IGameObjectHandler
 	RectangleF Bounds { get; }
 	void AddGameObject(IGameObject gameObject);
 	void RemoveGameObject(IGameObject gameObject);
+
+	Vector2 AimVector { get; }
 }

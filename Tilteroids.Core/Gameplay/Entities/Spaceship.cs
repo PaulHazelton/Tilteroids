@@ -109,8 +109,16 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 	private float GetAimAngle()
 	{
-		var aimVector = InputManager.MouseState.Position.ToVector2() - new Vector2(_handler.ScreenWidth / 2, _handler.ScreenHeight / 2);
-		return aimVector.Angle();
+		// TODO: Move this logic to game player / input manager
+		// Get using Tilt thing
+		if (_handler.AimVector == Vector2.Zero || float.IsNaN(_handler.AimVector.X) || float.IsNaN(_handler.AimVector.Y))
+			return 0;
+
+		return _handler.AimVector.Angle();
+
+		// Get Using Mouse
+		// var aimVector = InputManager.MouseState.Position.ToVector2() - new Vector2(_handler.ScreenWidth / 2, _handler.ScreenHeight / 2);
+		// return aimVector.Angle();
 	}
 
 	private void FireCommand(float aimAngle, Gun gunSettings)

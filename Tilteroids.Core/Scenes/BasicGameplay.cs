@@ -18,7 +18,7 @@ public class BasicGameplay : Scene
 
 	public BasicGameplay(GameManager manager, ContentBucket contentBucket, Accelerometer accelerometer) : base(manager)
 	{
-		gamePlayer = new GamePlayer(manager, contentBucket, ScreenWidth, ScreenHeight);
+		gamePlayer = new GamePlayer(manager, contentBucket, ScreenWidth, ScreenHeight, accelerometer);
 
 		accelerometerDisplay = new(contentBucket, accelerometer);
 
