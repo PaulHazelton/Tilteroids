@@ -39,7 +39,7 @@ public static class Primitives
 		_spriteBatch = spriteBatch;
 	}
 
-	public static Texture2D CreateCircleTexture(GraphicsDevice graphicsDevice, int r, Color color)
+	public static Texture2D CreateCircleTexture(GraphicsDevice graphicsDevice, int r, Color color, Color? middleLine = null)
 	{
 		// Variables we need
 		var d = r * 2;  // diameter
@@ -55,8 +55,8 @@ public static class Primitives
 					(x - (r - 0.5f)) * (x - (r - 0.5f)) + (y - (r - 0.5f)) * (y - (r - 0.5f)) < r2
 				) ? color : Color.Transparent;
 				// Line in the middle
-				if (y == r && x >= r)
-					data[y * d + x] = Color.Black;
+				if (middleLine is not null && y == r && x >= r)
+					data[y * d + x] = middleLine.Value;
 			}
 		}
 		texture.SetData(data);
@@ -137,11 +137,11 @@ public static class Primitives
 		DrawLine(bl, tl, thickness, color);
 	}
 
-	public static void DrawCircle(Vector2 position, float radius, Color color)
+	public static void DrawCircle(Vector2 position, float radius, Color color, float layerDepth = 1.0f)
 	{
 		DrawCircle(position, radius, 0, color);
 	}
-	public static void DrawCircle(Vector2 position, float radius, float angle, Color color)
+	public static void DrawCircle(Vector2 position, float radius, float angle, Color color, float layerDepth = 1.0f)
 	{
 		AssertLoaded();
 
@@ -150,7 +150,7 @@ public static class Primitives
 		// switch (DrawMode)
 		// {
 		// 	case DrawMode.RAW:
-		_spriteBatch!.Draw(_circleSprite, position, null, color, angle, _circleOrigin, d / (float)_circleSprite!.Width, SpriteEffects.None, 1f);
+		_spriteBatch!.Draw(_circleSprite, position, null, color, angle, _circleOrigin, d / (float)_circleSprite!.Width, SpriteEffects.None, layerDepth);
 		// 		break;
 		// 	case DrawMode.CONVERT_TO_DISPLAY:
 		// 		d = ConvertUnits.ToDisplayUnits(d);

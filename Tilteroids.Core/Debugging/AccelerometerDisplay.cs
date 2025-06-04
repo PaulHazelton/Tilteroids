@@ -12,32 +12,20 @@ namespace Tilteroids.Core.Debugging;
 public class AccelerometerDisplay(ContentBucket contentBucket, Accelerometer accelerometer) : IGameObject
 {
 	private readonly Accelerometer _accelerometer = accelerometer;
-
 	private readonly TextPanel _textPanel = new(contentBucket.Fonts.FallbackFont, position: new Vector2(200, 800), TextPanel.AnchorCorner.TopLeft);
 
-	private float X = 0;
-	private float Y = 0;
-	private float Z = 0;
+	private Vector3 _currentVector = new();
+	private Vector3 _calibrationVector = new();
 
-	private Rectangle recX = new();// = new(450, 210, 0, 80);
-	private Rectangle recY = new();// = new(450, 410, 0, 80);
-	private Rectangle recZ = new();// = new(450, 610, 0, 80);
+	public void Calibrate()
+	{
+		_calibrationVector = _currentVector;
+	}
 
 	public void Update(GameTime gameTime)
 	{
 		// Graphics
-		X = _accelerometer.CurrentValue.Acceleration.X;
-		Y = _accelerometer.CurrentValue.Acceleration.Y;
-		Z = _accelerometer.CurrentValue.Acceleration.Z;
-
-		int xWidth = (int)MathHelper.Clamp(PMath.Map(0, 1.1f, 0, 240, Math.Abs(X)), 0, 240);
-		recX = new(x: X > 0 ? 450 : 450 - xWidth, y: 210, width: xWidth, height: 80);
-
-		int yWidth = (int)MathHelper.Clamp(PMath.Map(0, 1.1f, 0, 240, Math.Abs(Y)), 0, 240);
-		recY = new(x: Y > 0 ? 450 : 450 - yWidth, y: 410, width: yWidth, height: 80);
-
-		int zWidth = (int)MathHelper.Clamp(PMath.Map(0, 1.1f, 0, 240, Math.Abs(Z)), 0, 240);
-		recZ = new(x: Z > 0 ? 450 : 450 - zWidth, y: 610, width: zWidth, height: 80);
+		_currentVector = _accelerometer.CurrentValue.Acceleration;
 
 		// Text
 		_textPanel.ClearLines();
@@ -51,12 +39,47 @@ public class AccelerometerDisplay(ContentBucket contentBucket, Accelerometer acc
 	{
 		spriteBatch.Begin();
 
+		// XYZ Bars
 		Primitives.DrawRectangleOutline(new Rectangle(200, 200, 500, 100), Color.Magenta, 2.0f, 1.0f);
-		Primitives.DrawRectangle(recX, Color.Magenta);
+		Primitives.DrawRectangle(Bar(_currentVector.X, 200, 200, 500, 100, 10), Color.Magenta);
+		Primitives.DrawRectangle(Tick(_calibrationVector.X, 200, 200, 500, 100, 10, 2), Color.Yellow);
+
 		Primitives.DrawRectangleOutline(new Rectangle(200, 400, 500, 100), Color.Lime, 2.0f, 1.0f);
-		Primitives.DrawRectangle(recY, Color.Lime);
+		Primitives.DrawRectangle(Bar(_currentVector.Y, 200, 400, 500, 100, 10), Color.Lime);
+		Primitives.DrawRectangle(Tick(_calibrationVector.Y, 200, 400, 500, 100, 10, 2), Color.Yellow);
+
 		Primitives.DrawRectangleOutline(new Rectangle(200, 600, 500, 100), Color.Cyan, 2.0f, 1.0f);
-		Primitives.DrawRectangle(recZ, Color.Cyan);
+		Primitives.DrawRectangle(Bar(_currentVector.Z, 200, 600, 500, 100, 10), Color.Cyan);
+		Primitives.DrawRectangle(Tick(_calibrationVector.Z, 200, 600, 500, 100, 10, 2), Color.Yellow);
+
+		static Rectangle Bar(float value, int x, int y, int width, int height, int padding)
+		{
+			int halfWidth = width / 2 - padding;
+			int barWidth = (int)PMath.MapClamp(Math.Abs(value), 0, 1, 0, halfWidth);
+			int centerX = x + width / 2;
+			int barX = centerX - (value < 0 ? barWidth : 0);
+			return new Rectangle(barX, y + padding, barWidth, height - 2 * padding);
+		}
+		static Rectangle Tick(float value, int x, int y, int width, int height, int padding, int thickness)
+		{
+			int halfWidth = width / 2 - padding;
+			int tickX = width / 2 + (int)PMath.MapClamp(value, -1, 1, x - halfWidth, x + halfWidth);
+			return new Rectangle(tickX - thickness / 2, y + padding, thickness, height - padding * 2);
+		}
+
+		// Aim Angle
+		// Swap x and y because it's landscape
+		// Negate because gravity points down
+		Vector2 aimAngle = new(-_currentVector.Y, -_currentVector.X);
+		
+		float r = 100;
+		Vector2 circleCenter = new(800 + r, 450 - r);
+		Primitives.DrawCircle(circleCenter, r, new Color(50, 50, 50), 0.9f);
+
+		aimAngle.Normalize();
+		Primitives.DrawLine(circleCenter, circleCenter + (aimAngle * r * 0.9f), 4.0f, Color.Yellow, 1.0f);
+
+		// Text Panel
 		_textPanel.Draw(spriteBatch);
 
 		spriteBatch.End();

@@ -129,15 +129,6 @@ public class GamePlayer : IGameObjectHandler
 		if (InputManager.WasButtonPressed(Keys.R))
 			Reset();
 
-		TouchCollection touchCollection = TouchPanel.GetState();
-
-		if (touchCollection.Count > 0)
-		{
-			TouchLocation touch = touchCollection[0];
-			if (touch.State == TouchLocationState.Pressed)
-				Reset();
-		}
-
 		// Update all game objects
 		UpdateGameObjects(gameTime);
 

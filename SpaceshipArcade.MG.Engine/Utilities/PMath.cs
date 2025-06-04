@@ -7,7 +7,8 @@ public class PMath
 {
 	#region Scalers
 
-	public static float Map(float lowIn, float highIn, float lowOut, float highOut, float amount)
+	// NOTE! This was changed to have amount be the first param instead of the last
+	public static float Map(float amount, float lowIn, float highIn, float lowOut, float highOut)
 	{
 		float range1 = highIn - lowIn;
 		float x1 = amount - lowIn;
@@ -18,6 +19,11 @@ public class PMath
 		float x2 = x1 * range2;
 
 		return x2 + lowOut;
+	}
+
+	public static float MapClamp(float amount, float lowIn, float highIn, float lowOut, float highOut)
+	{
+		return MathHelper.Clamp(Map(amount, lowIn, highIn, lowOut, highOut), lowOut, highOut);
 	}
 
 	public static float AngleDifference(float a, float b)

@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input.Touch;
 using MonoGame.Framework.Devices.Sensors;
 using SpaceshipArcade.MG.Engine.Framework;
 using Tilteroids.Core.Data;
@@ -27,6 +28,16 @@ public class BasicGameplay : Scene
 	public override void Update(GameTime gameTime)
 	{
 		gamePlayer.Update(gameTime);
+
+		TouchCollection touchCollection = TouchPanel.GetState();
+
+		if (touchCollection.Count > 0)
+		{
+			TouchLocation touch = touchCollection[0];
+			if (touch.State == TouchLocationState.Pressed)
+				accelerometerDisplay.Calibrate();
+		}
+
 		accelerometerDisplay.Update(gameTime);
 	}
 
