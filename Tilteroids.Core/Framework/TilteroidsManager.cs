@@ -14,6 +14,7 @@ namespace Tilteroids.Core.Framework;
 public sealed class TilteroidsManager : GameManager
 {
 	public Accelerometer Accelerometer { get; private set; } = new();
+	public Compass Compass { get; private set; } = new();
 
 	protected override void Initialize()
 	{
@@ -54,8 +55,9 @@ public sealed class TilteroidsManager : GameManager
 
 	private void InitializeAndroid(double targetFps = 120)
 	{
-		// Accelerometer
+		// Sensors
 		Accelerometer.Start();
+		Compass.Start();
 
 		// Other
 		TargetElapsedTime = TimeSpan.FromSeconds(1.0d / targetFps);
@@ -71,7 +73,7 @@ public sealed class TilteroidsManager : GameManager
 		Services.AddService<IUserSettingsService>(new UserSettingsService());
 
 		// ChangeScene((gm) => new StartMenu(gm, contentBucket));
-		ChangeScene((gm) => new BasicGameplay(gm, contentBucket, Accelerometer));
+		ChangeScene((gm) => new BasicGameplay(gm, contentBucket, Accelerometer, Compass));
 
 		base.LoadContent();
 	}

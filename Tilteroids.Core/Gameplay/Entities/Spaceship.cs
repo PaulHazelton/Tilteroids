@@ -9,7 +9,6 @@ using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Guns;
 using Tilteroids.Core.Controllers;
-using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Audio;
 using System;
 

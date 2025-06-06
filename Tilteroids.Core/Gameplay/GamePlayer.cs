@@ -14,6 +14,7 @@ using SpaceshipArcade.MG.Engine.Input;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Controllers;
 using Tilteroids.Core.Data;
+using Tilteroids.Core.Debugging;
 using Tilteroids.Core.Gameplay.Entities;
 using Tilteroids.Core.Graphics;
 
@@ -21,14 +22,18 @@ namespace Tilteroids.Core.Gameplay;
 
 public class GamePlayer : IGameObjectHandler
 {
-	// Parent
 	private readonly GameManager gameManager;
-
 	private readonly DebugView _debugView;
 	private readonly List<IGameObject> GameObjects;
 	private readonly List<IGameObject> _gameObjectsToAdd;
 	private readonly List<IGameObject> _gameObjectsToRemove;
 	private readonly TiltController _tiltController;
+	private readonly Vector3Display _accelerometerDisplay;
+	// private readonly Vector3Display _compassDisplay;
+
+	private readonly Accelerometer _accelerometer;
+	// private readonly Compass
+
 	private World World { get; set; }
 	private Camera Camera { get; set; }
 	private Matrix _projection;
@@ -47,8 +52,9 @@ public class GamePlayer : IGameObjectHandler
 
 	// TODO PAUL: Only pass in what's needed.
 	// Pass a func for onExit or something
-	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight, Accelerometer accelerometer)
+	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight, Accelerometer accelerometer, Compass compass)
 	{
+		_accelerometer = accelerometer;
 		gameManager = manager;
 		ContentBucket = contentBucket;
 		ScreenWidth = screenWidth;
@@ -57,6 +63,13 @@ public class GamePlayer : IGameObjectHandler
 		_gameObjectsToAdd = [];
 		_gameObjectsToRemove = [];
 		GameObjects = [];
+
+		int unit = ScreenWidth / 30;
+
+		_accelerometerDisplay = new(contentBucket,
+			barDestinationRectangle: new Rectangle(2 * unit, 2 * unit, 5 * unit, 1 * unit),
+			circlePos: new(6 * unit, 9 * unit), circleRadius: 1 * unit,
+			textPanelPosition: new(2 * unit, 8 * unit));
 
 		World = new World(new Vector2(0, 0));
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
@@ -132,6 +145,7 @@ public class GamePlayer : IGameObjectHandler
 
 		// Update Input
 		_tiltController.Update();
+		_accelerometerDisplay.Update(_accelerometer.CurrentValue.Acceleration);
 
 		TouchCollection touchCollection = TouchPanel.GetState();
 
@@ -168,6 +182,7 @@ public class GamePlayer : IGameObjectHandler
 		Camera.SetRotation(0);
 	}
 
+	#region Game Objects
 	public void AddGameObject(IGameObject gameObject) => _gameObjectsToAdd.Add(gameObject);
 	public void RemoveGameObject(IGameObject gameObject) => _gameObjectsToRemove.Add(gameObject);
 	private void Add(IGameObject gameObject)
@@ -209,6 +224,7 @@ public class GamePlayer : IGameObjectHandler
 		GameObjects.Clear();
 		World.Clear();
 	}
+	#endregion
 
 	private void AddWorldBorder(Vector2 size, Vector2 center = default)
 	{
@@ -243,14 +259,24 @@ public class GamePlayer : IGameObjectHandler
 			transformMatrix: Camera.View
 		);
 
+		// Actual Game Objects
 		foreach (var gameObject in GameObjects)
 			gameObject.Draw(spriteBatch);
 
+		// Physics Debug
 		if (DoDebugDraw)
 			DebugDraw();
 
+		// World Border
 		Primitives.DrawRectangleOutline(Scale(Bounds, Constants.PixelsPerMeter), Color.Blue, 2.0f, 0);
 		static Rectangle Scale(RectangleF rec, float scale) => new((int)(rec.X * scale), (int)(rec.Y * scale), (int)(rec.Width * scale), (int)(rec.Height * scale));
+
+		spriteBatch.End();
+
+		spriteBatch.Begin();
+
+		// Sensor Debugging
+		_accelerometerDisplay.Draw(spriteBatch);
 
 		spriteBatch.End();
 	}
