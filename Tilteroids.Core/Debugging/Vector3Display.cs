@@ -33,13 +33,13 @@ public class Vector3Display(ContentBucket contentBucket, Rectangle barDestinatio
 
 	public void Update(Vector3 value)
 	{
-		_currentVector = Vector3.Normalize(value);
+		_currentVector = value;
 
 		// Text
 		_textPanel.ClearLines();
-		_textPanel.AddLine($"X: {_currentVector.X:F5}");
-		_textPanel.AddLine($"Y: {_currentVector.Y:F5}");
-		_textPanel.AddLine($"Z: {_currentVector.Z:F5}");
+		_textPanel.AddLine($"X: {_currentVector.X,6:F3}");
+		_textPanel.AddLine($"Y: {_currentVector.Y,6:F3}");
+		_textPanel.AddLine($"Z: {_currentVector.Z,6:F3}");
 	}
 
 	public void Draw(SpriteBatch spriteBatch)

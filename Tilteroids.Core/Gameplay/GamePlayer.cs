@@ -29,10 +29,10 @@ public class GamePlayer : IGameObjectHandler
 	private readonly List<IGameObject> _gameObjectsToRemove;
 	private readonly TiltController _tiltController;
 	private readonly Vector3Display _accelerometerDisplay;
-	// private readonly Vector3Display _compassDisplay;
+	private readonly Vector3Display _compassDisplay;
 
 	private readonly Accelerometer _accelerometer;
-	// private readonly Compass
+	private readonly Compass _compass;
 
 	private World World { get; set; }
 	private Camera Camera { get; set; }
@@ -55,6 +55,7 @@ public class GamePlayer : IGameObjectHandler
 	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight, Accelerometer accelerometer, Compass compass)
 	{
 		_accelerometer = accelerometer;
+		_compass = compass;
 		gameManager = manager;
 		ContentBucket = contentBucket;
 		ScreenWidth = screenWidth;
@@ -70,6 +71,11 @@ public class GamePlayer : IGameObjectHandler
 			barDestinationRectangle: new Rectangle(2 * unit, 2 * unit, 5 * unit, 1 * unit),
 			circlePos: new(6 * unit, 9 * unit), circleRadius: 1 * unit,
 			textPanelPosition: new(2 * unit, 8 * unit));
+
+		_compassDisplay = new(contentBucket,
+			barDestinationRectangle: new Rectangle(10 * unit, 2 * unit, 5 * unit, 1 * unit),
+			circlePos: new(14 * unit, 9 * unit), circleRadius: 1 * unit,
+			textPanelPosition: new(10 * unit, 8 * unit));
 
 		World = new World(new Vector2(0, 0));
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
@@ -146,6 +152,7 @@ public class GamePlayer : IGameObjectHandler
 		// Update Input
 		_tiltController.Update();
 		_accelerometerDisplay.Update(_accelerometer.CurrentValue.Acceleration);
+		_compassDisplay.Update(Vector3.Normalize(_compass.CurrentValue.MagnetometerReading));
 
 		TouchCollection touchCollection = TouchPanel.GetState();
 
@@ -156,18 +163,21 @@ public class GamePlayer : IGameObjectHandler
 			{
 				// Top Left => Calibrate
 				if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y < ScreenHeight / 2)
+				{
 					_tiltController.Calibrate();
+					_accelerometerDisplay.Calibrate();
+				}
 
 				if (_spaceShip is not null)
-				{
-					// Bottom Left => Thrust
-					if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
-						_spaceShip.Thrust();
+					{
+						// Bottom Left => Thrust
+						if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
+							_spaceShip.Thrust();
 
-					// Bottom Right => Fire
-					if (touch.Position.X > ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
-						_spaceShip.Fire();
-				}
+						// Bottom Right => Fire
+						if (touch.Position.X > ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
+							_spaceShip.Fire();
+					}
 			}
 		}
 
@@ -277,6 +287,7 @@ public class GamePlayer : IGameObjectHandler
 
 		// Sensor Debugging
 		_accelerometerDisplay.Draw(spriteBatch);
+		_compassDisplay.Draw(spriteBatch);
 
 		spriteBatch.End();
 	}
