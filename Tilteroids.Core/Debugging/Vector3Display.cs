@@ -11,7 +11,7 @@ public class Vector3Display(ContentBucket contentBucket, Rectangle barDestinatio
 {
 	// Private Readonly
 	private readonly TextPanel _textPanel = new(contentBucket.Fonts.FallbackFont, textPanelPosition, TextPanel.AnchorCorner.TopLeft);
-	private readonly Vector3 _targetVector = new(0, 0, 1); // Consider Removing
+	private readonly Vector3 _targetVector = new(0, 0, 1);
 
 	// Private State
 	private Vector3 _currentVector = new();
@@ -22,6 +22,7 @@ public class Vector3Display(ContentBucket contentBucket, Rectangle barDestinatio
 	public Rectangle BarDestinationRectangle { get; set; } = barDestinationRectangle;
 	public Vector2 CirclePosition { get; set; } = circlePos;
 	public float CircleRadius { get; set; } = circleRadius;
+	public Color CircleBackground { get; set; } = new Color(50, 50, 50);
 	public Vector2 TextPanelPosition { get; set; } = textPanelPosition;
 
 	public void Calibrate()
@@ -33,7 +34,7 @@ public class Vector3Display(ContentBucket contentBucket, Rectangle barDestinatio
 
 	public void Update(Vector3 value)
 	{
-		_currentVector = value;
+		_currentVector = Vector3.Normalize(value);
 
 		// Text
 		_textPanel.ClearLines();
@@ -43,6 +44,15 @@ public class Vector3Display(ContentBucket contentBucket, Rectangle barDestinatio
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
+	{
+		DrawBars();
+
+		DrawCircle();
+
+		_textPanel.Draw(spriteBatch);
+	}
+
+	private void DrawBars()
 	{
 		// XYZ Bars
 		var (x, y, width, height) = (BarDestinationRectangle.X, BarDestinationRectangle.Y, BarDestinationRectangle.Width, BarDestinationRectangle.Height);
@@ -75,21 +85,39 @@ public class Vector3Display(ContentBucket contentBucket, Rectangle barDestinatio
 			int tickX = width / 2 + (int)PMath.MapClamp(value, -1, 1, x - halfWidth, x + halfWidth);
 			return new Rectangle(tickX - thickness / 2, y + padding, thickness, height - padding * 2);
 		}
+	}
+
+	private void DrawCircle()
+	{
+		// NOTE: Phone is intended to be landscape, User is looking at screen.
+		// X is "North", Y is "West", Z is "Up" (towards the user's face)
+		// In screen space, X is "East", and Y is "South".
 
 		// Aim Angle
-		var calibratedVector = Vector3.Transform(_currentVector, _transformationMatrix);
-		// Swap x and y because it's landscape
-		Vector2 aimAngle = new(calibratedVector.Y, calibratedVector.X);
+		// var calibratedVector = Vector3.Normalize(_currentVector);
+		// var currentVectorCalibrated = Vector3.Transform(Vector3.Normalize(_currentVector), _transformationMatrix);
 
-		float r = CircleRadius;
-		// Vector2 circleCenter = new(800 + r, 450 - r);;
-		Primitives.DrawCircle(CirclePosition, r, new Color(50, 50, 50), 0.9f);
+		// See note above
+		Vector2 calibrationTarget = new(-_calibrationVector.Y, -_calibrationVector.X);
+		Vector2 currentTarget = new(-_currentVector.Y, -_currentVector.X);
 
-		// aimAngle.Normalize();
-		Primitives.DrawLine(CirclePosition, CirclePosition + (aimAngle * r * 0.9f), 4.0f, Color.Yellow, 1.0f);
+		// Draw Backing Circle
+		Primitives.DrawCircle(CirclePosition, CircleRadius, CircleBackground, 0.98f);
 
-		// Text Panel
-		_textPanel.Draw(spriteBatch);
+		// Draw Calibration Target Circle
+		if (_calibrationVector.Z >= 0)
+			Primitives.DrawCircle(CirclePosition + calibrationTarget * CircleRadius, CircleRadius / 8, Color.Cyan, 0.99f);
+		else
+			Primitives.DrawCircleOutline(CirclePosition + calibrationTarget * CircleRadius, CircleRadius / 8, Color.Cyan, 0.99f);
+
+		// Draw Target Circle
+		if (_currentVector.Z >= 0)
+			Primitives.DrawCircle(CirclePosition + currentTarget * CircleRadius, CircleRadius / 6, Color.Yellow, 1.0f);
+		else
+			Primitives.DrawCircleOutline(CirclePosition + currentTarget * CircleRadius, CircleRadius / 6, Color.Yellow, 1.0f);
+
+		// Old line
+		// Primitives.DrawLine(CirclePosition, CirclePosition + (targetCircleCenterNormalized * CircleRadius * 0.9f), 4.0f, Color.Yellow, 1.0f);
 	}
 
 	private static Matrix GetRotationMatrix(Vector3 n, Vector3 target)

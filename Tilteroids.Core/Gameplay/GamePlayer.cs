@@ -166,6 +166,7 @@ public class GamePlayer : IGameObjectHandler
 				{
 					_tiltController.Calibrate();
 					_accelerometerDisplay.Calibrate();
+					_compassDisplay.Calibrate();
 				}
 
 				if (_spaceShip is not null)
