@@ -33,6 +33,7 @@ public class GamePlayer : IGameObjectHandler
 
 	private readonly Accelerometer _accelerometer;
 	private readonly Compass _compass;
+	private readonly TextPanel _compassDebugPanel;
 
 	private World World { get; set; }
 	private Camera Camera { get; set; }
@@ -75,7 +76,10 @@ public class GamePlayer : IGameObjectHandler
 		_compassDisplay = new(contentBucket,
 			barDestinationRectangle: new Rectangle(10 * unit, 2 * unit, 5 * unit, 1 * unit),
 			circlePos: new(14 * unit, 9 * unit), circleRadius: 1 * unit,
-			textPanelPosition: new(10 * unit, 8 * unit));
+			textPanelPosition: new(10 * unit, 8 * unit),
+			rollingAverageCount: 6);
+
+		_compassDebugPanel = new(contentBucket.Fonts.FallbackFont, new(16 * unit, 2 * unit), TextPanel.AnchorCorner.TopLeft);
 
 		World = new World(new Vector2(0, 0));
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
@@ -289,6 +293,12 @@ public class GamePlayer : IGameObjectHandler
 		// Sensor Debugging
 		_accelerometerDisplay.Draw(spriteBatch);
 		_compassDisplay.Draw(spriteBatch);
+
+		_compassDebugPanel.ClearLines();
+		_compassDebugPanel.AddLine($"HeadingAccuracy: {_compass.CurrentValue.HeadingAccuracy,6:F3}");
+		_compassDebugPanel.AddLine($"MagneticHeading: {_compass.CurrentValue.MagneticHeading,6:F3}");
+		_compassDebugPanel.AddLine($"TrueHeading: {_compass.CurrentValue.TrueHeading,6:F3}");
+		_compassDebugPanel.Draw(spriteBatch);
 
 		spriteBatch.End();
 	}

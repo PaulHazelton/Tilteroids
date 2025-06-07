@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpaceshipArcade.MG.Engine.Utilities;
@@ -7,34 +9,61 @@ using Tilteroids.Core.Graphics;
 
 namespace Tilteroids.Core.Debugging;
 
-public class Vector3Display(ContentBucket contentBucket, Rectangle barDestinationRectangle, Vector2 circlePos, float circleRadius, Vector2 textPanelPosition)
+public class Vector3Display
 {
 	// Private Readonly
-	private readonly TextPanel _textPanel = new(contentBucket.Fonts.FallbackFont, textPanelPosition, TextPanel.AnchorCorner.TopLeft);
+	private readonly TextPanel _textPanel;
 	private readonly Vector3 _targetVector = new(0, 0, 1);
 
 	// Private State
+	private Queue<Vector3> _samples;
 	private Vector3 _currentVector = new();
 	private Vector3 _calibrationVector = new();
-	private Matrix _transformationMatrix = Matrix.Identity;
+
+	// private Matrix _transformationMatrix = Matrix.Identity;
 
 	// Public Settings
-	public Rectangle BarDestinationRectangle { get; set; } = barDestinationRectangle;
-	public Vector2 CirclePosition { get; set; } = circlePos;
-	public float CircleRadius { get; set; } = circleRadius;
+
+	public Rectangle BarDestinationRectangle { get; set; }
+	public Vector2 CirclePosition { get; set; }
+	public float CircleRadius { get; set; }
 	public Color CircleBackground { get; set; } = new Color(50, 50, 50);
-	public Vector2 TextPanelPosition { get; set; } = textPanelPosition;
+	public Vector2 TextPanelPosition { get; set; }
+	public int RollingAverageCount { get; init; }
+
+	public Vector3Display(ContentBucket contentBucket, Rectangle barDestinationRectangle, Vector2 circlePos, float circleRadius, Vector2 textPanelPosition, int rollingAverageCount = 1)
+	{
+		_textPanel = new(contentBucket.Fonts.FallbackFont, textPanelPosition, TextPanel.AnchorCorner.TopLeft);
+		BarDestinationRectangle = barDestinationRectangle;
+		CirclePosition = circlePos;
+		CircleRadius = circleRadius;
+		TextPanelPosition = textPanelPosition;
+		RollingAverageCount = rollingAverageCount;
+
+		_samples = new(rollingAverageCount);
+
+		for (int i = 0; i < RollingAverageCount; i++)
+			_samples.Enqueue(Vector3.Backward);
+	}
 
 	public void Calibrate()
 	{
 		_calibrationVector = _currentVector;
 
-		_transformationMatrix = GetRotationMatrix(_calibrationVector, _targetVector);
+		// _transformationMatrix = GetRotationMatrix(_calibrationVector, _targetVector);
 	}
 
 	public void Update(Vector3 value)
 	{
-		_currentVector = Vector3.Normalize(value);
+		if (RollingAverageCount == 1)
+			_currentVector = Vector3.Normalize(value);
+		else
+		{
+			_samples.Dequeue();
+			_samples.Enqueue(Vector3.Normalize(value));
+
+			_currentVector = GetAverage(_samples);
+		}
 
 		// Text
 		_textPanel.ClearLines();
@@ -133,5 +162,13 @@ public class Vector3Display(ContentBucket contentBucket, Rectangle barDestinatio
 		Vector3 axis = Vector3.Normalize(Vector3.Cross(n, target));
 		float angle = (float)Math.Acos(dot);
 		return Matrix.CreateFromAxisAngle(axis, angle);
+	}
+
+	private static Vector3 GetAverage(Queue<Vector3> samples)
+	{
+		if (samples.Count == 0)
+			return Vector3.Zero;
+		
+		return samples.Aggregate((sum, v) => sum + v) / samples.Count;
 	}
 }
