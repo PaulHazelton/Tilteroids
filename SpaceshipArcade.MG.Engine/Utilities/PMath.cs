@@ -52,4 +52,37 @@ public class PMath
 	}
 
 	#endregion
+
+	#region Matrices
+
+	/// <summary>
+	/// Calculates the orientation of the device based on the current accelerometer and compass readings
+	/// </summary>
+	/// <param name="accelerometerVector">The raw vector reading of the accelerometer. Expected Unit: g. Expected to be pointing up when the phone is at rest.</param>
+	/// <param name="magnetometerVector">The raw vector reading of the magnetometer (compass). Expected Unit: Micro Tesla</param>
+	/// <param name="result">The rotation matrix</param>
+	/// <returns>True if success, false if failed.</returns>
+	public static bool GetOrientation(Vector3 accelerometerVector, Vector3 magnetometerVector, out Matrix result)
+	{
+		result = Matrix.Identity;
+		float g = 1.0f;	// Expected units are in gs
+
+		// If less than 0.1 gs (note, 0.1 is squared)
+		if (accelerometerVector.LengthSquared() < 0.01f * g * g)
+			return false;
+
+		// If less than 100 micro T (note, 10 squared) (Expected range is 25 to 65)
+		if (magnetometerVector.LengthSquared() < 100.0f)
+			return false;
+
+		Vector3 east = Vector3.Normalize(Vector3.Cross(magnetometerVector, accelerometerVector));
+		Vector3 north = Vector3.Normalize(Vector3.Cross(accelerometerVector, east));
+		Vector3 up = Vector3.Normalize(accelerometerVector);
+
+		result = new Matrix(new Vector4(east, 0), new Vector4(north, 0), new Vector4(up, 0), Vector4.UnitW);
+		
+		return true;
+	}
+
+	#endregion
 }

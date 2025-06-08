@@ -67,9 +67,9 @@ public class Vector3Display
 
 		// Text
 		_textPanel.ClearLines();
-		_textPanel.AddLine($"X: {_currentVector.X,6:F3}");
-		_textPanel.AddLine($"Y: {_currentVector.Y,6:F3}");
-		_textPanel.AddLine($"Z: {_currentVector.Z,6:F3}");
+		_textPanel.AddLine($"X: {value.X,6:F3}");
+		_textPanel.AddLine($"Y: {value.Y,6:F3}");
+		_textPanel.AddLine($"Z: {value.Z,6:F3}");
 	}
 
 	public void Draw(SpriteBatch spriteBatch)

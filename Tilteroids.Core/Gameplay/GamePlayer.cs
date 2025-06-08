@@ -34,6 +34,7 @@ public class GamePlayer : IGameObjectHandler
 	private readonly Accelerometer _accelerometer;
 	private readonly Compass _compass;
 	private readonly TextPanel _compassDebugPanel;
+	private readonly OrientationDisplay orientationDisplay;
 
 	private World World { get; set; }
 	private Camera Camera { get; set; }
@@ -80,6 +81,8 @@ public class GamePlayer : IGameObjectHandler
 			rollingAverageCount: 6);
 
 		_compassDebugPanel = new(contentBucket.Fonts.FallbackFont, new(16 * unit, 2 * unit), TextPanel.AnchorCorner.TopLeft);
+
+		orientationDisplay = new(position: new(17 * unit, 3 * unit), radius: 2 * unit);
 
 		World = new World(new Vector2(0, 0));
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
@@ -156,7 +159,8 @@ public class GamePlayer : IGameObjectHandler
 		// Update Input
 		_tiltController.Update();
 		_accelerometerDisplay.Update(_accelerometer.CurrentValue.Acceleration);
-		_compassDisplay.Update(Vector3.Normalize(_compass.CurrentValue.MagnetometerReading));
+		_compassDisplay.Update(_compass.CurrentValue.MagnetometerReading);
+		orientationDisplay.Update(_accelerometer.CurrentValue.Acceleration, _compass.CurrentValue.MagnetometerReading);
 
 		TouchCollection touchCollection = TouchPanel.GetState();
 
@@ -293,12 +297,13 @@ public class GamePlayer : IGameObjectHandler
 		// Sensor Debugging
 		_accelerometerDisplay.Draw(spriteBatch);
 		_compassDisplay.Draw(spriteBatch);
+		orientationDisplay.Draw(spriteBatch);
 
-		_compassDebugPanel.ClearLines();
-		_compassDebugPanel.AddLine($"HeadingAccuracy: {_compass.CurrentValue.HeadingAccuracy,6:F3}");
-		_compassDebugPanel.AddLine($"MagneticHeading: {_compass.CurrentValue.MagneticHeading,6:F3}");
-		_compassDebugPanel.AddLine($"TrueHeading: {_compass.CurrentValue.TrueHeading,6:F3}");
-		_compassDebugPanel.Draw(spriteBatch);
+		// _compassDebugPanel.ClearLines();
+		// _compassDebugPanel.AddLine($"HeadingAccuracy: {_compass.CurrentValue.HeadingAccuracy,6:F3}");
+		// _compassDebugPanel.AddLine($"MagneticHeading: {_compass.CurrentValue.MagneticHeading,6:F3}");
+		// _compassDebugPanel.AddLine($"TrueHeading: {_compass.CurrentValue.TrueHeading,6:F3}");
+		// _compassDebugPanel.Draw(spriteBatch);
 
 		spriteBatch.End();
 	}
