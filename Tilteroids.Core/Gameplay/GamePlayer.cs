@@ -309,7 +309,7 @@ public class GamePlayer : IGameObjectHandler
 		_aCircleDisplay.Draw(_accelerometer.CurrentValue.Acceleration, _aCalibrationVector);
 		_cBarDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
 		_cCircleDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
-		_orientationDisplay.Draw(_orientationSensor.CurrentValue);
+		_orientationDisplay.Draw(Matrix.Invert(_orientationSensor.CurrentValue), Matrix.Invert(_calibrationMatrix));
 
 		spriteBatch.End();
 	}
