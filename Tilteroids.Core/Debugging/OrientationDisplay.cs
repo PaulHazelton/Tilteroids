@@ -1,57 +1,42 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Graphics;
 
 namespace Tilteroids.Core.Debugging;
 
 public class OrientationDisplay
 {
-	private Matrix orientationMatrix = Matrix.Identity;
-
+	// Required Params
 	public Vector2 Position { get; set; }
 	public float Radius { get; set; }
-	public Color BackgroundColor { get; set; } = new Color(50, 50, 50);
 
-	public OrientationDisplay(Vector2 position, float radius, Color? backgroundColor = null)
+	// Optional Params
+	public Color BackgroundColor { get; set; } = new Color(50, 50, 50);
+	public Color XColor { get; set; } = Color.Magenta;
+	public Color YColor { get; set; } = Color.Lime;
+	public Color ZColor { get; set; } = Color.Cyan;
+
+	public OrientationDisplay(Vector2 position, float radius)
 	{
 		Position = position;
 		Radius = radius;
-		BackgroundColor = backgroundColor ?? new Color(50, 50, 50);
 	}
 
-	// public void Update(Vector3 accelerometerVector, Vector3 magnetometerVector)
-	// {
-	// 	PMath.GetOrientation(accelerometerVector, magnetometerVector, out orientationMatrix);
-	// }
-
-	public void Update(Matrix orientation) => orientationMatrix = orientation;
-
-	public void Draw(SpriteBatch spriteBatch)
-	{
-		DrawCircle();
-	}
-
-	private void DrawCircle()
+	public void Draw(Matrix currentOrientation)
 	{
 		// NOTE: Phone is intended to be landscape, User is looking at screen.
 		// X is towards right side of phone, Y is towards top of phone, Z is "Up" (towards the user's face)
 		// In screen space, X is "right", and Y is "down".
 
+		Vector3 x = currentOrientation.Right;
+		Vector3 y = currentOrientation.Up;
+		Vector3 z = currentOrientation.Backward;
+
 		// Draw Backing Circle
 		Primitives.DrawCircle(Position, Radius, BackgroundColor, 0.98f);
 
-		Vector3 x = orientationMatrix.Right;
-		Vector3 y = orientationMatrix.Up;
-		Vector3 z = orientationMatrix.Backward;
-
-		Vector2 xScreen = new(-x.Y, -x.X);
-		Vector2 yScreen = new(-y.Y, -y.X);
-		Vector2 zScreen = new(-z.Y, -z.X);
-
-		DrawTargetCircle(xScreen, x.Z > 0, Radius / 8, Color.Magenta);
-		DrawTargetCircle(yScreen, y.Z > 0, Radius / 8, Color.Lime);
-		DrawTargetCircle(zScreen, z.Z > 0, Radius / 8, Color.Cyan);
+		DrawTargetCircle(new(-x.Y, -x.X), x.Z > 0, Radius / 8, XColor);
+		DrawTargetCircle(new(-y.Y, -y.X), y.Z > 0, Radius / 8, YColor);
+		DrawTargetCircle(new(-z.Y, -z.X), z.Z > 0, Radius / 8, ZColor);
 	}
 	private void DrawTargetCircle(Vector2 offset, bool filled, float radius, Color color)
 	{
