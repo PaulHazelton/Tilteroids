@@ -8,6 +8,8 @@ using Tilteroids.Core.Graphics;
 using Tilteroids.Core.Scenes;
 using Tilteroids.Core.Services.Interfaces;
 using Tilteroids.Core.Services.Implementations;
+using SpaceshipArcade.MG.Engine.Input.Sensors;
+using Microsoft.Xna.Framework;
 
 namespace Tilteroids.Core.Framework;
 
@@ -15,6 +17,7 @@ public sealed class TilteroidsManager : GameManager
 {
 	public Accelerometer Accelerometer { get; private set; } = new();
 	public Compass Compass { get; private set; } = new();
+	public OrientationSensor OrientationSensor { get; private set; } = new(compassRollingAvgCount: 10);
 
 	protected override void Initialize()
 	{
@@ -58,6 +61,7 @@ public sealed class TilteroidsManager : GameManager
 		// Sensors
 		Accelerometer.Start();
 		Compass.Start();
+		OrientationSensor.Start();
 
 		// Other
 		TargetElapsedTime = TimeSpan.FromSeconds(1.0d / targetFps);
@@ -73,8 +77,14 @@ public sealed class TilteroidsManager : GameManager
 		Services.AddService<IUserSettingsService>(new UserSettingsService());
 
 		// ChangeScene((gm) => new StartMenu(gm, contentBucket));
-		ChangeScene((gm) => new BasicGameplay(gm, contentBucket, Accelerometer, Compass));
+		ChangeScene((gm) => new BasicGameplay(gm, contentBucket, Accelerometer, Compass, OrientationSensor));
 
 		base.LoadContent();
+	}
+
+	protected override void Update(GameTime gameTime)
+	{
+		OrientationSensor.Sample();
+		base.Update(gameTime);
 	}
 }

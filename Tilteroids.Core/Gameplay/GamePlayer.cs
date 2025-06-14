@@ -11,6 +11,7 @@ using SpaceshipArcade.MG.Engine.Cameras;
 using SpaceshipArcade.MG.Engine.Extensions;
 using SpaceshipArcade.MG.Engine.Framework;
 using SpaceshipArcade.MG.Engine.Input;
+using SpaceshipArcade.MG.Engine.Input.Sensors;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Controllers;
 using Tilteroids.Core.Data;
@@ -33,8 +34,9 @@ public class GamePlayer : IGameObjectHandler
 
 	private readonly Accelerometer _accelerometer;
 	private readonly Compass _compass;
+	private readonly OrientationSensor _orientationSensor;
 	private readonly TextPanel _compassDebugPanel;
-	private readonly OrientationDisplay orientationDisplay;
+	private readonly OrientationDisplay _orientationDisplay;
 
 	private World World { get; set; }
 	private Camera Camera { get; set; }
@@ -54,10 +56,11 @@ public class GamePlayer : IGameObjectHandler
 
 	// TODO PAUL: Only pass in what's needed.
 	// Pass a func for onExit or something
-	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight, Accelerometer accelerometer, Compass compass)
+	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight, Accelerometer accelerometer, Compass compass, OrientationSensor orientationSensor)
 	{
 		_accelerometer = accelerometer;
 		_compass = compass;
+		_orientationSensor = orientationSensor;
 		gameManager = manager;
 		ContentBucket = contentBucket;
 		ScreenWidth = screenWidth;
@@ -82,7 +85,7 @@ public class GamePlayer : IGameObjectHandler
 
 		_compassDebugPanel = new(contentBucket.Fonts.FallbackFont, new(16 * unit, 2 * unit), TextPanel.AnchorCorner.TopLeft);
 
-		orientationDisplay = new(position: new(17 * unit, 3 * unit), radius: 2 * unit);
+		_orientationDisplay = new(position: new(18 * unit, 4.5f * unit), radius: 2 * unit);
 
 		World = new World(new Vector2(0, 0));
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
@@ -160,7 +163,7 @@ public class GamePlayer : IGameObjectHandler
 		_tiltController.Update();
 		_accelerometerDisplay.Update(_accelerometer.CurrentValue.Acceleration);
 		_compassDisplay.Update(_compass.CurrentValue.MagnetometerReading);
-		orientationDisplay.Update(_accelerometer.CurrentValue.Acceleration, _compass.CurrentValue.MagnetometerReading);
+		_orientationDisplay.Update(_orientationSensor.CurrentValue);
 
 		TouchCollection touchCollection = TouchPanel.GetState();
 
@@ -297,7 +300,7 @@ public class GamePlayer : IGameObjectHandler
 		// Sensor Debugging
 		_accelerometerDisplay.Draw(spriteBatch);
 		_compassDisplay.Draw(spriteBatch);
-		orientationDisplay.Draw(spriteBatch);
+		_orientationDisplay.Draw(spriteBatch);
 
 		// _compassDebugPanel.ClearLines();
 		// _compassDebugPanel.AddLine($"HeadingAccuracy: {_compass.CurrentValue.HeadingAccuracy,6:F3}");

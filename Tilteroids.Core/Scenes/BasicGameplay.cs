@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Framework.Devices.Sensors;
 using SpaceshipArcade.MG.Engine.Framework;
+using SpaceshipArcade.MG.Engine.Input.Sensors;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay;
 
@@ -11,9 +12,9 @@ public class BasicGameplay : Scene
 {
 	private readonly GamePlayer gamePlayer;
 
-	public BasicGameplay(GameManager manager, ContentBucket contentBucket, Accelerometer accelerometer, Compass compass) : base(manager)
+	public BasicGameplay(GameManager manager, ContentBucket contentBucket, Accelerometer accelerometer, Compass compass, OrientationSensor orientationSensor) : base(manager)
 	{
-		gamePlayer = new GamePlayer(manager, contentBucket, ScreenWidth, ScreenHeight, accelerometer, compass);
+		gamePlayer = new GamePlayer(manager, contentBucket, ScreenWidth, ScreenHeight, accelerometer, compass, orientationSensor);
 
 		UpdateSize();
 	}

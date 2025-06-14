@@ -20,10 +20,12 @@ public class OrientationDisplay
 		BackgroundColor = backgroundColor ?? new Color(50, 50, 50);
 	}
 
-	public void Update(Vector3 accelerometerVector, Vector3 magnetometerVector)
-	{
-		PMath.GetOrientation(accelerometerVector, magnetometerVector, out orientationMatrix);
-	}
+	// public void Update(Vector3 accelerometerVector, Vector3 magnetometerVector)
+	// {
+	// 	PMath.GetOrientation(accelerometerVector, magnetometerVector, out orientationMatrix);
+	// }
+
+	public void Update(Matrix orientation) => orientationMatrix = orientation;
 
 	public void Draw(SpriteBatch spriteBatch)
 	{

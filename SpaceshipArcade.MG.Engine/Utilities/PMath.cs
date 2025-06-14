@@ -64,15 +64,16 @@ public class PMath
 	/// <returns>True if success, false if failed.</returns>
 	public static bool GetOrientation(Vector3 accelerometerVector, Vector3 magnetometerVector, out Matrix result)
 	{
+		float g = 1.0f; // Expected units are in gs
+		
 		result = Matrix.Identity;
-		float g = 1.0f;	// Expected units are in gs
 
 		// If less than 0.1 gs (note, 0.1 is squared)
 		if (accelerometerVector.LengthSquared() < 0.01f * g * g)
 			return false;
 
-		// If less than 100 micro T (note, 10 squared) (Expected range is 25 to 65)
-		if (magnetometerVector.LengthSquared() < 100.0f)
+		// If less than 5 micro T (note, 5 is squared) (Expected range is 25 to 65)
+		if (magnetometerVector.LengthSquared() < 25.0f)
 			return false;
 
 		Vector3 east = Vector3.Normalize(Vector3.Cross(magnetometerVector, accelerometerVector));
