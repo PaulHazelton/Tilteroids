@@ -17,7 +17,7 @@ public sealed class TilteroidsManager : GameManager
 {
 	public Accelerometer Accelerometer { get; private set; } = new();
 	public Compass Compass { get; private set; } = new();
-	public OrientationSensor OrientationSensor { get; private set; } = new(compassRollingAvgCount: 10);
+	public OrientationSensor OrientationSensor { get; private set; } = new(compassRollingAvgCount: 6);
 
 	protected override void Initialize()
 	{

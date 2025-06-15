@@ -74,7 +74,7 @@ public class GamePlayer : IGameObjectHandler
 		_gameObjects = [];
 		_gameObjectsToAdd = [];
 		_gameObjectsToRemove = [];
-		_tiltController = new(accelerometer);
+		_tiltController = new(orientationSensor);
 
 		int unit = screenWidth / 30;
 
@@ -313,7 +313,8 @@ public class GamePlayer : IGameObjectHandler
 		_aCircleDisplay.Draw(_accelerometer.CurrentValue.Acceleration, _aCalibrationVector);
 		_cBarDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
 		_cCircleDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
-		_orientationDisplay.Draw(Matrix.Invert(_orientationSensor.CurrentValue), Matrix.Invert(_calibrationMatrix));
+		_orientationDisplay.Draw(_orientationSensor.CurrentValue, _calibrationMatrix);
+		// _orientationDisplay.Draw(Matrix.Invert(_orientationSensor.CurrentValue), Matrix.Invert(_calibrationMatrix));
 		_aimDisplay.Draw(_tiltController.AimVector);
 
 		spriteBatch.End();

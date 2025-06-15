@@ -65,7 +65,7 @@ public class PMath
 	public static bool GetOrientation(Vector3 accelerometerVector, Vector3 magnetometerVector, out Matrix result)
 	{
 		float g = 1.0f; // Expected units are in gs
-		
+
 		result = Matrix.Identity;
 
 		// If less than 0.1 gs (note, 0.1 is squared)
@@ -81,8 +81,31 @@ public class PMath
 		Vector3 up = Vector3.Normalize(accelerometerVector);
 
 		result = new Matrix(new Vector4(east, 0), new Vector4(north, 0), new Vector4(up, 0), Vector4.UnitW);
-		
+
 		return true;
+	}
+
+	/// <summary>
+	/// Old function that was used for the tilt controller that was based exclusively on accelerometer data.
+	/// </summary>
+	/// <param name="calibrationVector"></param>
+	/// <param name="targetVector">The "neutral value" Defaults to (0, 0, 1) (out of the screen)</param>
+	/// <returns>Returns a matrix that would return the calibration vector to neutral. Compare the current vector to the calibration vector.</returns> <summary>
+	public static Matrix GetRotationMatrix(Vector3 calibrationVector, Vector3? targetVector = null)
+	{
+		targetVector ??= new(0, 0, 1);
+
+		float dot = Vector3.Dot(calibrationVector, targetVector.Value);
+
+		if (Math.Abs(dot - 1.0f) < 1e-6f)
+			return Matrix.Identity;
+
+		if (Math.Abs(dot + 1.0f) < 1e-6)
+			return Matrix.CreateFromAxisAngle(Vector3.UnitY, MathHelper.Pi);
+
+		Vector3 axis = Vector3.Normalize(Vector3.Cross(calibrationVector, targetVector.Value));
+		float angle = (float)Math.Acos(dot);
+		return Matrix.CreateFromAxisAngle(axis, angle);
 	}
 
 	#endregion
