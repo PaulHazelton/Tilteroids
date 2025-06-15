@@ -1,10 +1,9 @@
-using System;
 using Microsoft.Xna.Framework;
 using SpaceshipArcade.MG.Engine.Extensions;
+using SpaceshipArcade.MG.Engine.Graphics;
 using SpaceshipArcade.MG.Engine.Utilities;
-using Tilteroids.Core.Graphics;
 
-namespace Tilteroids.Core.Debugging;
+namespace SpaceshipArcade.MG.Engine.Debugging;
 
 public class Vector3BarDisplay(Rectangle barDestinationRectangle)
 {

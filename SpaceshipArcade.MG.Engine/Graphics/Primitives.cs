@@ -1,10 +1,9 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpaceshipArcade.MG.Engine.Utilities;
 
-namespace Tilteroids.Core.Graphics;
+namespace SpaceshipArcade.MG.Engine.Graphics;
 
 public static class Primitives
 {
@@ -55,7 +54,7 @@ public static class Primitives
 			for (int y = 0; y < d; y++)
 			{
 				// Circle bit
-				data[y * d + x] = ((x - center) * (x - center) + (y - center) * (y - center) < rOuter2)
+				data[y * d + x] = (x - center) * (x - center) + (y - center) * (y - center) < rOuter2
 					? color
 					: Color.Transparent;
 
@@ -82,7 +81,7 @@ public static class Primitives
 			{
 				// Circle bit
 				float pixelR2 = (x - center) * (x - center) + (y - center) * (y - center);
-				data[y * d + x] = (pixelR2 < rOuter2 && pixelR2 >= rInner2)
+				data[y * d + x] = pixelR2 < rOuter2 && pixelR2 >= rInner2
 					? color
 					: Color.Transparent;
 			}
@@ -178,7 +177,7 @@ public static class Primitives
 		// switch (DrawMode)
 		// {
 		// 	case DrawMode.RAW:
-		_spriteBatch!.Draw(_circleSprite, position, null, color, angle, _circleOrigin, d / (float)_circleSprite!.Width, SpriteEffects.None, layerDepth);
+		_spriteBatch!.Draw(_circleSprite, position, null, color, angle, _circleOrigin, d / _circleSprite!.Width, SpriteEffects.None, layerDepth);
 		// 		break;
 		// 	case DrawMode.CONVERT_TO_DISPLAY:
 		// 		d = ConvertUnits.ToDisplayUnits(d);
@@ -197,7 +196,7 @@ public static class Primitives
 
 		float d = radius * 2f;    // Diameter
 
-		_spriteBatch!.Draw(_circleOutline, position, null, color, angle, _circleOrigin, d / (float)_circleSprite!.Width, SpriteEffects.None, layerDepth);
+		_spriteBatch!.Draw(_circleOutline, position, null, color, angle, _circleOrigin, d / _circleSprite!.Width, SpriteEffects.None, layerDepth);
 	}
 
 	public static void DrawLine(Vector2 p1, Vector2 p2, float thickness, Color color, float layerDepth = 0)

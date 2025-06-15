@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
-using Tilteroids.Core.Graphics;
+using SpaceshipArcade.MG.Engine.Graphics;
 
-namespace Tilteroids.Core.Debugging;
+namespace SpaceshipArcade.MG.Engine.Debugging;
 
 public class Vector2CircleDisplay(Vector2 position, float radius)
 {
@@ -19,12 +19,12 @@ public class Vector2CircleDisplay(Vector2 position, float radius)
 		var magnitude = vector.Length();
 
 		if (magnitude > MaxMagnitude)
-			vector = (vector / magnitude) * MaxMagnitude;
+			vector = vector / magnitude * MaxMagnitude;
 
 		// Draw Backing Circle
 		Primitives.DrawCircle(Position, Radius, BackgroundColor, 0.98f);
 
 		// Draw Line
-		Primitives.DrawLine(Position, Position + (vector * Radius), 2.0f, IndicatorColor, 1.0f);
+		Primitives.DrawLine(Position, Position + vector * Radius, 2.0f, IndicatorColor, 1.0f);
 	}
 }

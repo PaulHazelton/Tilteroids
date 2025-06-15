@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
-using Tilteroids.Core.Graphics;
+using SpaceshipArcade.MG.Engine.Graphics;
 
-namespace Tilteroids.Core.Debugging;
+namespace SpaceshipArcade.MG.Engine.Debugging;
 
 public class OrientationDisplay(Vector2 position, float radius)
 {

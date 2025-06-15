@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
 using SpaceshipArcade.MG.Engine.Extensions;
-using Tilteroids.Core.Graphics;
+using SpaceshipArcade.MG.Engine.Graphics;
 
-namespace Tilteroids.Core.Debugging;
+namespace SpaceshipArcade.MG.Engine.Debugging;
 
 public class Vector3CircleDisplay(Vector2 position, float radius)
 {
