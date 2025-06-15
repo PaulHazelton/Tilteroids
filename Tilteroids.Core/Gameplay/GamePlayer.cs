@@ -45,6 +45,8 @@ public class GamePlayer : IGameObjectHandler
 
 	private Matrix _calibrationMatrix = Matrix.Identity;
 
+	private readonly Vector2CircleDisplay _aimDisplay;
+
 	private readonly DebugView _debugView;
 	#endregion
 
@@ -86,6 +88,8 @@ public class GamePlayer : IGameObjectHandler
 
 		_orientationSensor = orientationSensor;
 		_orientationDisplay = new(position: new(18 * unit, 4.5f * unit), radius: 2 * unit);
+
+		_aimDisplay = new(position: new(18 * unit, 9 * unit), radius: 1 * unit);
 		
 		ContentBucket = contentBucket;
 		ScreenWidth = screenWidth;
@@ -310,6 +314,7 @@ public class GamePlayer : IGameObjectHandler
 		_cBarDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
 		_cCircleDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
 		_orientationDisplay.Draw(Matrix.Invert(_orientationSensor.CurrentValue), Matrix.Invert(_calibrationMatrix));
+		_aimDisplay.Draw(_tiltController.AimVector);
 
 		spriteBatch.End();
 	}
