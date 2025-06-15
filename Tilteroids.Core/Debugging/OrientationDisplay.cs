@@ -3,11 +3,11 @@ using Tilteroids.Core.Graphics;
 
 namespace Tilteroids.Core.Debugging;
 
-public class OrientationDisplay
+public class OrientationDisplay(Vector2 position, float radius)
 {
 	// Required Params
-	public Vector2 Position { get; set; }
-	public float Radius { get; set; }
+	public Vector2 Position { get; set; } = position;
+	public float Radius { get; set; } = radius;
 
 	// Optional Params
 	public Color BackgroundColor { get; set; } = new Color(50, 50, 50);
@@ -18,12 +18,6 @@ public class OrientationDisplay
 	public Color CalibrationXColor { get; set; } = Color.Red;
 	public Color CalibrationYColor { get; set; } = Color.Green;
 	public Color CalibrationZColor { get; set; } = Color.Blue;
-
-	public OrientationDisplay(Vector2 position, float radius)
-	{
-		Position = position;
-		Radius = radius;
-	}
 
 	public void Draw(Matrix currentOrientation, Matrix calibrationOrientation)
 	{

@@ -56,7 +56,7 @@ public class GamePlayer : IGameObjectHandler
 	private Spaceship? _spaceShip;
 
 	// Settings
-	private bool DoDebugDraw { get; set; } = false;
+	private DebugFlags _debugSettings = DebugFlags.Physics | DebugFlags.SensorData | DebugFlags.AimVector;
 
 	// Public Interface Stuff
 	public ContentBucket ContentBucket { get; }
@@ -100,7 +100,10 @@ public class GamePlayer : IGameObjectHandler
 
 		Camera.SnapScale(1);
 
-		_debugView = new DebugView(World);
+		_debugView = new DebugView(World)
+		{
+			Flags = DebugViewFlags.Shape | DebugViewFlags.ContactPoints | DebugViewFlags.ContactNormals
+		};
 		_debugView.LoadContent(manager.GraphicsDevice, manager.Content);
 
 		AddGameplayObjects();
@@ -162,7 +165,11 @@ public class GamePlayer : IGameObjectHandler
 			_gameManager.Exit();
 
 		if (InputManager.WasButtonPressed(Keys.F1))
-			DoDebugDraw = !DoDebugDraw;
+			_debugSettings ^= DebugFlags.Physics;
+		if (InputManager.WasButtonPressed(Keys.F2))
+			_debugSettings ^= DebugFlags.SensorData;
+		if (InputManager.WasButtonPressed(Keys.F3))
+			_debugSettings ^= DebugFlags.AimVector;
 
 		if (InputManager.WasButtonPressed(Keys.R))
 			Reset();
@@ -288,6 +295,8 @@ public class GamePlayer : IGameObjectHandler
 	{
 		Primitives.SetSpriteBatch(spriteBatch);
 
+		#region World Space
+
 		spriteBatch.Begin(
 			transformMatrix: Camera.View
 		);
@@ -296,36 +305,45 @@ public class GamePlayer : IGameObjectHandler
 		foreach (var gameObject in _gameObjects)
 			gameObject.Draw(spriteBatch);
 
-		// Physics Debug
-		if (DoDebugDraw)
-			DebugDraw();
-
 		// World Border
 		Primitives.DrawRectangleOutline(Scale(Bounds, Constants.PixelsPerMeter), Color.Blue, 2.0f, 0);
 		static Rectangle Scale(RectangleF rec, float scale) => new((int)(rec.X * scale), (int)(rec.Y * scale), (int)(rec.Width * scale), (int)(rec.Height * scale));
 
+		WorldSpaceDebugDraw();
+
 		spriteBatch.End();
+
+		#endregion
+
+		#region  Screen Space
 
 		spriteBatch.Begin();
 
-		// Sensor Debugging
-		_aBarDisplay.Draw(_accelerometer.CurrentValue.Acceleration, _aCalibrationVector);
-		_aCircleDisplay.Draw(_accelerometer.CurrentValue.Acceleration, _aCalibrationVector);
-		_cBarDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
-		_cCircleDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
-		_orientationDisplay.Draw(_orientationSensor.CurrentValue, _calibrationMatrix);
-		// _orientationDisplay.Draw(Matrix.Invert(_orientationSensor.CurrentValue), Matrix.Invert(_calibrationMatrix));
-		_aimDisplay.Draw(_tiltController.AimVector);
+		ScreenSpaceDebugDraw();
 
 		spriteBatch.End();
+		
+		#endregion
 	}
 
-	private void DebugDraw(float alpha = 1)
+	private void WorldSpaceDebugDraw(float alpha = 1.0f)
 	{
-		_debugView.AppendFlags(DebugViewFlags.ContactNormals);
-		_debugView.AppendFlags(DebugViewFlags.ContactPoints);
-		// _debugView.AppendFlags(DebugViewFlags.DebugPanel);
-		// _debugView.AppendFlags(DebugViewFlags.CenterOfMass);
-		_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Additive, alpha: alpha);
+		if (_debugSettings.HasFlag(DebugFlags.Physics))
+			_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Additive, alpha: alpha);
+	}
+
+	private void ScreenSpaceDebugDraw()
+	{
+		if (_debugSettings.HasFlag(DebugFlags.SensorData))
+		{
+			_aBarDisplay.Draw(_accelerometer.CurrentValue.Acceleration, _aCalibrationVector);
+			_aCircleDisplay.Draw(_accelerometer.CurrentValue.Acceleration, _aCalibrationVector);
+			_cBarDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
+			_cCircleDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
+			_orientationDisplay.Draw(_orientationSensor.CurrentValue, _calibrationMatrix);
+		}
+
+		if (_debugSettings.HasFlag(DebugFlags.AimVector))
+			_aimDisplay.Draw(_tiltController.AimVector);
 	}
 }

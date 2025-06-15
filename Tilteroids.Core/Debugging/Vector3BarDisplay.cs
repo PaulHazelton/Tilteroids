@@ -6,10 +6,10 @@ using Tilteroids.Core.Graphics;
 
 namespace Tilteroids.Core.Debugging;
 
-public class Vector3BarDisplay
+public class Vector3BarDisplay(Rectangle barDestinationRectangle)
 {
 	// Required Params
-	public Rectangle BarDestinationRectangle { get; set; }
+	public Rectangle BarDestinationRectangle { get; set; } = barDestinationRectangle;
 
 	// Optional Params
 	public int Padding { get; set; } = 10;
@@ -17,11 +17,6 @@ public class Vector3BarDisplay
 	public Color YColor { get; set; } = Color.Lime;
 	public Color ZColor { get; set; } = Color.Cyan;
 	public Color TickColor { get; set; } = Color.Yellow;
-
-	public Vector3BarDisplay(Rectangle barDestinationRectangle)
-	{
-		BarDestinationRectangle = barDestinationRectangle;
-	}
 
 	public void Draw(Vector3 currentVector, Vector3 calibrationVector)
 	{

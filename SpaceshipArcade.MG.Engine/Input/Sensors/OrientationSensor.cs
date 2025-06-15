@@ -34,6 +34,7 @@ public class OrientationSensor
 				SampleQueue.Dequeue();
 				SampleQueue.Enqueue(data);
 
+				// Vector average
 				CurrentValue = SampleQueue.Aggregate((sum, v) => sum + v) / Count;
 			}
 		}

@@ -29,11 +29,6 @@ public class BasicGameplay : Scene
 		GraphicsDevice.Clear(BackgroundColor);
 
 		gamePlayer.Draw(spriteBatch);
-
-		// Top left corner for debugging
-		// spriteBatch.Begin();
-		// Primitives.DrawRectangle(Vector2.Zero, new Vector2(100, 100), 0, Color.Red, 1);
-		// spriteBatch.End();
 	}
 
 	protected override void UpdateSize()

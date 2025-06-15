@@ -4,22 +4,16 @@ using Tilteroids.Core.Graphics;
 
 namespace Tilteroids.Core.Debugging;
 
-public class Vector3CircleDisplay
+public class Vector3CircleDisplay(Vector2 position, float radius)
 {
 	// Required Params
-	public Vector2 Position { get; set; }
-	public float Radius { get; set; }
+	public Vector2 Position { get; set; } = position;
+	public float Radius { get; set; } = radius;
 
 	// Optional Params
 	public Color BackgroundColor { get; set; } = new Color(50, 50, 50);
 	public Color IndicatorColor { get; set; } = Color.Yellow;
 	public Color CalibrationIndicatorColor { get; set; } = Color.Cyan;
-
-	public Vector3CircleDisplay(Vector2 position, float radius)
-	{
-		Position = position;
-		Radius = radius;
-	}
 
 	public void Draw(Vector3 currentVector, Vector3 calibrationVector)
 	{
