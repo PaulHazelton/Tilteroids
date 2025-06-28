@@ -18,12 +18,10 @@ using Tilteroids.Core.Gameplay.Entities;
 
 namespace Tilteroids.Core.Gameplay;
 
-public class GamePlayer : IGameObjectHandler
+public class GamePlayer : IGamePlayer
 {
 	private readonly GameManager _gameManager;
-	private readonly List<IGameObject> _gameObjects;
-	private readonly List<IGameObject> _gameObjectsToAdd;
-	private readonly List<IGameObject> _gameObjectsToRemove;
+	private readonly GameObjectCollection _gameObjectCollection;
 	private readonly TiltController _tiltController;
 
 	#region Experimental and debugging stuff
@@ -70,10 +68,29 @@ public class GamePlayer : IGameObjectHandler
 	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight, Accelerometer accelerometer, Compass compass, OrientationSensor orientationSensor)
 	{
 		_gameManager = manager;
-		_gameObjects = [];
-		_gameObjectsToAdd = [];
-		_gameObjectsToRemove = [];
+
 		_tiltController = new(orientationSensor);
+
+		ContentBucket = contentBucket;
+		ScreenWidth = screenWidth;
+		ScreenHeight = screenHeight;
+
+		World = new World(new Vector2(0, 0));
+		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
+
+		Camera.SnapScale(1);
+
+		_gameObjectCollection = new(World);
+
+		_debugView = new DebugView(World)
+		{
+			Flags = DebugViewFlags.Shape | DebugViewFlags.ContactPoints | DebugViewFlags.ContactNormals
+		};
+		_debugView.LoadContent(manager.GraphicsDevice, manager.Content);
+
+		AddGameplayObjects();
+
+		#region Sensor debug stuff
 
 		int unit = screenWidth / 30;
 
@@ -90,22 +107,7 @@ public class GamePlayer : IGameObjectHandler
 
 		_aimDisplay = new(position: new(18 * unit, 9 * unit), radius: 1 * unit);
 
-		ContentBucket = contentBucket;
-		ScreenWidth = screenWidth;
-		ScreenHeight = screenHeight;
-
-		World = new World(new Vector2(0, 0));
-		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
-
-		Camera.SnapScale(1);
-
-		_debugView = new DebugView(World)
-		{
-			Flags = DebugViewFlags.Shape | DebugViewFlags.ContactPoints | DebugViewFlags.ContactNormals
-		};
-		_debugView.LoadContent(manager.GraphicsDevice, manager.Content);
-
-		AddGameplayObjects();
+		#endregion
 	}
 
 	public void UpdateSize(int screenWidth, int screenHeight)
@@ -125,7 +127,7 @@ public class GamePlayer : IGameObjectHandler
 		ProcessInput();
 
 		// Update all game objects
-		UpdateGameObjects(gameTime);
+		_gameObjectCollection.Update(gameTime);
 
 		// Update World
 		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
@@ -142,7 +144,7 @@ public class GamePlayer : IGameObjectHandler
 		);
 
 		// Actual Game Objects
-		foreach (var gameObject in _gameObjects)
+		foreach (var gameObject in _gameObjectCollection.GameObjects)
 			gameObject.Draw(spriteBatch);
 
 		// World Border
@@ -192,47 +194,8 @@ public class GamePlayer : IGameObjectHandler
 
 	#region Game Objects
 
-	public void AddGameObject(IGameObject gameObject) => _gameObjectsToAdd.Add(gameObject);
-	public void RemoveGameObject(IGameObject gameObject) => _gameObjectsToRemove.Add(gameObject);
-	private void Add(IGameObject gameObject)
-	{
-		_gameObjects.Add(gameObject);
-
-		if (gameObject is IPhysicsObject po)
-			World.Add(po.Body);
-	}
-	private void Remove(IGameObject gameObject)
-	{
-		if (_gameObjects.Remove(gameObject))
-		{
-			// gameObject.Dispose();
-			if (gameObject is IPhysicsObject po && World.BodyList.Contains(po.Body))
-				World.RemoveAsync(po.Body);
-		}
-	}
-	private void UpdateGameObjects(GameTime gameTime)
-	{
-		// Update objects
-		foreach (IGameObject gameObject in _gameObjects)
-			gameObject.Update(gameTime);
-
-		// Handle queued objects
-		foreach (var gameObject in _gameObjectsToAdd)
-			Add(gameObject);
-		foreach (var gameObject in _gameObjectsToRemove)
-			Remove(gameObject);
-
-		_gameObjectsToAdd.Clear();
-		_gameObjectsToRemove.Clear();
-	}
-	private void RemoveAllGameObjects()
-	{
-		_gameObjectsToAdd.Clear();
-		_gameObjectsToRemove.Clear();
-
-		_gameObjects.Clear();
-		World.Clear();
-	}
+	public void AddGameObject(IGameObject gameObject) => _gameObjectCollection.Add(gameObject);
+	public void RemoveGameObject(IGameObject gameObject) => _gameObjectCollection.Remove(gameObject);
 
 	#endregion
 
@@ -285,7 +248,7 @@ public class GamePlayer : IGameObjectHandler
 
 	private void Reset()
 	{
-		RemoveAllGameObjects();
+		_gameObjectCollection.Clear();
 		AddGameplayObjects();
 	}
 

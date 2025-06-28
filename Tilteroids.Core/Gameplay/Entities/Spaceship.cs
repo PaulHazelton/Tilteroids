@@ -14,7 +14,7 @@ namespace Tilteroids.Core.Gameplay.Entities;
 public class Spaceship : IGameObject, IPhysicsObject
 {
 	// Private
-	private readonly IGameObjectHandler _handler;
+	private readonly IGamePlayer _handler;
 	private readonly Texture2D _shipTexture;
 	private readonly Vector2 _origin;
 	private readonly float _scale;
@@ -27,7 +27,7 @@ public class Spaceship : IGameObject, IPhysicsObject
 	// Public
 	public Body Body { get; private init; }
 
-	public Spaceship(IGameObjectHandler handler, Vector2 startingPos)
+	public Spaceship(IGamePlayer handler, Vector2 startingPos)
 	{
 		_gunShotSound = handler.ContentBucket.SoundEffects.Gun;
 		_random = new();
