@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using SpaceshipArcade.MG.Engine.Graphics;
 
 namespace SpaceshipArcade.MG.Engine.Debugging;

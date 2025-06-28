@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using SpaceshipArcade.MG.Engine.Extensions;
 
 namespace SpaceshipArcade.MG.Engine.Utilities;

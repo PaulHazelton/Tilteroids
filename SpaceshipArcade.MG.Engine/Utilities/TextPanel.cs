@@ -1,6 +1,3 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-
 namespace SpaceshipArcade.MG.Engine.Utilities;
 
 /// <summary>
@@ -25,7 +22,7 @@ public class TextPanel
 	public TextPanel(SpriteFont font, Vector2 position, AnchorCorner anchorCorner)
 	{
 		_font = font;
-		_lines = new List<string>();
+		_lines = [];
 
 		_textColor = Color.White;
 		_position = position;

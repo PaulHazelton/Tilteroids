@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Framework.Devices.Sensors;
 using SpaceshipArcade.MG.Engine.Framework;
 using SpaceshipArcade.MG.Engine.Input.Sensors;

@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-
 namespace SpaceshipArcade.MG.Engine.Extensions;
 
 public static class VectorExtensions

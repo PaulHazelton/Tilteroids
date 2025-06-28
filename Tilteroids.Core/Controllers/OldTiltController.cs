@@ -1,5 +1,3 @@
-using System;
-using Microsoft.Xna.Framework;
 using MonoGame.Framework.Devices.Sensors;
 
 namespace Tilteroids.Core.Controllers;

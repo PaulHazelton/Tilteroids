@@ -1,6 +1,4 @@
 using System.Text.Json;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace SpaceshipArcade.MG.Engine.Utilities;
 

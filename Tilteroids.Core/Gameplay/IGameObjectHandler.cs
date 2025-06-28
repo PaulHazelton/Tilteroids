@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Data;
 

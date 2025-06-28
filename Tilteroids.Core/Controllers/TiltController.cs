@@ -1,5 +1,3 @@
-using System;
-using Microsoft.Xna.Framework;
 using SpaceshipArcade.MG.Engine.Input.Sensors;
 
 namespace Tilteroids.Core.Controllers;

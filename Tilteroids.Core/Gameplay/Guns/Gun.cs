@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-
 namespace Tilteroids.Core.Gameplay.Guns;
 
 public abstract class Gun
