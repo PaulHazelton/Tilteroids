@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-
 namespace SpaceshipArcade.MG.Engine.Utilities;
 
 public enum Direction

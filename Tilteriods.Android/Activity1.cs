@@ -10,6 +10,7 @@ namespace Tilteriods.Android
 		Label = "@string/app_name",
 		MainLauncher = true,
 		Icon = "@drawable/icon",
+		Theme = "@style/DarkTheme",
 		AlwaysRetainTaskState = true,
 		LaunchMode = LaunchMode.SingleInstance,
 		ScreenOrientation = ScreenOrientation.Landscape,

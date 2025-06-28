@@ -4,8 +4,6 @@
  * 	Box2D density:	g/cm^3
  */
 
-using Microsoft.Xna.Framework;
-
 namespace SpaceshipArcade.MG.Engine.Utilities;
 
 public static class Formatter

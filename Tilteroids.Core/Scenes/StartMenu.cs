@@ -1,10 +1,8 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SpaceshipArcade.MG.Engine.Framework;
+using SpaceshipArcade.MG.Engine.Graphics;
 using SpaceshipArcade.MG.Engine.Input;
 using Tilteroids.Core.Data;
-using Tilteroids.Core.Graphics;
 
 namespace Tilteroids.Core.Scenes;
 

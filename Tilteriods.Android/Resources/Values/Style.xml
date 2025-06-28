@@ -1,0 +1,5 @@
+<resources>
+	<style name="DarkTheme">
+		<item name="android:navigationBarColor">@android:color/black</item>
+	</style>
+</resources>

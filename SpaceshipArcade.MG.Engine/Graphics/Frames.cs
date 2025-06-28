@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-
 namespace SpaceshipArcade.MG.Engine.Graphics;
 
 public class Frames

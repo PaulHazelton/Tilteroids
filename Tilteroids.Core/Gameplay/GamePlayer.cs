@@ -1,41 +1,61 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using MonoGame.Framework.Devices.Sensors;
 using nkast.Aether.Physics2D.Diagnostics;
 using nkast.Aether.Physics2D.Dynamics;
 using SpaceshipArcade.MG.Engine.Cameras;
+using SpaceshipArcade.MG.Engine.Debugging;
 using SpaceshipArcade.MG.Engine.Extensions;
 using SpaceshipArcade.MG.Engine.Framework;
+using SpaceshipArcade.MG.Engine.Graphics;
 using SpaceshipArcade.MG.Engine.Input;
+using SpaceshipArcade.MG.Engine.Input.Sensors;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Controllers;
 using Tilteroids.Core.Data;
+using Tilteroids.Core.Debugging;
 using Tilteroids.Core.Gameplay.Entities;
-using Tilteroids.Core.Graphics;
 
 namespace Tilteroids.Core.Gameplay;
 
 public class GamePlayer : IGameObjectHandler
 {
-	// Parent
-	private readonly GameManager gameManager;
-
-	private readonly DebugView _debugView;
-	private readonly List<IGameObject> GameObjects;
+	private readonly GameManager _gameManager;
+	private readonly List<IGameObject> _gameObjects;
 	private readonly List<IGameObject> _gameObjectsToAdd;
 	private readonly List<IGameObject> _gameObjectsToRemove;
 	private readonly TiltController _tiltController;
+
+	#region Experimental and debugging stuff
+
+	private readonly Accelerometer _accelerometer;
+	private Vector3 _aCalibrationVector;
+	private readonly Vector3BarDisplay _aBarDisplay;
+	private readonly Vector3CircleDisplay _aCircleDisplay;
+
+	private readonly Compass _compass;
+	private Vector3 _cCalibrationVector;
+	private readonly Vector3BarDisplay _cBarDisplay;
+	private readonly Vector3CircleDisplay _cCircleDisplay;
+
+	private readonly OrientationSensor _orientationSensor;
+	private readonly OrientationDisplay _orientationDisplay;
+
+	private Matrix _calibrationMatrix = Matrix.Identity;
+
+	private readonly Vector2CircleDisplay _aimDisplay;
+
+	private readonly DebugView _debugView;
+
+	#endregion
+
 	private World World { get; set; }
 	private Camera Camera { get; set; }
 	private Matrix _projection;
 	private Spaceship? _spaceShip;
 
 	// Settings
-	private bool DoDebugDraw { get; set; } = false;
+	private DebugFlags _debugSettings = DebugFlags.Physics | DebugFlags.SensorData | DebugFlags.AimVector;
 
 	// Public Interface Stuff
 	public ContentBucket ContentBucket { get; }
@@ -47,26 +67,220 @@ public class GamePlayer : IGameObjectHandler
 
 	// TODO PAUL: Only pass in what's needed.
 	// Pass a func for onExit or something
-	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight, Accelerometer accelerometer)
+	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight, Accelerometer accelerometer, Compass compass, OrientationSensor orientationSensor)
 	{
-		gameManager = manager;
+		_gameManager = manager;
+		_gameObjects = [];
+		_gameObjectsToAdd = [];
+		_gameObjectsToRemove = [];
+		_tiltController = new(orientationSensor);
+
+		int unit = screenWidth / 30;
+
+		_accelerometer = accelerometer;
+		_aBarDisplay = new(new Rectangle(2 * unit, 2 * unit, 5 * unit, 1 * unit));
+		_aCircleDisplay = new(position: new(6 * unit, 9 * unit), radius: 1 * unit);
+
+		_compass = compass;
+		_cBarDisplay = new(new Rectangle(10 * unit, 2 * unit, 5 * unit, 1 * unit));
+		_cCircleDisplay = new(position: new(14 * unit, 9 * unit), radius: 1 * unit);
+
+		_orientationSensor = orientationSensor;
+		_orientationDisplay = new(position: new(18 * unit, 4.5f * unit), radius: 2 * unit);
+
+		_aimDisplay = new(position: new(18 * unit, 9 * unit), radius: 1 * unit);
+
 		ContentBucket = contentBucket;
 		ScreenWidth = screenWidth;
 		ScreenHeight = screenHeight;
-		_tiltController = new(accelerometer);
-		_gameObjectsToAdd = [];
-		_gameObjectsToRemove = [];
-		GameObjects = [];
 
 		World = new World(new Vector2(0, 0));
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
 
 		Camera.SnapScale(1);
 
-		_debugView = new DebugView(World);
+		_debugView = new DebugView(World)
+		{
+			Flags = DebugViewFlags.Shape | DebugViewFlags.ContactPoints | DebugViewFlags.ContactNormals
+		};
 		_debugView.LoadContent(manager.GraphicsDevice, manager.Content);
 
 		AddGameplayObjects();
+	}
+
+	public void UpdateSize(int screenWidth, int screenHeight)
+	{
+		ScreenWidth = screenWidth;
+		ScreenHeight = screenHeight;
+
+		Camera.UpdateScreenSize(ScreenWidth, ScreenHeight);
+
+		float halfWidthMeters = Constants.MetersPerPixel * (ScreenWidth / 2);
+		float halfHeightMeters = Constants.MetersPerPixel * (ScreenHeight / 2);
+		_projection = Matrix.CreateOrthographicOffCenter(-halfWidthMeters, halfWidthMeters, halfHeightMeters, -halfHeightMeters, -1, 1);
+	}
+
+	public void Update(GameTime gameTime)
+	{
+		ProcessInput();
+
+		// Update all game objects
+		UpdateGameObjects(gameTime);
+
+		// Update World
+		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
+	}
+
+	public void Draw(SpriteBatch spriteBatch)
+	{
+		Primitives.SetSpriteBatch(spriteBatch);
+
+		#region World Space
+
+		spriteBatch.Begin(
+			transformMatrix: Camera.View
+		);
+
+		// Actual Game Objects
+		foreach (var gameObject in _gameObjects)
+			gameObject.Draw(spriteBatch);
+
+		// World Border
+		Primitives.DrawRectangleOutline(Scale(Bounds, Constants.PixelsPerMeter), Color.Blue, 2.0f, 0);
+		static Rectangle Scale(RectangleF rec, float scale) => new((int)(rec.X * scale), (int)(rec.Y * scale), (int)(rec.Width * scale), (int)(rec.Height * scale));
+
+		WorldSpaceDebugDraw();
+
+		spriteBatch.End();
+
+		#endregion
+
+		#region  Screen Space
+
+		spriteBatch.Begin();
+
+		ScreenSpaceDebugDraw();
+
+		spriteBatch.End();
+
+		#endregion
+
+		#region Local Functions
+
+		void WorldSpaceDebugDraw(float alpha = 1.0f)
+		{
+			if (_debugSettings.HasFlag(DebugFlags.Physics))
+				_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Additive, alpha: alpha);
+		}
+		void ScreenSpaceDebugDraw()
+		{
+			if (_debugSettings.HasFlag(DebugFlags.SensorData))
+			{
+				_aBarDisplay.Draw(_accelerometer.CurrentValue.Acceleration, _aCalibrationVector);
+				_aCircleDisplay.Draw(_accelerometer.CurrentValue.Acceleration, _aCalibrationVector);
+				_cBarDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
+				_cCircleDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
+				_orientationDisplay.Draw(_orientationSensor.CurrentValue, _calibrationMatrix);
+			}
+
+			if (_debugSettings.HasFlag(DebugFlags.AimVector))
+				_aimDisplay.Draw(_tiltController.AimVector);
+		}
+
+		#endregion
+	}
+
+	#region Game Objects
+
+	public void AddGameObject(IGameObject gameObject) => _gameObjectsToAdd.Add(gameObject);
+	public void RemoveGameObject(IGameObject gameObject) => _gameObjectsToRemove.Add(gameObject);
+	private void Add(IGameObject gameObject)
+	{
+		_gameObjects.Add(gameObject);
+
+		if (gameObject is IPhysicsObject po)
+			World.Add(po.Body);
+	}
+	private void Remove(IGameObject gameObject)
+	{
+		if (_gameObjects.Remove(gameObject))
+		{
+			// gameObject.Dispose();
+			if (gameObject is IPhysicsObject po && World.BodyList.Contains(po.Body))
+				World.RemoveAsync(po.Body);
+		}
+	}
+	private void UpdateGameObjects(GameTime gameTime)
+	{
+		// Update objects
+		foreach (IGameObject gameObject in _gameObjects)
+			gameObject.Update(gameTime);
+
+		// Handle queued objects
+		foreach (var gameObject in _gameObjectsToAdd)
+			Add(gameObject);
+		foreach (var gameObject in _gameObjectsToRemove)
+			Remove(gameObject);
+
+		_gameObjectsToAdd.Clear();
+		_gameObjectsToRemove.Clear();
+	}
+	private void RemoveAllGameObjects()
+	{
+		_gameObjectsToAdd.Clear();
+		_gameObjectsToRemove.Clear();
+
+		_gameObjects.Clear();
+		World.Clear();
+	}
+
+	#endregion
+
+	#region Private Functions
+
+	private void ProcessInput()
+	{
+		if (InputManager.WasButtonPressed(Keys.Escape))
+			_gameManager.Exit();
+
+		if (InputManager.WasButtonPressed(Keys.F1))
+			_debugSettings ^= DebugFlags.Physics;
+		if (InputManager.WasButtonPressed(Keys.F2))
+			_debugSettings ^= DebugFlags.SensorData;
+		if (InputManager.WasButtonPressed(Keys.F3))
+			_debugSettings ^= DebugFlags.AimVector;
+
+		if (InputManager.WasButtonPressed(Keys.R))
+			Reset();
+
+		// Update Input
+		_tiltController.Update();
+
+		TouchCollection touchCollection = TouchPanel.GetState();
+
+		if (touchCollection.Count > 0)
+		{
+			TouchLocation touch = touchCollection[0];
+			if (touch.State == TouchLocationState.Pressed || touch.State == TouchLocationState.Moved)
+			{
+				// Top Left => Calibrate
+				if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y < ScreenHeight / 2)
+				{
+					Calibrate();
+				}
+
+				if (_spaceShip is not null)
+				{
+					// Bottom Left => Thrust
+					if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
+						_spaceShip.Thrust();
+
+					// Bottom Right => Fire
+					if (touch.Position.X > ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
+						_spaceShip.Fire();
+				}
+			}
+		}
 	}
 
 	private void Reset()
@@ -107,109 +321,6 @@ public class GamePlayer : IGameObjectHandler
 		}
 	}
 
-	public void UpdateSize(int screenWidth, int screenHeight)
-	{
-		ScreenWidth = screenWidth;
-		ScreenHeight = screenHeight;
-
-		Camera.UpdateScreenSize(ScreenWidth, ScreenHeight);
-
-		float halfWidthMeters = Constants.MetersPerPixel * (ScreenWidth / 2);
-		float halfHeightMeters = Constants.MetersPerPixel * (ScreenHeight / 2);
-		_projection = Matrix.CreateOrthographicOffCenter(-halfWidthMeters, halfWidthMeters, halfHeightMeters, -halfHeightMeters, -1, 1);
-	}
-
-	public void Update(GameTime gameTime)
-	{
-		if (InputManager.WasButtonPressed(Keys.Escape))
-			gameManager.Exit();
-
-		if (InputManager.WasButtonPressed(Keys.F1))
-			DoDebugDraw = !DoDebugDraw;
-
-		if (InputManager.WasButtonPressed(Keys.R))
-			Reset();
-
-		// Update Input
-		_tiltController.Update();
-
-		TouchCollection touchCollection = TouchPanel.GetState();
-
-		if (touchCollection.Count > 0)
-		{
-			TouchLocation touch = touchCollection[0];
-			if (touch.State == TouchLocationState.Pressed || touch.State == TouchLocationState.Moved)
-			{
-				// Top Left => Calibrate
-				if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y < ScreenHeight / 2)
-					_tiltController.Calibrate();
-
-				if (_spaceShip is not null)
-				{
-					// Bottom Left => Thrust
-					if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
-						_spaceShip.Thrust();
-
-					// Bottom Right => Fire
-					if (touch.Position.X > ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
-						_spaceShip.Fire();
-				}
-			}
-		}
-
-		// Update all game objects
-		UpdateGameObjects(gameTime);
-
-		// Update World
-		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
-
-		// Update Camera
-		Camera.SetPosition(Vector2.Zero);
-		Camera.SetRotation(0);
-	}
-
-	public void AddGameObject(IGameObject gameObject) => _gameObjectsToAdd.Add(gameObject);
-	public void RemoveGameObject(IGameObject gameObject) => _gameObjectsToRemove.Add(gameObject);
-	private void Add(IGameObject gameObject)
-	{
-		GameObjects.Add(gameObject);
-
-		if (gameObject is IPhysicsObject po)
-			World.Add(po.Body);
-	}
-	private void Remove(IGameObject gameObject)
-	{
-		if (GameObjects.Remove(gameObject))
-		{
-			// gameObject.Dispose();
-			if (gameObject is IPhysicsObject po && World.BodyList.Contains(po.Body))
-				World.RemoveAsync(po.Body);
-		}
-	}
-	private void UpdateGameObjects(GameTime gameTime)
-	{
-		// Update objects
-		foreach (IGameObject gameObject in GameObjects)
-			gameObject.Update(gameTime);
-
-		// Handle queued objects
-		foreach (var gameObject in _gameObjectsToAdd)
-			Add(gameObject);
-		foreach (var gameObject in _gameObjectsToRemove)
-			Remove(gameObject);
-
-		_gameObjectsToAdd.Clear();
-		_gameObjectsToRemove.Clear();
-	}
-	private void RemoveAllGameObjects()
-	{
-		_gameObjectsToAdd.Clear();
-		_gameObjectsToRemove.Clear();
-
-		GameObjects.Clear();
-		World.Clear();
-	}
-
 	private void AddWorldBorder(Vector2 size, Vector2 center = default)
 	{
 		var body = new Body
@@ -235,32 +346,13 @@ public class GamePlayer : IGameObjectHandler
 		Bounds = new(v1, size);
 	}
 
-	public void Draw(SpriteBatch spriteBatch)
+	private void Calibrate()
 	{
-		Primitives.SetSpriteBatch(spriteBatch);
-
-		spriteBatch.Begin(
-			transformMatrix: Camera.View
-		);
-
-		foreach (var gameObject in GameObjects)
-			gameObject.Draw(spriteBatch);
-
-		if (DoDebugDraw)
-			DebugDraw();
-
-		Primitives.DrawRectangleOutline(Scale(Bounds, Constants.PixelsPerMeter), Color.Blue, 2.0f, 0);
-		static Rectangle Scale(RectangleF rec, float scale) => new((int)(rec.X * scale), (int)(rec.Y * scale), (int)(rec.Width * scale), (int)(rec.Height * scale));
-
-		spriteBatch.End();
+		_tiltController.Calibrate();
+		_aCalibrationVector = _accelerometer.CurrentValue.Acceleration;
+		_cCalibrationVector = _compass.CurrentValue.MagnetometerReading;
+		_calibrationMatrix = _orientationSensor.CurrentValue;
 	}
 
-	private void DebugDraw(float alpha = 1)
-	{
-		_debugView.AppendFlags(DebugViewFlags.ContactNormals);
-		_debugView.AppendFlags(DebugViewFlags.ContactPoints);
-		// _debugView.AppendFlags(DebugViewFlags.DebugPanel);
-		// _debugView.AppendFlags(DebugViewFlags.CenterOfMass);
-		_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Additive, alpha: alpha);
-	}
+	#endregion
 }

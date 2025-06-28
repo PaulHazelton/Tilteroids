@@ -1,14 +1,12 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using SpaceshipArcade.MG.Engine.Utilities;
 
-namespace Tilteroids.Core.Graphics;
+namespace SpaceshipArcade.MG.Engine.Graphics;
 
 public static class Primitives
 {
-	private const int CircleResolution = 256;
+	private const int CircleRadius = 256;
+	private const int CircleThickness = 32;
 
 	private static bool _isContentLoaded = false;
 
@@ -16,6 +14,7 @@ public static class Primitives
 	private static SpriteBatch? _spriteBatch;
 	private static Texture2D? _rectangleSprite;
 	private static Texture2D? _circleSprite;
+	private static Texture2D? _circleOutline;
 	private static Vector2 _rectangleOrigin;
 	private static Vector2 _circleOrigin;
 
@@ -28,7 +27,8 @@ public static class Primitives
 		_rectangleOrigin = new Vector2(_rectangleSprite.Width / 2f, _rectangleSprite.Height / 2f);
 
 		// Make a default circle for drawing without a special sprite
-		_circleSprite = CreateCircleTexture(graphicsDevice, CircleResolution, Color.White);
+		_circleSprite = CreateCircleTexture(graphicsDevice, CircleRadius, Color.White);
+		_circleOutline = CreateCircleOutlineTexture(graphicsDevice, CircleRadius, CircleThickness, Color.White);
 		_circleOrigin = new Vector2(_circleSprite.Width / 2f, _circleSprite.Height / 2f);
 
 		_isContentLoaded = true;
@@ -43,7 +43,8 @@ public static class Primitives
 	{
 		// Variables we need
 		var d = r * 2;  // diameter
-		var r2 = r * r; // radius squared
+		var rOuter2 = r * r; // circle radius squared
+		float center = r - 0.5f; // Offset by half a pixel, don't remember why
 		var texture = new Texture2D(graphicsDevice, d, d);
 		var data = new Color[d * d];
 		for (int x = 0; x < d; x++)
@@ -51,12 +52,36 @@ public static class Primitives
 			for (int y = 0; y < d; y++)
 			{
 				// Circle bit
-				data[y * d + x] = (
-					(x - (r - 0.5f)) * (x - (r - 0.5f)) + (y - (r - 0.5f)) * (y - (r - 0.5f)) < r2
-				) ? color : Color.Transparent;
+				data[y * d + x] = (x - center) * (x - center) + (y - center) * (y - center) < rOuter2
+					? color
+					: Color.Transparent;
+
 				// Line in the middle
 				if (middleLine is not null && y == r && x >= r)
 					data[y * d + x] = middleLine.Value;
+			}
+		}
+		texture.SetData(data);
+		return texture;
+	}
+	public static Texture2D CreateCircleOutlineTexture(GraphicsDevice graphicsDevice, int r, int thickness, Color color)
+	{
+		// Variables we need
+		var d = r * 2;  // diameter
+		var rOuter2 = r * r; // radius squared
+		var rInner2 = (r - thickness) * (r - thickness);
+		float center = r - 0.5f; // Offset by half a pixel, don't remember why
+		var texture = new Texture2D(graphicsDevice, d, d);
+		var data = new Color[d * d];
+		for (int x = 0; x < d; x++)
+		{
+			for (int y = 0; y < d; y++)
+			{
+				// Circle bit
+				float pixelR2 = (x - center) * (x - center) + (y - center) * (y - center);
+				data[y * d + x] = pixelR2 < rOuter2 && pixelR2 >= rInner2
+					? color
+					: Color.Transparent;
 			}
 		}
 		texture.SetData(data);
@@ -139,7 +164,7 @@ public static class Primitives
 
 	public static void DrawCircle(Vector2 position, float radius, Color color, float layerDepth = 1.0f)
 	{
-		DrawCircle(position, radius, 0, color);
+		DrawCircle(position, radius, 0, color, layerDepth);
 	}
 	public static void DrawCircle(Vector2 position, float radius, float angle, Color color, float layerDepth = 1.0f)
 	{
@@ -150,13 +175,26 @@ public static class Primitives
 		// switch (DrawMode)
 		// {
 		// 	case DrawMode.RAW:
-		_spriteBatch!.Draw(_circleSprite, position, null, color, angle, _circleOrigin, d / (float)_circleSprite!.Width, SpriteEffects.None, layerDepth);
+		_spriteBatch!.Draw(_circleSprite, position, null, color, angle, _circleOrigin, d / _circleSprite!.Width, SpriteEffects.None, layerDepth);
 		// 		break;
 		// 	case DrawMode.CONVERT_TO_DISPLAY:
 		// 		d = ConvertUnits.ToDisplayUnits(d);
 		// 		_spriteBatch!.Draw(_circleSprite, ConvertUnits.ToDisplayUnits(position), null, color, angle, _circleOrigin, d / _circleSprite!.Width, SpriteEffects.None, 1f);
 		// 		break;
 		// }
+	}
+
+	public static void DrawCircleOutline(Vector2 position, float radius, Color color, float layerDepth = 1.0f)
+	{
+		DrawCircleOutline(position, radius, 0, color, layerDepth);
+	}
+	public static void DrawCircleOutline(Vector2 position, float radius, float angle, Color color, float layerDepth = 1.0f)
+	{
+		AssertLoaded();
+
+		float d = radius * 2f;    // Diameter
+
+		_spriteBatch!.Draw(_circleOutline, position, null, color, angle, _circleOrigin, d / _circleSprite!.Width, SpriteEffects.None, layerDepth);
 	}
 
 	public static void DrawLine(Vector2 p1, Vector2 p2, float thickness, Color color, float layerDepth = 0)

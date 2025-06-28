@@ -3,6 +3,11 @@
 # IDE0290: Use primary constructor
 csharp_style_prefer_primary_constructors = false
 
+# IDE0047: Remove unnecessary parentheses
+dotnet_diagnostic.IDE0047.severity = none
+
+dotnet_naming_style.instance_field_style.required_prefix = _
+
 [*.csproj]
 charset = utf-8-bom
 indent_style = space

@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-
 namespace SpaceshipArcade.MG.Engine.Animations;
 
 public class AnimationSpec

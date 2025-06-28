@@ -1,54 +1,50 @@
-using System;
-using Microsoft.Xna.Framework;
-using MonoGame.Framework.Devices.Sensors;
+using SpaceshipArcade.MG.Engine.Input.Sensors;
 
 namespace Tilteroids.Core.Controllers;
 
 public class TiltController
 {
-	private readonly Accelerometer _accelerometer;
-	private Vector3 _currentVector = new(0, 0, 1);
-	private Vector3 _calibrationVector = new(0, 0, 1);
-	private Matrix _transformationMatrix = Matrix.Identity;
+	private readonly OrientationSensor _orientationSensor;
 
-	public Vector3 TargetVector { get; init; } = new(0, 0, 1);
-	public Vector2 AimVector { get; private set; } = new(0, 0);
+	private Matrix _currentOrientation = Matrix.Identity;
+	private Matrix _calibrationOrientation = Matrix.Identity;
 
-	public TiltController(Accelerometer accelerometer, Vector3? targetVector = null)
+	public Vector2 AimVector { get; private set; } = Vector2.Zero;
+
+	public TiltController(OrientationSensor orientationSensor)
 	{
-		_accelerometer = accelerometer;
-		TargetVector = targetVector ?? new(0, 0, 1);
+		_orientationSensor = orientationSensor;
 	}
 
 	public void Update()
 	{
-		_currentVector = Vector3.Normalize(_accelerometer.CurrentValue.Acceleration);
+		_currentOrientation = _orientationSensor.CurrentValue;
 
-		var calibratedVector = Vector3.Transform(_currentVector, _transformationMatrix);
-
-		// Swap x and y because it's landscape
-		AimVector = new(calibratedVector.Y, calibratedVector.X);
+		AimVector = ComputeAimVector();
 	}
 
 	public void Calibrate()
 	{
-		_calibrationVector = _currentVector;
-
-		_transformationMatrix = GetRotationMatrix();
+		_calibrationOrientation = _currentOrientation;
 	}
-	
-	private Matrix GetRotationMatrix()
+
+	private Vector2 ComputeAimVector()
 	{
-		float dot = Vector3.Dot(_calibrationVector, TargetVector);
+		// Keep in mind that orientation is already inverted by default
 
-		if (Math.Abs(dot - 1.0f) < 1e-6f)
-			return Matrix.Identity;
+		// Rotate the current matrix by the inverse of the calibration matrix
+		// Then look at where the z^ base vector lies, as projected on the the xy plane
 
-		if (Math.Abs(dot + 1.0f) < 1e-6)
-			return Matrix.CreateFromAxisAngle(Vector3.UnitY, MathHelper.Pi);
+		// Find matrix R such that when applied to calibration, results in current
+		// [R] * [Calibration] = [Current]
+		// [R] = [Calibration]^ * [Current]
+		var relativeRotation = Matrix.Invert(_calibrationOrientation) * _currentOrientation;
 
-		Vector3 axis = Vector3.Normalize(Vector3.Cross(_calibrationVector, TargetVector));
-		float angle = (float)Math.Acos(dot);
-		return Matrix.CreateFromAxisAngle(axis, angle);
+		// Project the z basis vector onto the xy plane
+		var zBasis = relativeRotation.Backward;
+		Vector2 projection = new(zBasis.Y, zBasis.X);
+
+		// Projection gives the sin of the angle, arcSin to get the angle.
+		return new((float)(2 * Math.Asin(projection.X) / Math.PI), (float)(2 * Math.Asin(projection.Y) / Math.PI));
 	}
 }

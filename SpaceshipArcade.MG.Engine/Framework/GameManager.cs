@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using SpaceshipArcade.MG.Engine.Input;
 
 namespace SpaceshipArcade.MG.Engine.Framework;

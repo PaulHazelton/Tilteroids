@@ -3,8 +3,6 @@
 * Copyright (c) 2017 Ian Qvist
 */
 
-using Microsoft.Xna.Framework;
-
 namespace SpaceshipArcade.MG.Engine.Cameras
 {
 	/// <summary>Convert units between display and simulation units.</summary>

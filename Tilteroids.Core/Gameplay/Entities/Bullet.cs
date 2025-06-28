@@ -1,11 +1,9 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using nkast.Aether.Physics2D.Dynamics;
 using nkast.Aether.Physics2D.Dynamics.Contacts;
+using SpaceshipArcade.MG.Engine.Graphics;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Guns;
-using Tilteroids.Core.Graphics;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 

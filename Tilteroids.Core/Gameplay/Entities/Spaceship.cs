@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
@@ -9,9 +7,7 @@ using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Guns;
 using Tilteroids.Core.Controllers;
-using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Audio;
-using System;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
