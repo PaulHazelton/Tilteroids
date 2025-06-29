@@ -3,7 +3,7 @@
     <TargetFramework>net9.0-android</TargetFramework>
     <SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
-    <ApplicationId>com.SpaceshipArcade.Tilteriods.Android</ApplicationId>
+    <ApplicationId>com.SpaceshipArcade.Tilteroids.Android</ApplicationId>
     <ApplicationVersion>1</ApplicationVersion>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
   </PropertyGroup>

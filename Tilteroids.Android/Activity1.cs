@@ -4,7 +4,7 @@ using Android.OS;
 using Android.Views;
 using Microsoft.Xna.Framework;
 
-namespace Tilteriods.Android
+namespace Tilteroids.Android
 {
 	[Activity(
 		Label = "@string/app_name",

@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tilteroids.Desktop", "Tilte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceshipArcade.MG.Engine", "SpaceshipArcade.MG.Engine\SpaceshipArcade.MG.Engine.csproj", "{ECA9CA73-8EF8-4527-AA74-60191C369118}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tilteriods.Android", "Tilteriods.Android\Tilteriods.Android.csproj", "{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tilteroids.Android", "Tilteroids.Android\Tilteroids.Android.csproj", "{A79BDEEB-085C-41B5-8E49-B8CBCF4BF7D3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tilteroids.Core", "Tilteroids.Core\Tilteroids.Core.csproj", "{3BC9E70E-9334-439F-A07F-0989E0AF51D5}"
 EndProject
