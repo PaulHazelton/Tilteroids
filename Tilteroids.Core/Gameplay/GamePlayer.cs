@@ -24,28 +24,9 @@ public class GamePlayer : IGamePlayer
 	private readonly GameObjectCollection _gameObjectCollection;
 	private readonly TiltController _tiltController;
 
-	#region Experimental and debugging stuff
-
-	private readonly Accelerometer _accelerometer;
-	private Vector3 _aCalibrationVector;
-	private readonly Vector3BarDisplay _aBarDisplay;
-	private readonly Vector3CircleDisplay _aCircleDisplay;
-
-	private readonly Compass _compass;
-	private Vector3 _cCalibrationVector;
-	private readonly Vector3BarDisplay _cBarDisplay;
-	private readonly Vector3CircleDisplay _cCircleDisplay;
-
-	private readonly OrientationSensor _orientationSensor;
-	private readonly OrientationDisplay _orientationDisplay;
-
-	private Matrix _calibrationMatrix = Matrix.Identity;
-
-	private readonly Vector2CircleDisplay _aimDisplay;
-
 	private readonly DebugView _debugView;
-
-	#endregion
+	private readonly SensorDebugSuite _sensorDebugSuite;
+	private readonly Vector2CircleDisplay _aimDisplay;
 
 	private World World { get; set; }
 	private Camera Camera { get; set; }
@@ -68,16 +49,17 @@ public class GamePlayer : IGamePlayer
 	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight, Accelerometer accelerometer, Compass compass, OrientationSensor orientationSensor)
 	{
 		_gameManager = manager;
-
 		_tiltController = new(orientationSensor);
-
 		ContentBucket = contentBucket;
 		ScreenWidth = screenWidth;
 		ScreenHeight = screenHeight;
 
-		World = new World(new Vector2(0, 0));
-		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
+		int unit = screenWidth / 30;
+		_sensorDebugSuite = new(accelerometer, compass, orientationSensor, unit);
+		_aimDisplay = new(position: new(18 * unit, 9 * unit), radius: 1 * unit);
 
+		World = new World(Vector2.Zero);
+		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
 		Camera.SnapScale(1);
 
 		_gameObjectCollection = new(World);
@@ -89,25 +71,6 @@ public class GamePlayer : IGamePlayer
 		_debugView.LoadContent(manager.GraphicsDevice, manager.Content);
 
 		AddGameplayObjects();
-
-		#region Sensor debug stuff
-
-		int unit = screenWidth / 30;
-
-		_accelerometer = accelerometer;
-		_aBarDisplay = new(new Rectangle(2 * unit, 2 * unit, 5 * unit, 1 * unit));
-		_aCircleDisplay = new(position: new(6 * unit, 9 * unit), radius: 1 * unit);
-
-		_compass = compass;
-		_cBarDisplay = new(new Rectangle(10 * unit, 2 * unit, 5 * unit, 1 * unit));
-		_cCircleDisplay = new(position: new(14 * unit, 9 * unit), radius: 1 * unit);
-
-		_orientationSensor = orientationSensor;
-		_orientationDisplay = new(position: new(18 * unit, 4.5f * unit), radius: 2 * unit);
-
-		_aimDisplay = new(position: new(18 * unit, 9 * unit), radius: 1 * unit);
-
-		#endregion
 	}
 
 	public void UpdateSize(int screenWidth, int screenHeight)
@@ -177,13 +140,7 @@ public class GamePlayer : IGamePlayer
 		void ScreenSpaceDebugDraw()
 		{
 			if (_debugSettings.HasFlag(DebugFlags.SensorData))
-			{
-				_aBarDisplay.Draw(_accelerometer.CurrentValue.Acceleration, _aCalibrationVector);
-				_aCircleDisplay.Draw(_accelerometer.CurrentValue.Acceleration, _aCalibrationVector);
-				_cBarDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
-				_cCircleDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
-				_orientationDisplay.Draw(_orientationSensor.CurrentValue, _calibrationMatrix);
-			}
+				_sensorDebugSuite.Draw(spriteBatch);
 
 			if (_debugSettings.HasFlag(DebugFlags.AimVector))
 				_aimDisplay.Draw(_tiltController.AimVector);
@@ -192,12 +149,8 @@ public class GamePlayer : IGamePlayer
 		#endregion
 	}
 
-	#region Game Objects
-
 	public void AddGameObject(IGameObject gameObject) => _gameObjectCollection.Add(gameObject);
 	public void RemoveGameObject(IGameObject gameObject) => _gameObjectCollection.Remove(gameObject);
-
-	#endregion
 
 	#region Private Functions
 
@@ -312,9 +265,7 @@ public class GamePlayer : IGamePlayer
 	private void Calibrate()
 	{
 		_tiltController.Calibrate();
-		_aCalibrationVector = _accelerometer.CurrentValue.Acceleration;
-		_cCalibrationVector = _compass.CurrentValue.MagnetometerReading;
-		_calibrationMatrix = _orientationSensor.CurrentValue;
+		_sensorDebugSuite.Calibrate();
 	}
 
 	#endregion
