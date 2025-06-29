@@ -1,0 +1,16 @@
+{
+	"files.exclude": {
+		".idea/shelf/": true,
+		".idea/workspace.xml": true,
+		"**/[Rr]elease/": true,
+		"**/x64/": true,
+		"**/build/": true,
+		"**/bld/": true,
+		"**/[Bb]in/": true,
+		"**/[Oo]bj/": true,
+		"**/.vs/": true,
+		"**/.idea/": true,
+		"**/*.user": true,
+		"**/~$*": true
+	}
+}
