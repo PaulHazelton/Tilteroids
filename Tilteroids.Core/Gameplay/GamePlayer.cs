@@ -34,7 +34,7 @@ public class GamePlayer : IGamePlayer
 	private Spaceship? _spaceShip;
 
 	// Settings
-	private DebugFlags _debugSettings = DebugFlags.Physics | DebugFlags.SensorData | DebugFlags.AimVector;
+	private DebugFlags _debugSettings = DebugFlags.Physics;
 
 	// Public Interface Stuff
 	public ContentBucket ContentBucket { get; }
@@ -107,8 +107,11 @@ public class GamePlayer : IGamePlayer
 		);
 
 		// Actual Game Objects
-		foreach (var gameObject in _gameObjectCollection.GameObjects)
-			gameObject.Draw(spriteBatch);
+		if (!_debugSettings.HasFlag(DebugFlags.Physics))
+		{
+			foreach (var gameObject in _gameObjectCollection.GameObjects)
+				gameObject.Draw(spriteBatch);
+		}
 
 		// World Border
 		Primitives.DrawRectangleOutline(Scale(Bounds, Constants.PixelsPerMeter), Color.Blue, 2.0f, 0);
@@ -135,7 +138,7 @@ public class GamePlayer : IGamePlayer
 		void WorldSpaceDebugDraw(float alpha = 1.0f)
 		{
 			if (_debugSettings.HasFlag(DebugFlags.Physics))
-				_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Additive, alpha: alpha);
+				_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Opaque, alpha: alpha);
 		}
 		void ScreenSpaceDebugDraw()
 		{
