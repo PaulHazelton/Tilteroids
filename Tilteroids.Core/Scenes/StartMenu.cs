@@ -1,3 +1,4 @@
+using Apos.Shapes;
 using Microsoft.Xna.Framework.Input;
 using SpaceshipArcade.MG.Engine.Framework;
 using SpaceshipArcade.MG.Engine.Graphics;
@@ -27,7 +28,7 @@ public class StartMenu : Scene
 			GameManager.Exit();
 	}
 
-	public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+	public override void Draw(SpriteBatch spriteBatch, ShapeBatch shapeBatch, GameTime gameTime)
 	{
 		GraphicsDevice.Clear(BackgroundColor);
 		Primitives.SetSpriteBatch(spriteBatch);

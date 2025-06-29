@@ -1,3 +1,4 @@
+using Apos.Shapes;
 using SpaceshipArcade.MG.Engine.Input;
 
 namespace SpaceshipArcade.MG.Engine.Framework;
@@ -7,6 +8,7 @@ public abstract class GameManager : Game
 	// Low level framework stuff
 	protected readonly GraphicsDeviceManager _graphics;
 	protected SpriteBatch? _spriteBatch;
+	protected ShapeBatch? _shapeBatch;
 
 	// Manager stuff
 	private Scene? _scene;
@@ -59,7 +61,7 @@ public abstract class GameManager : Game
 			_frameCount = 0;
 		}
 
-		_scene?.Draw(_spriteBatch!, gameTime);
+		_scene?.Draw(_spriteBatch!, _shapeBatch!, gameTime);
 		base.Draw(gameTime);
 	}
 	protected override void Dispose(bool disposing)

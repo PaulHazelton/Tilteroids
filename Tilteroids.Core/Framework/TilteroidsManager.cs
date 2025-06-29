@@ -7,6 +7,8 @@ using Tilteroids.Core.Services.Interfaces;
 using Tilteroids.Core.Services.Implementations;
 using SpaceshipArcade.MG.Engine.Input.Sensors;
 using SpaceshipArcade.MG.Engine.Graphics;
+using Apos.Shapes;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Tilteroids.Core.Framework;
 
@@ -39,6 +41,8 @@ public sealed class TilteroidsManager : GameManager
 		_graphics.HardwareModeSwitch = hardwareModeSwitch;
 		_graphics.IsFullScreen = fullScreen;
 
+		_graphics.GraphicsProfile = GraphicsProfile.HiDef;
+
 		_graphics.ApplyChanges();
 
 		// Window stuff
@@ -67,11 +71,14 @@ public sealed class TilteroidsManager : GameManager
 	protected override void LoadContent()
 	{
 		_spriteBatch = new SpriteBatch(GraphicsDevice);
+		_shapeBatch = new ShapeBatch(GraphicsDevice, Content);
 
 		// Load all content
 		var contentBucket = new ContentBucket(Content);
 		Primitives.LoadContent(GraphicsDevice);
 		Services.AddService<IUserSettingsService>(new UserSettingsService());
+
+		SoundEffect.MasterVolume = 0.2f;
 
 		// ChangeScene((gm) => new StartMenu(gm, contentBucket));
 		ChangeScene((gm) => new BasicGameplay(gm, contentBucket, Accelerometer, Compass, OrientationSensor));

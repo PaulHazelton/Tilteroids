@@ -1,3 +1,4 @@
+using Apos.Shapes;
 using Microsoft.Xna.Framework.Content;
 
 namespace SpaceshipArcade.MG.Engine.Framework;
@@ -42,5 +43,5 @@ public abstract class Scene : IDisposable
 
 	// Updating and drawing
 	public abstract void Update(GameTime gameTime);
-	public abstract void Draw(SpriteBatch spriteBatch, GameTime gameTime);
+	public abstract void Draw(SpriteBatch spriteBatch, ShapeBatch shapeBatch, GameTime gameTime);
 }
