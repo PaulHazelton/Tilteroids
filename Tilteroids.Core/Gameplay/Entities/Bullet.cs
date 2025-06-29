@@ -10,13 +10,13 @@ namespace Tilteroids.Core.Gameplay.Entities;
 public class Bullet : IGameObject, IPhysicsObject
 {
 	// Private
-	private readonly IGameObjectHandler _handler;
+	private readonly IGamePlayer _handler;
 	private readonly Gun _gunSettings;
 
 	// Public
 	public Body Body { get; private init; }
 
-	public Bullet(IGameObjectHandler handler, Vector2 position, float aimAngle, Gun gunSettings)
+	public Bullet(IGamePlayer handler, Vector2 position, float aimAngle, Gun gunSettings)
 	{
 		_handler = handler;
 		_gunSettings = gunSettings;

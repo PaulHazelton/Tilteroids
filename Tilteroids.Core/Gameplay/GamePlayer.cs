@@ -18,36 +18,15 @@ using Tilteroids.Core.Gameplay.Entities;
 
 namespace Tilteroids.Core.Gameplay;
 
-public class GamePlayer : IGameObjectHandler
+public class GamePlayer : IGamePlayer
 {
 	private readonly GameManager _gameManager;
-	private readonly List<IGameObject> _gameObjects;
-	private readonly List<IGameObject> _gameObjectsToAdd;
-	private readonly List<IGameObject> _gameObjectsToRemove;
+	private readonly GameObjectCollection _gameObjectCollection;
 	private readonly TiltController _tiltController;
 
-	#region Experimental and debugging stuff
-
-	private readonly Accelerometer _accelerometer;
-	private Vector3 _aCalibrationVector;
-	private readonly Vector3BarDisplay _aBarDisplay;
-	private readonly Vector3CircleDisplay _aCircleDisplay;
-
-	private readonly Compass _compass;
-	private Vector3 _cCalibrationVector;
-	private readonly Vector3BarDisplay _cBarDisplay;
-	private readonly Vector3CircleDisplay _cCircleDisplay;
-
-	private readonly OrientationSensor _orientationSensor;
-	private readonly OrientationDisplay _orientationDisplay;
-
-	private Matrix _calibrationMatrix = Matrix.Identity;
-
-	private readonly Vector2CircleDisplay _aimDisplay;
-
 	private readonly DebugView _debugView;
-
-	#endregion
+	private readonly SensorDebugSuite _sensorDebugSuite;
+	private readonly Vector2CircleDisplay _aimDisplay;
 
 	private World World { get; set; }
 	private Camera Camera { get; set; }
@@ -70,34 +49,20 @@ public class GamePlayer : IGameObjectHandler
 	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight, Accelerometer accelerometer, Compass compass, OrientationSensor orientationSensor)
 	{
 		_gameManager = manager;
-		_gameObjects = [];
-		_gameObjectsToAdd = [];
-		_gameObjectsToRemove = [];
 		_tiltController = new(orientationSensor);
-
-		int unit = screenWidth / 30;
-
-		_accelerometer = accelerometer;
-		_aBarDisplay = new(new Rectangle(2 * unit, 2 * unit, 5 * unit, 1 * unit));
-		_aCircleDisplay = new(position: new(6 * unit, 9 * unit), radius: 1 * unit);
-
-		_compass = compass;
-		_cBarDisplay = new(new Rectangle(10 * unit, 2 * unit, 5 * unit, 1 * unit));
-		_cCircleDisplay = new(position: new(14 * unit, 9 * unit), radius: 1 * unit);
-
-		_orientationSensor = orientationSensor;
-		_orientationDisplay = new(position: new(18 * unit, 4.5f * unit), radius: 2 * unit);
-
-		_aimDisplay = new(position: new(18 * unit, 9 * unit), radius: 1 * unit);
-
 		ContentBucket = contentBucket;
 		ScreenWidth = screenWidth;
 		ScreenHeight = screenHeight;
 
-		World = new World(new Vector2(0, 0));
-		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
+		int unit = screenWidth / 30;
+		_sensorDebugSuite = new(accelerometer, compass, orientationSensor, unit);
+		_aimDisplay = new(position: new(18 * unit, 9 * unit), radius: 1 * unit);
 
+		World = new World(Vector2.Zero);
+		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
 		Camera.SnapScale(1);
+
+		_gameObjectCollection = new(World);
 
 		_debugView = new DebugView(World)
 		{
@@ -125,7 +90,7 @@ public class GamePlayer : IGameObjectHandler
 		ProcessInput();
 
 		// Update all game objects
-		UpdateGameObjects(gameTime);
+		_gameObjectCollection.Update(gameTime);
 
 		// Update World
 		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
@@ -142,7 +107,7 @@ public class GamePlayer : IGameObjectHandler
 		);
 
 		// Actual Game Objects
-		foreach (var gameObject in _gameObjects)
+		foreach (var gameObject in _gameObjectCollection.GameObjects)
 			gameObject.Draw(spriteBatch);
 
 		// World Border
@@ -175,13 +140,7 @@ public class GamePlayer : IGameObjectHandler
 		void ScreenSpaceDebugDraw()
 		{
 			if (_debugSettings.HasFlag(DebugFlags.SensorData))
-			{
-				_aBarDisplay.Draw(_accelerometer.CurrentValue.Acceleration, _aCalibrationVector);
-				_aCircleDisplay.Draw(_accelerometer.CurrentValue.Acceleration, _aCalibrationVector);
-				_cBarDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
-				_cCircleDisplay.Draw(_compass.CurrentValue.MagnetometerReading, _cCalibrationVector);
-				_orientationDisplay.Draw(_orientationSensor.CurrentValue, _calibrationMatrix);
-			}
+				_sensorDebugSuite.Draw(spriteBatch);
 
 			if (_debugSettings.HasFlag(DebugFlags.AimVector))
 				_aimDisplay.Draw(_tiltController.AimVector);
@@ -190,51 +149,8 @@ public class GamePlayer : IGameObjectHandler
 		#endregion
 	}
 
-	#region Game Objects
-
-	public void AddGameObject(IGameObject gameObject) => _gameObjectsToAdd.Add(gameObject);
-	public void RemoveGameObject(IGameObject gameObject) => _gameObjectsToRemove.Add(gameObject);
-	private void Add(IGameObject gameObject)
-	{
-		_gameObjects.Add(gameObject);
-
-		if (gameObject is IPhysicsObject po)
-			World.Add(po.Body);
-	}
-	private void Remove(IGameObject gameObject)
-	{
-		if (_gameObjects.Remove(gameObject))
-		{
-			// gameObject.Dispose();
-			if (gameObject is IPhysicsObject po && World.BodyList.Contains(po.Body))
-				World.RemoveAsync(po.Body);
-		}
-	}
-	private void UpdateGameObjects(GameTime gameTime)
-	{
-		// Update objects
-		foreach (IGameObject gameObject in _gameObjects)
-			gameObject.Update(gameTime);
-
-		// Handle queued objects
-		foreach (var gameObject in _gameObjectsToAdd)
-			Add(gameObject);
-		foreach (var gameObject in _gameObjectsToRemove)
-			Remove(gameObject);
-
-		_gameObjectsToAdd.Clear();
-		_gameObjectsToRemove.Clear();
-	}
-	private void RemoveAllGameObjects()
-	{
-		_gameObjectsToAdd.Clear();
-		_gameObjectsToRemove.Clear();
-
-		_gameObjects.Clear();
-		World.Clear();
-	}
-
-	#endregion
+	public void AddGameObject(IGameObject gameObject) => _gameObjectCollection.Add(gameObject);
+	public void RemoveGameObject(IGameObject gameObject) => _gameObjectCollection.Remove(gameObject);
 
 	#region Private Functions
 
@@ -285,7 +201,7 @@ public class GamePlayer : IGameObjectHandler
 
 	private void Reset()
 	{
-		RemoveAllGameObjects();
+		_gameObjectCollection.Clear();
 		AddGameplayObjects();
 	}
 
@@ -349,9 +265,7 @@ public class GamePlayer : IGameObjectHandler
 	private void Calibrate()
 	{
 		_tiltController.Calibrate();
-		_aCalibrationVector = _accelerometer.CurrentValue.Acceleration;
-		_cCalibrationVector = _compass.CurrentValue.MagnetometerReading;
-		_calibrationMatrix = _orientationSensor.CurrentValue;
+		_sensorDebugSuite.Calibrate();
 	}
 
 	#endregion

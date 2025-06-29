@@ -3,7 +3,7 @@ using Tilteroids.Core.Data;
 
 namespace Tilteroids.Core.Gameplay;
 
-public interface IGameObjectHandler
+public interface IGamePlayer
 {
 	ContentBucket ContentBucket { get; }
 	int ScreenWidth { get; }

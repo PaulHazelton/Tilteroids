@@ -9,7 +9,7 @@ public class Asteroid : IGameObject, IPhysicsObject
 {
 	private const float Density = 1.0f;
 
-	private readonly IGameObjectHandler _handler;
+	private readonly IGamePlayer _handler;
 	private readonly int _size;
 
 	public Body Body { get; private init; }
@@ -17,7 +17,7 @@ public class Asteroid : IGameObject, IPhysicsObject
 
 	// For now, Asteroids will just be squares
 	// Eventually, Asteroids will be polygons
-	public Asteroid(IGameObjectHandler handler, int size, Vector2 initialPosition, float initialRotation, Vector2 initialVelocity, float initialAngularVelocity)
+	public Asteroid(IGamePlayer handler, int size, Vector2 initialPosition, float initialRotation, Vector2 initialVelocity, float initialAngularVelocity)
 	{
 		_handler = handler;
 		_size = size;
