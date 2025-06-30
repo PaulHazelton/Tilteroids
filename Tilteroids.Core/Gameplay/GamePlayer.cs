@@ -60,7 +60,7 @@ public class GamePlayer : IGamePlayer
 
 		World = new World(Vector2.Zero);
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
-		Camera.SnapScale(1);
+		Camera.SnapScale(Constants.PixelsPerMeter);
 
 		_gameObjectCollection = new(World);
 
@@ -80,8 +80,8 @@ public class GamePlayer : IGamePlayer
 
 		Camera.UpdateScreenSize(ScreenWidth, ScreenHeight);
 
-		float halfWidthMeters = Constants.MetersPerPixel * (ScreenWidth / 2);
-		float halfHeightMeters = Constants.MetersPerPixel * (ScreenHeight / 2);
+		float halfWidthMeters = (ScreenWidth / 2);// Constants.MetersPerPixel * (ScreenWidth / 2);
+		float halfHeightMeters = (ScreenHeight / 2);// Constants.MetersPerPixel * (ScreenHeight / 2);
 		_projection = Matrix.CreateOrthographicOffCenter(-halfWidthMeters, halfWidthMeters, halfHeightMeters, -halfHeightMeters, -1, 1);
 	}
 
@@ -114,8 +114,8 @@ public class GamePlayer : IGamePlayer
 		}
 
 		// World Border
-		Primitives.DrawRectangleOutline(Scale(Bounds, Constants.PixelsPerMeter), Color.Blue, 2.0f, 0);
-		static Rectangle Scale(RectangleF rec, float scale) => new((int)(rec.X * scale), (int)(rec.Y * scale), (int)(rec.Width * scale), (int)(rec.Height * scale));
+		// Primitives.DrawRectangleOutline(Scale(Bounds, 1), Color.Blue, 2.0f, 0);
+		// static Rectangle Scale(RectangleF rec, float scale) => new((int)(rec.X * scale), (int)(rec.Y * scale), (int)(rec.Width * scale), (int)(rec.Height * scale));
 
 		WorldSpaceDebugDraw();
 

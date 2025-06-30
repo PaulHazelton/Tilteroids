@@ -1,3 +1,4 @@
+using System.Diagnostics.Metrics;
 using Microsoft.Xna.Framework.Input;
 
 namespace SpaceshipArcade.MG.Engine.Cameras;
@@ -159,15 +160,18 @@ public class Camera
 		ApplyShake();
 
 		View
-			= Matrix.CreateTranslation(new Vector3(-Position, 0f))
+			= Matrix.CreateTranslation(new Vector3(-Position * MetersPerPixel, 0f))
 			* Matrix.CreateRotationZ(-Rotation)
 			* Matrix.CreateScale(Scale, Scale, 1)
-			* Matrix.CreateTranslation(new Vector3(ScreenCenter, 0f));
+			* Matrix.CreateTranslation(new Vector3(ScreenCenter, 0f))
+		;
 
 		SimView
 			= Matrix.CreateTranslation(new Vector3(-Position * MetersPerPixel, 0))
 			* Matrix.CreateRotationZ(-Rotation)
-			* Matrix.CreateScale(Scale, Scale, 1);
+			* Matrix.CreateScale(Scale, Scale, 1)
+			// * Matrix.CreateTranslation(new Vector3(ScreenCenter, 0f))
+		;
 	}
 
 	/// <summary>
