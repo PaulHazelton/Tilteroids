@@ -6,6 +6,9 @@ csharp_style_prefer_primary_constructors = false
 # IDE0047: Remove unnecessary parentheses
 dotnet_diagnostic.IDE0047.severity = none
 
+# IDE0005: Using directive is unnecessary.
+dotnet_diagnostic.IDE0005.severity = warning
+
 dotnet_naming_style.instance_field_style.required_prefix = _
 
 [*.csproj]

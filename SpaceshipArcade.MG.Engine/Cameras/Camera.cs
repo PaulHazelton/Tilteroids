@@ -149,7 +149,7 @@ public class Camera
 	// Utilities
 	public Vector2 GetMouseWorld()
 	{
-		return Vector2.Transform(Mouse.GetState().Position.ToVector2(), Matrix.Invert(View)) * MetersPerPixel;
+		return Vector2.Transform(Mouse.GetState().Position.ToVector2(), Matrix.Invert(View));
 	}
 
 	// Privates

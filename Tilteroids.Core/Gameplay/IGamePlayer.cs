@@ -11,6 +11,4 @@ public interface IGamePlayer
 	RectangleF Bounds { get; }
 	void AddGameObject(IGameObject gameObject);
 	void RemoveGameObject(IGameObject gameObject);
-
-	Vector2 AimVector { get; }
 }
