@@ -30,17 +30,17 @@ public class Vector3BarDisplay(Rectangle barDestinationRectangle)
 		// XYZ Bars
 		var (x, y, width, height) = (BarDestinationRectangle.X, BarDestinationRectangle.Y, BarDestinationRectangle.Width, BarDestinationRectangle.Height);
 
-		Primitives.DrawRectangleOutline(new Rectangle(x, y, width, height), XColor, 2.0f, 1.0f);
+		Primitives.DrawRectangleOutline(new RectangleF(x, y, width, height), XColor, 2.0f, 1.0f);
 		Primitives.DrawRectangle(Bar(currentVector.X, x, y, width, height, Padding), XColor);
 		Primitives.DrawRectangle(Tick(calibrationVector.X, x, y, width, height, Padding, 2), TickColor);
 
 		y += height * 2;
-		Primitives.DrawRectangleOutline(new Rectangle(x, y, width, height), YColor, 2.0f, 1.0f);
+		Primitives.DrawRectangleOutline(new RectangleF(x, y, width, height), YColor, 2.0f, 1.0f);
 		Primitives.DrawRectangle(Bar(currentVector.Y, x, y, width, height, Padding), YColor);
 		Primitives.DrawRectangle(Tick(calibrationVector.Y, x, y, width, height, Padding, 2), TickColor);
 
 		y += height * 2;
-		Primitives.DrawRectangleOutline(new Rectangle(x, y, width, height), ZColor, 2.0f, 1.0f);
+		Primitives.DrawRectangleOutline(new RectangleF(x, y, width, height), ZColor, 2.0f, 1.0f);
 		Primitives.DrawRectangle(Bar(currentVector.Z, x, y, width, height, Padding), ZColor);
 		Primitives.DrawRectangle(Tick(calibrationVector.Z, x, y, width, height, Padding, 2), TickColor);
 

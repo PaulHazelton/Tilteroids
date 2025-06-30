@@ -135,20 +135,20 @@ public static class Primitives
 		rectangle.Height -= strokeWidth * 2;
 		DrawRectangle(rectangle, fill);
 	}
-	public static void DrawRectangleOutline(Rectangle rectangle, Color color, float thickness, float inset)
+	public static void DrawRectangleOutline(RectangleF rectangle, Color color, float thickness, float inset)
 	{
 		if (thickness == 0) return;
 		// Adjust alpha for very thin lines
-		if (thickness < 1)
-		{
-			color.A = (byte)MathHelper.Lerp(0, color.A, thickness);
-			thickness = 1;
-		}
+		// if (thickness < 1)
+		// {
+		// 	color.A = (byte)MathHelper.Lerp(0, color.A, thickness);
+		// 	thickness = 1;
+		// }
 
-		var tl = rectangle.Location.ToVector2();
+		var tl = rectangle.Location;
 		var tr = tl + new Vector2(rectangle.Width, 0);
 		var bl = tl + new Vector2(0, rectangle.Height);
-		var br = tl + rectangle.Size.ToVector2();
+		var br = tl + rectangle.Size;
 
 		// Inset
 		tl += new Vector2(inset, inset);

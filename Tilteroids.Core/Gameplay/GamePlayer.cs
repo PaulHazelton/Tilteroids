@@ -114,8 +114,7 @@ public class GamePlayer : IGamePlayer
 		}
 
 		// World Border
-		// Primitives.DrawRectangleOutline(Scale(Bounds, 1), Color.Blue, 2.0f, 0);
-		// static Rectangle Scale(RectangleF rec, float scale) => new((int)(rec.X * scale), (int)(rec.Y * scale), (int)(rec.Width * scale), (int)(rec.Height * scale));
+		Primitives.DrawRectangleOutline(Bounds, Color.Blue, 2.0f / Constants.PixelsPerMeter, 0);
 
 		WorldSpaceDebugDraw();
 
