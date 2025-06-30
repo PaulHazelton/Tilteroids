@@ -40,16 +40,13 @@ public class Asteroid : IGameObject, IPhysicsObject
 
 			float unit = size / 2.0f;
 
-			// body.CreateRectangle(size * 0.5f, size * 0.5f, Density, Vector2.Zero);
 			_vertices = new Vertices([
-				new(-unit, unit),
-				new(-unit * 1.5f, 0),
-				new(0, -unit),
-				new(unit * 1.5f, 0),
-				new(unit, unit)
+				new(-unit * 0.7f, unit * 0.8f),
+				new(-unit, 0),
+				new(0, -unit * 0.7f),
+				new(unit, 0),
+				new(unit * 0.8f, unit * 0.6f)
 			]);
-
-			// body.CreateCompoundPolygon(vertices, Density);
 
 			PolygonShape shipShape = new(_vertices, 1);
 

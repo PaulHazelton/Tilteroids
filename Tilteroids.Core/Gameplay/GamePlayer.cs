@@ -89,11 +89,11 @@ public class GamePlayer : IGamePlayer
 	{
 		ProcessInput();
 
-		// Update all game objects
-		_gameObjectCollection.Update(gameTime);
-
 		// Update World
 		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
+
+		// Update all game objects
+		_gameObjectCollection.Update(gameTime);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)

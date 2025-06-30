@@ -20,7 +20,7 @@ public sealed class TilteroidsManager : GameManager
 	{
 		switch (PlatformInfo.MonoGamePlatform)
 		{
-			case MonoGamePlatform.DesktopGL: InitializeDesktopGl(false, 143.91d); break;
+			case MonoGamePlatform.DesktopGL: InitializeDesktopGl(true, 143.91d); break;
 			case MonoGamePlatform.Android: InitializeAndroid(120); break;
 			default: throw new NotSupportedException($"Platform {PlatformInfo.MonoGamePlatform} not supported.");
 		}
@@ -43,7 +43,7 @@ public sealed class TilteroidsManager : GameManager
 
 		// Window stuff
 		Window.AllowUserResizing = true;
-		Window.IsBorderless = true;
+		Window.IsBorderless = false;
 
 		Window.Title = "Tilteroids - Dev";
 
