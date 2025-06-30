@@ -10,15 +10,15 @@ public class Bullet : IGameObject, IPhysicsObject
 {
 	// Private
 	private readonly IGamePlayer _handler;
-	private readonly Gun _gunSettings;
 
 	// Public
 	public Body Body { get; private init; }
+	public readonly Gun GunSettings;
 
 	public Bullet(IGamePlayer handler, Vector2 position, float aimAngle, Gun gunSettings)
 	{
 		_handler = handler;
-		_gunSettings = gunSettings;
+		GunSettings = gunSettings;
 
 		Body = CreateBody();
 
@@ -28,12 +28,12 @@ public class Bullet : IGameObject, IPhysicsObject
 			{
 				Tag = this,
 				BodyType = BodyType.Dynamic,
-				Position = position + PMath.PolarToCartesian(_gunSettings.MuzzleOffset, aimAngle),
+				Position = position + PMath.PolarToCartesian(GunSettings.MuzzleOffset, aimAngle),
 				Rotation = aimAngle,
-				LinearVelocity = PMath.PolarToCartesian(_gunSettings.MuzzleVelocity, aimAngle),
+				LinearVelocity = PMath.PolarToCartesian(GunSettings.MuzzleVelocity, aimAngle),
 			};
 
-			body.CreateRectangle(_gunSettings.Length, _gunSettings.Width, _gunSettings.Density, Vector2.Zero);
+			body.CreateRectangle(GunSettings.Length, GunSettings.Width, GunSettings.Density, Vector2.Zero);
 
 			body.OnCollision += OnCollisionHandler;
 
@@ -58,6 +58,6 @@ public class Bullet : IGameObject, IPhysicsObject
 
 	public void Draw(SpriteBatch spriteBatch)
 	{
-		Primitives.DrawRectangle(Body.Position, new Vector2(_gunSettings.Length, _gunSettings.Width), Body.Rotation, Color.White, layerDepth: 1);
+		Primitives.DrawRectangle(Body.Position, new Vector2(GunSettings.Length, GunSettings.Width), Body.Rotation, Color.White, layerDepth: 1);
 	}
 }

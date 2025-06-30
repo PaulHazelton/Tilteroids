@@ -41,7 +41,7 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 		_scale = 1.0f / _shipTexture.Width;
 
-		_gunSelection = new RotaryCannon();
+		_gunSelection = new Clipper();
 
 		{
 			_vertices = new Vertices([
@@ -74,20 +74,6 @@ public class Spaceship : IGameObject, IPhysicsObject
 		_torqueController = new(inertia: Body.Inertia);
 	}
 
-	public void Thrust()
-	{
-		var forceVector = PMath.PolarToCartesian(10, Body.Rotation);
-		Body.ApplyForce(forceVector, Body.WorldCenter);
-	}
-
-	public void Fire() => TryShoot(Body.Rotation, _gunSelection);
-
-	public void Update(GameTime gameTime)
-	{
-		// Gun cooldowns
-		_gunSelection.Update(gameTime);
-	}
-
 	public void Aim(Vector2 aimVector)
 	{
 		if (aimVector == Vector2.Zero || float.IsNaN(aimVector.X) || float.IsNaN(aimVector.Y) || aimVector.LengthSquared() < 0.0025f)
@@ -101,6 +87,20 @@ public class Spaceship : IGameObject, IPhysicsObject
 			float torque = _torqueController.ComputeTorque(Body.Rotation, Body.AngularVelocity, aimAngle);
 			Body.ApplyTorque(torque);
 		}
+	}
+
+	public void Thrust()
+	{
+		var forceVector = PMath.PolarToCartesian(10, Body.Rotation);
+		Body.ApplyForce(forceVector, Body.WorldCenter);
+	}
+
+	public void Fire() => TryShoot(Body.Rotation, _gunSelection);
+
+	public void Update(GameTime gameTime)
+	{
+		// Gun cooldowns
+		_gunSelection.Update(gameTime);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)

@@ -2,6 +2,7 @@ using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
 using nkast.Aether.Physics2D.Dynamics.Contacts;
+using SpaceshipArcade.MG.Engine.Extensions;
 using SpaceshipArcade.MG.Engine.Graphics;
 using Tilteroids.Core.Data;
 
@@ -11,16 +12,29 @@ public class Asteroid : IGameObject, IPhysicsObject
 {
 	private const float Density = 1.0f;
 
+	private readonly IGamePlayer _gamePlayer;
+	private readonly Random _generator;
 	private readonly Vertices _vertices;
 
 	public Body Body { get; private init; }
+	public int Size { get; private init; }
 	public int Health { get; private set; }
 
 	// For now, Asteroids will just be squares
 	// Eventually, Asteroids will be polygons
-	public Asteroid(int size, Vector2 initialPosition, float initialRotation, Vector2 initialVelocity, float initialAngularVelocity)
+	public Asteroid(IGamePlayer gamePlayer, int size, Vector2 initialPosition, float initialRotation, Vector2 initialVelocity, float initialAngularVelocity)
 	{
-		Health = size * 10;
+		_gamePlayer = gamePlayer;
+		_generator = new(DateTime.Now.Millisecond);
+
+		Size = size;
+		Health = size switch
+		{
+			1 => 3,
+			2 => 6,
+			3 => 12,
+			_ => 1,
+		};
 
 		// Create Body
 		{
@@ -46,7 +60,7 @@ public class Asteroid : IGameObject, IPhysicsObject
 
 			var fixture = new Fixture(shipShape)
 			{
-				Restitution = 0.5f,
+				Restitution = 1.0f,
 			};
 
 			body.Add(fixture);
@@ -65,15 +79,19 @@ public class Asteroid : IGameObject, IPhysicsObject
 
 	private bool OnCollisionHandler(Fixture fixtureA, Fixture fixtureB, Contact contact)
 	{
-		// _handler.RemoveGameObject(this);
+		if (fixtureB.Body.Tag is Bullet bullet)
+		{
+			Health -= bullet.GunSettings.Damage;
+
+			if (Health <= 0)
+				Explode(bullet.Body.LinearVelocity);
+		}
 
 		return true;
 	}
 
-	public void Update(GameTime gameTime)
-	{
+	public void Update(GameTime gameTime) { }
 
-	}
 	public void Draw(SpriteBatch spriteBatch)
 	{
 		var tf = Body.GetTransform();
@@ -89,5 +107,34 @@ public class Asteroid : IGameObject, IPhysicsObject
 			Transform.Multiply(_vertices[^1], ref tf),
 			Transform.Multiply(_vertices[0], ref tf),
 			thickness: 1.0f / Constants.PixelsPerMeter, Color.White, 0.1f);
+	}
+
+	private void Explode(Vector2 bulletDirection)
+	{
+		_gamePlayer.RemoveGameObject(this);
+
+		if (Size <= 1)
+			return;
+
+		var direction = Vector2.Normalize(bulletDirection);
+		direction.Rotate(MathHelper.PiOver2);
+
+		var asteroid1 = new Asteroid(_gamePlayer,
+			size: Size - 1,
+			initialPosition: Body.Position + direction * Size * 0.3f,
+			initialRotation: _generator.NextSingle() * MathHelper.TwoPi,
+			initialVelocity: direction * 2 * (4 - (Size - 1)),
+			initialAngularVelocity: _generator.NextSingle(-1, 1));
+
+		direction *= -1;
+		var asteroid2 = new Asteroid(_gamePlayer,
+			size: Size - 1,
+			initialPosition: Body.Position + direction * Size * 0.3f,
+			initialRotation: _generator.NextSingle() * MathHelper.TwoPi,
+			initialVelocity: direction * 2 * (4 - (Size - 1)),
+			initialAngularVelocity: _generator.NextSingle(-1, 1));
+
+		_gamePlayer.AddGameObject(asteroid1);
+		_gamePlayer.AddGameObject(asteroid2);
 	}
 }
