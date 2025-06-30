@@ -43,7 +43,7 @@ public sealed class TilteroidsManager : GameManager
 
 		// Window stuff
 		Window.AllowUserResizing = true;
-		Window.IsBorderless = true;
+		Window.IsBorderless = false;
 
 		Window.Title = "Tilteroids - Dev";
 

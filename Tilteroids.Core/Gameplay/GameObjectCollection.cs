@@ -21,10 +21,6 @@ public class GameObjectCollection
 
 	public void Update(GameTime gameTime)
 	{
-		// Update objects
-		foreach (IGameObject gameObject in GameObjects)
-			gameObject.Update(gameTime);
-
 		// Handle queued objects
 		foreach (var gameObject in _gameObjectsToAdd)
 			HandleAdd(gameObject);
@@ -33,6 +29,10 @@ public class GameObjectCollection
 
 		_gameObjectsToAdd.Clear();
 		_gameObjectsToRemove.Clear();
+
+		// Update objects
+		foreach (IGameObject gameObject in GameObjects)
+			gameObject.Update(gameTime);
 	}
 	public void Clear()
 	{

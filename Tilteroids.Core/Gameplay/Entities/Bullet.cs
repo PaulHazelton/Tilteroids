@@ -59,6 +59,6 @@ public class Bullet : IGameObject, IPhysicsObject
 
 	public void Draw(SpriteBatch spriteBatch)
 	{
-		Primitives.DrawRectangle(Body.Position * Constants.PixelsPerMeter, new Vector2(_gunSettings.Length, _gunSettings.Width) * Constants.PixelsPerMeter, Body.Rotation, Color.White, layerDepth: 1);
+		Primitives.DrawRectangle(Body.Position, new Vector2(_gunSettings.Length, _gunSettings.Width), Body.Rotation, Color.White, layerDepth: 1);
 	}
 }

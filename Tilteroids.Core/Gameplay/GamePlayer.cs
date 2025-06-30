@@ -34,7 +34,7 @@ public class GamePlayer : IGamePlayer
 	private Spaceship? _spaceShip;
 
 	// Settings
-	private DebugFlags _debugSettings = DebugFlags.Physics | DebugFlags.SensorData | DebugFlags.AimVector;
+	private DebugFlags _debugSettings = DebugFlags.Physics;
 
 	// Public Interface Stuff
 	public ContentBucket ContentBucket { get; }
@@ -60,7 +60,7 @@ public class GamePlayer : IGamePlayer
 
 		World = new World(Vector2.Zero);
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
-		Camera.SnapScale(1);
+		Camera.SnapScale(Constants.PixelsPerMeter);
 
 		_gameObjectCollection = new(World);
 
@@ -80,20 +80,20 @@ public class GamePlayer : IGamePlayer
 
 		Camera.UpdateScreenSize(ScreenWidth, ScreenHeight);
 
-		float halfWidthMeters = Constants.MetersPerPixel * (ScreenWidth / 2);
-		float halfHeightMeters = Constants.MetersPerPixel * (ScreenHeight / 2);
-		_projection = Matrix.CreateOrthographicOffCenter(-halfWidthMeters, halfWidthMeters, halfHeightMeters, -halfHeightMeters, -1, 1);
+		float halfWidth = (ScreenWidth / 2);
+		float halfHeight = (ScreenHeight / 2);
+		_projection = Matrix.CreateOrthographicOffCenter(-halfWidth, halfWidth, halfHeight, -halfHeight, -1, 1);
 	}
 
 	public void Update(GameTime gameTime)
 	{
 		ProcessInput();
 
-		// Update all game objects
-		_gameObjectCollection.Update(gameTime);
-
 		// Update World
 		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
+
+		// Update all game objects
+		_gameObjectCollection.Update(gameTime);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
@@ -107,12 +107,15 @@ public class GamePlayer : IGamePlayer
 		);
 
 		// Actual Game Objects
-		foreach (var gameObject in _gameObjectCollection.GameObjects)
-			gameObject.Draw(spriteBatch);
+		if (!_debugSettings.HasFlag(DebugFlags.Physics))
+		{
+			foreach (var gameObject in _gameObjectCollection.GameObjects)
+				gameObject.Draw(spriteBatch);
+		}
 
 		// World Border
-		Primitives.DrawRectangleOutline(Scale(Bounds, Constants.PixelsPerMeter), Color.Blue, 2.0f, 0);
-		static Rectangle Scale(RectangleF rec, float scale) => new((int)(rec.X * scale), (int)(rec.Y * scale), (int)(rec.Width * scale), (int)(rec.Height * scale));
+		// Primitives.DrawRectangleOutline(Scale(Bounds, 1), Color.Blue, 2.0f, 0);
+		// static Rectangle Scale(RectangleF rec, float scale) => new((int)(rec.X * scale), (int)(rec.Y * scale), (int)(rec.Width * scale), (int)(rec.Height * scale));
 
 		WorldSpaceDebugDraw();
 
@@ -135,7 +138,7 @@ public class GamePlayer : IGamePlayer
 		void WorldSpaceDebugDraw(float alpha = 1.0f)
 		{
 			if (_debugSettings.HasFlag(DebugFlags.Physics))
-				_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Additive, alpha: alpha);
+				_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Opaque, alpha: alpha);
 		}
 		void ScreenSpaceDebugDraw()
 		{
