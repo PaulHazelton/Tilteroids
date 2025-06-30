@@ -11,9 +11,6 @@ public class Asteroid : IGameObject, IPhysicsObject
 {
 	private const float Density = 1.0f;
 
-	private readonly IGamePlayer _handler;
-	private readonly int _size;
-
 	private readonly Vertices _vertices;
 
 	public Body Body { get; private init; }
@@ -21,11 +18,8 @@ public class Asteroid : IGameObject, IPhysicsObject
 
 	// For now, Asteroids will just be squares
 	// Eventually, Asteroids will be polygons
-	public Asteroid(IGamePlayer handler, int size, Vector2 initialPosition, float initialRotation, Vector2 initialVelocity, float initialAngularVelocity)
+	public Asteroid(int size, Vector2 initialPosition, float initialRotation, Vector2 initialVelocity, float initialAngularVelocity)
 	{
-		_handler = handler;
-		_size = size;
-
 		Health = size * 10;
 
 		// Create Body
@@ -48,7 +42,7 @@ public class Asteroid : IGameObject, IPhysicsObject
 				new(unit * 0.8f, unit * 0.6f)
 			]);
 
-			PolygonShape shipShape = new(_vertices, 1);
+			PolygonShape shipShape = new(_vertices, Density);
 
 			var fixture = new Fixture(shipShape)
 			{

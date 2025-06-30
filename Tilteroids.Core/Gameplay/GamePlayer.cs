@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using MonoGame.Framework.Devices.Sensors;
+using MonoGame.Framework.Utilities;
 using nkast.Aether.Physics2D.Diagnostics;
 using nkast.Aether.Physics2D.Dynamics;
 using SpaceshipArcade.MG.Engine.Cameras;
@@ -41,7 +42,6 @@ public class GamePlayer : IGamePlayer
 	public int ScreenWidth { get; private set; }
 	public int ScreenHeight { get; private set; }
 	public RectangleF Bounds { get; private set; }
-	public Vector2 AimVector => _tiltController.AimVector;
 
 
 	// TODO PAUL: Only pass in what's needed.
@@ -122,7 +122,7 @@ public class GamePlayer : IGamePlayer
 
 		#endregion
 
-		#region  Screen Space
+		#region Screen Space
 
 		spriteBatch.Begin();
 
@@ -138,6 +138,8 @@ public class GamePlayer : IGamePlayer
 		{
 			if (_debugSettings.HasFlag(DebugFlags.Physics))
 				_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Opaque, alpha: alpha);
+
+			Primitives.DrawCircle(Camera.GetMouseWorld(), 0.1f, Color.Cyan, 1.0f);
 		}
 		void ScreenSpaceDebugDraw()
 		{
@@ -158,44 +160,79 @@ public class GamePlayer : IGamePlayer
 
 	private void ProcessInput()
 	{
-		if (InputManager.WasButtonPressed(Keys.Escape))
-			_gameManager.Exit();
-
-		if (InputManager.WasButtonPressed(Keys.F1))
-			_debugSettings ^= DebugFlags.Physics;
-		if (InputManager.WasButtonPressed(Keys.F2))
-			_debugSettings ^= DebugFlags.SensorData;
-		if (InputManager.WasButtonPressed(Keys.F3))
-			_debugSettings ^= DebugFlags.AimVector;
-
-		if (InputManager.WasButtonPressed(Keys.R))
-			Reset();
-
-		// Update Input
-		_tiltController.Update();
-
-		TouchCollection touchCollection = TouchPanel.GetState();
-
-		if (touchCollection.Count > 0)
+		switch (PlatformInfo.MonoGamePlatform)
 		{
-			TouchLocation touch = touchCollection[0];
-			if (touch.State == TouchLocationState.Pressed || touch.State == TouchLocationState.Moved)
+			case MonoGamePlatform.DesktopGL:
+				KeyboardInput();
+				MouseInput();
+				break;
+
+			case MonoGamePlatform.Android:
+			case MonoGamePlatform.iOS:
+				OrientationInput();
+				TouchInput();
+				break;
+		}
+
+		void KeyboardInput()
+		{
+			if (InputManager.WasButtonPressed(Keys.Escape))
+				_gameManager.Exit();
+
+			if (InputManager.WasButtonPressed(Keys.R))
+				Reset();
+
+			if (InputManager.WasButtonPressed(Keys.F1))
+				_debugSettings ^= DebugFlags.Physics;
+			if (InputManager.WasButtonPressed(Keys.F2))
+				_debugSettings ^= DebugFlags.SensorData;
+			if (InputManager.WasButtonPressed(Keys.F3))
+				_debugSettings ^= DebugFlags.AimVector;
+		}
+
+		void MouseInput()
+		{
+			if (_spaceShip is null)
+				return;
+
+			var diff = Camera.GetMouseWorld() - _spaceShip.Body.WorldCenter;
+			_spaceShip.Aim(diff);
+
+			if (InputManager.IsButtonHeld(MouseButton.Right))
+				_spaceShip.Thrust();
+			if (InputManager.IsButtonHeld(MouseButton.Left))
+				_spaceShip.Fire();
+		}
+
+		void OrientationInput()
+		{
+			_tiltController.Update();
+			_spaceShip?.Aim(_tiltController.AimVector);
+		}
+
+		void TouchInput()
+		{
+			TouchCollection touchCollection = TouchPanel.GetState();
+
+			if (touchCollection.Count > 0)
 			{
-				// Top Left => Calibrate
-				if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y < ScreenHeight / 2)
+				TouchLocation touch = touchCollection[0];
+				if (touch.State == TouchLocationState.Pressed || touch.State == TouchLocationState.Moved)
 				{
-					Calibrate();
-				}
+					// Top Left => Calibrate
+					if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y < ScreenHeight / 2)
+						Calibrate();
 
-				if (_spaceShip is not null)
-				{
-					// Bottom Left => Thrust
-					if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
-						_spaceShip.Thrust();
+					if (_spaceShip is not null)
+					{
+						// Bottom Left => Thrust
+						if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
+							_spaceShip.Thrust();
 
-					// Bottom Right => Fire
-					if (touch.Position.X > ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
-						_spaceShip.Fire();
+						// Bottom Right => Fire
+						if (touch.Position.X > ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
+							_spaceShip.Fire();
+					}
 				}
 			}
 		}
@@ -228,7 +265,7 @@ public class GamePlayer : IGamePlayer
 		{
 			int size = generator.NextInt(1, 4);
 
-			var asteroid = new Asteroid(this,
+			var asteroid = new Asteroid(
 				size: size,
 				initialPosition: new Vector2(generator.NextSingle(-maxX, maxX), generator.NextSingle(-maxY, maxY)),
 				initialRotation: generator.NextSingle() * MathHelper.TwoPi,

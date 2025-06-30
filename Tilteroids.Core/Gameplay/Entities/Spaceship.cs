@@ -2,12 +2,12 @@ using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
 using SpaceshipArcade.MG.Engine.Extensions;
-using SpaceshipArcade.MG.Engine.Input;
 using SpaceshipArcade.MG.Engine.Utilities;
-using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Guns;
 using Tilteroids.Core.Controllers;
 using Microsoft.Xna.Framework.Audio;
+using SpaceshipArcade.MG.Engine.Graphics;
+using Tilteroids.Core.Data;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
@@ -20,6 +20,7 @@ public class Spaceship : IGameObject, IPhysicsObject
 	private readonly float _scale;
 	private readonly TorqueController _torqueController;
 	private readonly Gun _gunSelection;
+	private readonly Vertices _vertices;
 
 	private readonly SoundEffect _gunShotSound;
 	private readonly Random _random;
@@ -32,8 +33,6 @@ public class Spaceship : IGameObject, IPhysicsObject
 		_gunShotSound = handler.ContentBucket.SoundEffects.Gun;
 		_random = new();
 
-		Body = CreateBody();
-
 		_handler = handler;
 
 		_shipTexture = handler.ContentBucket.Textures.Ship;
@@ -42,20 +41,17 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 		_scale = 1.0f / _shipTexture.Width;
 
-		_torqueController = new(inertia: Body.Inertia);
-
 		_gunSelection = new RotaryCannon();
 
-		Body CreateBody()
 		{
-			var shipVertices = new Vertices([
+			_vertices = new Vertices([
 				new(-7, -7),
 				new(7, 0),
 				new(-7, 7)
 			]);
-			shipVertices.Scale(new(1 / 16f));
+			_vertices.Scale(new(1 / 16f));
 
-			PolygonShape shipShape = new(shipVertices, 1);
+			PolygonShape shipShape = new(_vertices, 1);
 
 			var fixture = new Fixture(shipShape)
 			{
@@ -72,8 +68,10 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 			body.FixtureList[0].CollisionCategories = Category.Cat2;
 
-			return body;
+			Body = body;
 		}
+
+		_torqueController = new(inertia: Body.Inertia);
 	}
 
 	public void Thrust()
@@ -82,33 +80,16 @@ public class Spaceship : IGameObject, IPhysicsObject
 		Body.ApplyForce(forceVector, Body.WorldCenter);
 	}
 
-	public void Fire()
-	{
-		TryShoot(Body.Rotation, _gunSelection);
-	}
-
+	public void Fire() => TryShoot(Body.Rotation, _gunSelection);
 
 	public void Update(GameTime gameTime)
 	{
 		// Gun cooldowns
 		_gunSelection.Update(gameTime);
-
-		// Aim
-		Aim();		
-
-		// Thrust
-		if (InputManager.IsButtonHeld(MouseButton.Right))
-			Thrust();
-
-		// Fire
-		if (InputManager.IsButtonHeld(MouseButton.Left))
-			Fire();
 	}
 
-	private void Aim()
+	public void Aim(Vector2 aimVector)
 	{
-		Vector2 aimVector = GetAimVector();
-
 		if (aimVector == Vector2.Zero || float.IsNaN(aimVector.X) || float.IsNaN(aimVector.Y) || aimVector.LengthSquared() < 0.0025f)
 		{
 			float torque = _torqueController.ComputeTorque(Body.Rotation, Body.AngularVelocity, Body.Rotation);
@@ -124,29 +105,32 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 	public void Draw(SpriteBatch spriteBatch)
 	{
-		spriteBatch.Draw(
-			texture: _shipTexture,
-			// position: Body.Position * Constants.PixelsPerMeter,
-			position: Body.Position,
-			sourceRectangle: null,
-			color: Color.White,
-			rotation: Body.Rotation,
-			origin: _origin,
-			scale: _scale,
-			effects: SpriteEffects.None,
-			layerDepth: 0.1f);
-	}
+		// Draw Triangle
+		var tf = Body.GetTransform();
 
-	private Vector2 GetAimVector()
-	{
-		// TODO: Move this logic to game player / input manager
-		// Get using Tilt thing
+		for (int i = 0; i < _vertices.Count - 1; i++)
+		{
+			Primitives.DrawLine(
+				Transform.Multiply(_vertices[i], ref tf),
+				Transform.Multiply(_vertices[i + 1], ref tf),
+				thickness: 2.0f / Constants.PixelsPerMeter, Color.White, 0.1f);
+		}
+		Primitives.DrawLine(
+			Transform.Multiply(_vertices[^1], ref tf),
+			Transform.Multiply(_vertices[0], ref tf),
+			thickness: 2.0f / Constants.PixelsPerMeter, Color.White, 0.1f);
 
-		return _handler.AimVector;
-
-		// Get Using Mouse
-		// var aimVector = InputManager.MouseState.Position.ToVector2() - new Vector2(_handler.ScreenWidth / 2, _handler.ScreenHeight / 2);
-		// return aimVector.Angle();
+		// Draw Image
+		// spriteBatch.Draw(
+		// 	texture: _shipTexture,
+		// 	position: Body.Position,
+		// 	sourceRectangle: null,
+		// 	color: Color.White,
+		// 	rotation: Body.Rotation,
+		// 	origin: _origin,
+		// 	scale: _scale,
+		// 	effects: SpriteEffects.None,
+		// 	layerDepth: 0.1f);
 	}
 
 	private void TryShoot(float aimAngle, Gun gunSettings)
