@@ -7,6 +7,26 @@ public struct RectangleF
 	public float Width;
 	public float Height;
 
+	public Vector2 Location
+	{
+		readonly get => new(X, Y);
+		set
+		{
+			X = value.X;
+			Y = value.Y;
+		}
+	}
+
+	public Vector2 Size
+	{
+		readonly get => new(Width, Height);
+		set
+		{
+			Width = value.X;
+			Height = value.Y;
+		}
+	}
+
 	public RectangleF(float x, float y, float width, float height)
 	{
 		X = x;
