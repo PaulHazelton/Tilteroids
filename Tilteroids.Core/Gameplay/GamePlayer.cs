@@ -80,9 +80,9 @@ public class GamePlayer : IGamePlayer
 
 		Camera.UpdateScreenSize(ScreenWidth, ScreenHeight);
 
-		float halfWidthMeters = (ScreenWidth / 2);// Constants.MetersPerPixel * (ScreenWidth / 2);
-		float halfHeightMeters = (ScreenHeight / 2);// Constants.MetersPerPixel * (ScreenHeight / 2);
-		_projection = Matrix.CreateOrthographicOffCenter(-halfWidthMeters, halfWidthMeters, halfHeightMeters, -halfHeightMeters, -1, 1);
+		float halfWidth = (ScreenWidth / 2);
+		float halfHeight = (ScreenHeight / 2);
+		_projection = Matrix.CreateOrthographicOffCenter(-halfWidth, halfWidth, halfHeight, -halfHeight, -1, 1);
 	}
 
 	public void Update(GameTime gameTime)

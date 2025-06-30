@@ -40,7 +40,7 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 		_origin = new Vector2(_shipTexture.Width / 2, _shipTexture.Height / 2);
 
-		_scale = 1.0f / (float)(_shipTexture.Width);
+		_scale = 1.0f / _shipTexture.Width;
 
 		_torqueController = new(inertia: Body.Inertia);
 
