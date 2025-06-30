@@ -35,7 +35,7 @@ public class GamePlayer : IGamePlayer
 	private Spaceship? _spaceShip;
 
 	// Settings
-	private DebugFlags _debugSettings = DebugFlags.Physics;
+	private DebugFlags _debugSettings = DebugFlags.None;
 
 	// Public Interface Stuff
 	public ContentBucket ContentBucket { get; }
@@ -138,8 +138,6 @@ public class GamePlayer : IGamePlayer
 		{
 			if (_debugSettings.HasFlag(DebugFlags.Physics))
 				_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Opaque, alpha: alpha);
-
-			Primitives.DrawCircle(Camera.GetMouseWorld(), 0.1f, Color.Cyan, 1.0f);
 		}
 		void ScreenSpaceDebugDraw()
 		{
@@ -261,15 +259,15 @@ public class GamePlayer : IGamePlayer
 		float maxX = worldSize.X / 2 - 2.0f;
 		float maxY = worldSize.Y / 2 - 2.0f;
 
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < 5; i++)
 		{
-			int size = generator.NextInt(1, 4);
+			int size = 3;//generator.NextInt(1, 4);
 
-			var asteroid = new Asteroid(
+			var asteroid = new Asteroid(this,
 				size: size,
 				initialPosition: new Vector2(generator.NextSingle(-maxX, maxX), generator.NextSingle(-maxY, maxY)),
 				initialRotation: generator.NextSingle() * MathHelper.TwoPi,
-				initialVelocity: generator.NextVector(0.3f, 2f) * (4 - size),
+				initialVelocity: generator.NextVector(1f, 4f) * (4 - size),
 				initialAngularVelocity: generator.NextSingle(-1, 1));
 
 			AddGameObject(asteroid);

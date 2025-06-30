@@ -8,6 +8,7 @@ public abstract class Gun
 	public abstract float Width { get; }
 	public abstract float Length { get; }
 	public abstract float Density { get; }
+	public abstract int Damage { get; }
 
 	// Time in seconds between firings
 	public abstract double Cooldown { get; }

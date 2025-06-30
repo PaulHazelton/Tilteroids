@@ -9,4 +9,5 @@ public class Clipper : Gun
 	public override float Length => 0.4f;
 	public override float Density => 1.0f;
 	public override double Cooldown => 0.4f;
+	public override int Damage => 3;
 }
