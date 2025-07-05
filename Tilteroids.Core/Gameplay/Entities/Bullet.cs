@@ -10,6 +10,8 @@ public class Bullet : IGameObject, IPhysicsObject
 {
 	// Private
 	private readonly IGamePlayer _handler;
+	private readonly float _radius;
+	private TimeSpan _lifeTime;
 
 	// Public
 	public Body Body { get; private init; }
@@ -19,6 +21,8 @@ public class Bullet : IGameObject, IPhysicsObject
 	{
 		_handler = handler;
 		GunSettings = gunSettings;
+
+		_radius = MathHelper.Max(GunSettings.Length, GunSettings.Width);
 
 		Body = CreateBody();
 
@@ -52,8 +56,23 @@ public class Bullet : IGameObject, IPhysicsObject
 
 	public void Update(GameTime gameTime)
 	{
-		if (!_handler.Bounds.Contains(Body.Position))
+		_lifeTime += gameTime.ElapsedGameTime;
+
+		// Calculate distance travelled
+		var distance = (float)(GunSettings.MuzzleVelocity * _lifeTime.TotalSeconds);
+
+		if (distance > _handler.Bounds.Height)
 			_handler.RemoveGameObject(this);
+
+		if (Body.Position.X - _radius > _handler.Bounds.Right)
+			Body.Position = new(_handler.Bounds.Left - _radius, Body.Position.Y);
+		if (Body.Position.X + _radius < _handler.Bounds.Left)
+			Body.Position = new(_handler.Bounds.Right + _radius, Body.Position.Y);
+
+		if (Body.Position.Y - _radius > _handler.Bounds.Bottom)
+			Body.Position = new(Body.Position.X, _handler.Bounds.Top - _radius);
+		if (Body.Position.Y + _radius < _handler.Bounds.Top)
+			Body.Position = new(Body.Position.X, _handler.Bounds.Bottom + _radius);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
