@@ -27,6 +27,26 @@ public struct RectangleF
 		}
 	}
 
+	/// <summary>
+	/// Returns the x coordinate of the left edge.
+	/// </summary>
+	public readonly float Left => X;
+
+	/// <summary>
+	/// Returns the x coordinate of the right edge.
+	/// </summary>
+	public readonly float Right => X + Width;
+
+	/// <summary>
+	/// Returns the y coordinate of the top edge.
+	/// </summary>
+	public readonly float Top => Y;
+
+	/// <summary>
+	/// Returns the y coordinate of the bottom edge.
+	/// </summary>
+	public readonly float Bottom => Y + Height;
+
 	public RectangleF(float x, float y, float width, float height)
 	{
 		X = x;

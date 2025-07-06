@@ -8,10 +8,11 @@ using Tilteroids.Core.Controllers;
 using Microsoft.Xna.Framework.Audio;
 using SpaceshipArcade.MG.Engine.Graphics;
 using Tilteroids.Core.Data;
+using Tilteroids.Core.Gameplay.Torus;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
-public class Spaceship : IGameObject, IPhysicsObject
+public class Spaceship : IGameObject, IPhysicsObject, IWrappable
 {
 	// Private
 	private readonly IGamePlayer _handler;
@@ -27,6 +28,13 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 	// Public
 	public Body Body { get; private init; }
+
+	public float Radius => 7.0f / 16.0f;
+	public Vector2 WorldCenter
+	{
+		get => Body.WorldCenter;
+		set => Body.Position = value;
+	}
 
 	public Spaceship(IGamePlayer handler, Vector2 startingPos)
 	{
@@ -101,6 +109,8 @@ public class Spaceship : IGameObject, IPhysicsObject
 	{
 		// Gun cooldowns
 		_gunSelection.Update(gameTime);
+
+		this.Wrap(_handler.Bounds);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)

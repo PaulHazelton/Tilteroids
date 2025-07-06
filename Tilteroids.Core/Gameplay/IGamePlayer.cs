@@ -1,3 +1,4 @@
+using nkast.Aether.Physics2D.Dynamics;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Data;
 
@@ -11,4 +12,6 @@ public interface IGamePlayer
 	RectangleF Bounds { get; }
 	void AddGameObject(IGameObject gameObject);
 	void RemoveGameObject(IGameObject gameObject);
+
+	World World { get; }
 }

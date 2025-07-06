@@ -3,17 +3,26 @@ using nkast.Aether.Physics2D.Dynamics.Contacts;
 using SpaceshipArcade.MG.Engine.Graphics;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Gameplay.Guns;
+using Tilteroids.Core.Gameplay.Torus;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
-public class Bullet : IGameObject, IPhysicsObject
+public class Bullet : IGameObject, IPhysicsObject, IWrappable
 {
 	// Private
 	private readonly IGamePlayer _handler;
+	private TimeSpan _lifeTime;
 
 	// Public
 	public Body Body { get; private init; }
 	public readonly Gun GunSettings;
+
+	public float Radius => MathHelper.Max(GunSettings.Length, GunSettings.Width);
+	public Vector2 WorldCenter
+	{
+		get => Body.WorldCenter;
+		set => Body.Position = value;
+	}
 
 	public Bullet(IGamePlayer handler, Vector2 position, float aimAngle, Gun gunSettings)
 	{
@@ -52,8 +61,15 @@ public class Bullet : IGameObject, IPhysicsObject
 
 	public void Update(GameTime gameTime)
 	{
-		if (!_handler.Bounds.Contains(Body.Position))
+		_lifeTime += gameTime.ElapsedGameTime;
+
+		// Calculate distance travelled
+		var distance = (float)(GunSettings.MuzzleVelocity * _lifeTime.TotalSeconds);
+
+		if (distance > _handler.Bounds.Height)
 			_handler.RemoveGameObject(this);
+
+		this.Wrap(_handler.Bounds);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)

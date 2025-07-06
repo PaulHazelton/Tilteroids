@@ -29,7 +29,7 @@ public class GamePlayer : IGamePlayer
 	private readonly SensorDebugSuite _sensorDebugSuite;
 	private readonly Vector2CircleDisplay _aimDisplay;
 
-	private World World { get; set; }
+	public World World { get; private set; }
 	private Camera Camera { get; set; }
 	private Matrix _projection;
 	private Spaceship? _spaceShip;
@@ -114,7 +114,7 @@ public class GamePlayer : IGamePlayer
 		}
 
 		// World Border
-		Primitives.DrawRectangleOutline(Bounds, Color.Blue, 2.0f / Constants.PixelsPerMeter, 0);
+		// Primitives.DrawRectangleOutline(Bounds, Color.Blue, 2.0f / Constants.PixelsPerMeter, 0);
 
 		WorldSpaceDebugDraw();
 
@@ -294,7 +294,7 @@ public class GamePlayer : IGamePlayer
 		foreach (var fixture in body.FixtureList)
 			fixture.Restitution = 1.0f;
 
-		World.Add(body);
+		// World.Add(body);
 
 		Bounds = new(v1, size);
 	}
