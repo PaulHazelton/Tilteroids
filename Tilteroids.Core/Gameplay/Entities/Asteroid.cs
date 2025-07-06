@@ -5,12 +5,12 @@ using nkast.Aether.Physics2D.Dynamics.Contacts;
 using SpaceshipArcade.MG.Engine.Extensions;
 using SpaceshipArcade.MG.Engine.Graphics;
 using Tilteroids.Core.Data;
+using Tilteroids.Core.Gameplay.Torus;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
-public class Asteroid : IGameObject, IPhysicsObject
+public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 {
-	private readonly float _radius;
 	private const float Density = 1.0f;
 
 	private readonly IGamePlayer _handler;
@@ -20,6 +20,13 @@ public class Asteroid : IGameObject, IPhysicsObject
 	public Body Body { get; private init; }
 	public int Size { get; private init; }
 	public int Health { get; private set; }
+	
+	public float Radius { get; private set; }
+	public Vector2 WorldCenter
+	{
+		get => Body.WorldCenter;
+		set => Body.Position = value;
+	}
 
 	// For now, Asteroids will just be squares
 	// Eventually, Asteroids will be polygons
@@ -49,7 +56,7 @@ public class Asteroid : IGameObject, IPhysicsObject
 
 			float unit = size / 2.0f;
 
-			_radius = unit;
+			Radius = unit;
 
 			_vertices = new Vertices([
 				new(-unit * 0.7f, unit * 0.8f),
@@ -93,15 +100,7 @@ public class Asteroid : IGameObject, IPhysicsObject
 
 	public void Update(GameTime gameTime)
 	{
-		if (Body.Position.X - _radius > _handler.Bounds.Right)
-			Body.Position = new(_handler.Bounds.Left - _radius, Body.Position.Y);
-		if (Body.Position.X + _radius < _handler.Bounds.Left)
-			Body.Position = new(_handler.Bounds.Right + _radius, Body.Position.Y);
-
-		if (Body.Position.Y - _radius > _handler.Bounds.Bottom)
-			Body.Position = new(Body.Position.X, _handler.Bounds.Top - _radius);
-		if (Body.Position.Y + _radius < _handler.Bounds.Top)
-			Body.Position = new(Body.Position.X, _handler.Bounds.Bottom + _radius);
+		this.Wrap(_handler.Bounds);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)

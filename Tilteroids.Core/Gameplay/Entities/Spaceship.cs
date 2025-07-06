@@ -8,14 +8,13 @@ using Tilteroids.Core.Controllers;
 using Microsoft.Xna.Framework.Audio;
 using SpaceshipArcade.MG.Engine.Graphics;
 using Tilteroids.Core.Data;
+using Tilteroids.Core.Gameplay.Torus;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
-public class Spaceship : IGameObject, IPhysicsObject
+public class Spaceship : IGameObject, IPhysicsObject, IWrappable
 {
 	// Private
-	private const float _radius = 7.0f / 16.0f;
-
 	private readonly IGamePlayer _handler;
 	private readonly Texture2D _shipTexture;
 	private readonly Vector2 _origin;
@@ -29,6 +28,13 @@ public class Spaceship : IGameObject, IPhysicsObject
 
 	// Public
 	public Body Body { get; private init; }
+
+	public float Radius => 7.0f / 16.0f;
+	public Vector2 WorldCenter
+	{
+		get => Body.WorldCenter;
+		set => Body.Position = value;
+	}
 
 	public Spaceship(IGamePlayer handler, Vector2 startingPos)
 	{
@@ -104,15 +110,7 @@ public class Spaceship : IGameObject, IPhysicsObject
 		// Gun cooldowns
 		_gunSelection.Update(gameTime);
 
-		if (Body.Position.X - _radius > _handler.Bounds.Right)
-			Body.Position = new(_handler.Bounds.Left - _radius, Body.Position.Y);
-		if (Body.Position.X + _radius < _handler.Bounds.Left)
-			Body.Position = new(_handler.Bounds.Right + _radius, Body.Position.Y);
-
-		if (Body.Position.Y - _radius > _handler.Bounds.Bottom)
-			Body.Position = new(Body.Position.X, _handler.Bounds.Top - _radius);
-		if (Body.Position.Y + _radius < _handler.Bounds.Top)
-			Body.Position = new(Body.Position.X, _handler.Bounds.Bottom + _radius);
+		this.Wrap(_handler.Bounds);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)

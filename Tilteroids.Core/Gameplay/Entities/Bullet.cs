@@ -3,26 +3,31 @@ using nkast.Aether.Physics2D.Dynamics.Contacts;
 using SpaceshipArcade.MG.Engine.Graphics;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Gameplay.Guns;
+using Tilteroids.Core.Gameplay.Torus;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
-public class Bullet : IGameObject, IPhysicsObject
+public class Bullet : IGameObject, IPhysicsObject, IWrappable
 {
 	// Private
 	private readonly IGamePlayer _handler;
-	private readonly float _radius;
 	private TimeSpan _lifeTime;
 
 	// Public
 	public Body Body { get; private init; }
 	public readonly Gun GunSettings;
 
+	public float Radius => MathHelper.Max(GunSettings.Length, GunSettings.Width);
+	public Vector2 WorldCenter
+	{
+		get => Body.WorldCenter;
+		set => Body.Position = value;
+	}
+
 	public Bullet(IGamePlayer handler, Vector2 position, float aimAngle, Gun gunSettings)
 	{
 		_handler = handler;
 		GunSettings = gunSettings;
-
-		_radius = MathHelper.Max(GunSettings.Length, GunSettings.Width);
 
 		Body = CreateBody();
 
@@ -64,15 +69,7 @@ public class Bullet : IGameObject, IPhysicsObject
 		if (distance > _handler.Bounds.Height)
 			_handler.RemoveGameObject(this);
 
-		if (Body.Position.X - _radius > _handler.Bounds.Right)
-			Body.Position = new(_handler.Bounds.Left - _radius, Body.Position.Y);
-		if (Body.Position.X + _radius < _handler.Bounds.Left)
-			Body.Position = new(_handler.Bounds.Right + _radius, Body.Position.Y);
-
-		if (Body.Position.Y - _radius > _handler.Bounds.Bottom)
-			Body.Position = new(Body.Position.X, _handler.Bounds.Top - _radius);
-		if (Body.Position.Y + _radius < _handler.Bounds.Top)
-			Body.Position = new(Body.Position.X, _handler.Bounds.Bottom + _radius);
+		this.Wrap(_handler.Bounds);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
