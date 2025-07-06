@@ -29,7 +29,7 @@ public class GamePlayer : IGamePlayer
 	private readonly SensorDebugSuite _sensorDebugSuite;
 	private readonly Vector2CircleDisplay _aimDisplay;
 
-	public World World { get; set; }
+	public World World { get; private set; }
 	private Camera Camera { get; set; }
 	private Matrix _projection;
 	private Spaceship? _spaceShip;
