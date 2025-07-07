@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Audio;
 using SpaceshipArcade.MG.Engine.Graphics;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Torus;
+using nkast.Aether.Physics2D.Dynamics.Contacts;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
@@ -66,17 +67,18 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable
 				Restitution = 0.5f,
 			};
 
-			var body = new Body()
+			Body = new Body()
 			{
+				Tag = this,
 				Position = startingPos,
 				BodyType = BodyType.Dynamic,
 			};
 
-			body.Add(fixture);
+			Body.Add(fixture);
 
-			body.FixtureList[0].CollisionCategories = Category.Cat2;
+			Body.FixtureList[0].CollisionCategories = Category.Cat2;
 
-			Body = body;
+			Body.OnCollision += OnCollisionHandler;
 		}
 
 		_torqueController = new(inertia: Body.Inertia);
@@ -164,5 +166,15 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable
 
 		// Play Sound
 		_gunShotSound.Play(0.5f, _random.NextSingle(-0.25f, 0.25f), 0);
+	}
+
+	private bool OnCollisionHandler(Fixture fixtureA, Fixture fixtureB, Contact contact)
+	{
+		if (fixtureB.Body.Tag is Asteroid asteroid)
+		{
+			
+		}
+
+		return true;
 	}
 }

@@ -4,6 +4,7 @@ using nkast.Aether.Physics2D.Dynamics;
 using nkast.Aether.Physics2D.Dynamics.Contacts;
 using SpaceshipArcade.MG.Engine.Extensions;
 using SpaceshipArcade.MG.Engine.Graphics;
+using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Torus;
 
@@ -18,14 +19,16 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 	private readonly Vertices _vertices;
 	private readonly int _splitCount;
 
+	private readonly TextPanel _debugPanel;
+
 	public Body Body { get; private init; }
 	public int Size { get; private init; }
 	public int Health { get; private set; }
-	
+
 	public float Radius { get; private set; }
 	public Vector2 WorldCenter
 	{
-		get => Body.WorldCenter;
+		get => Body.Position;
 		set => Body.Position = value;
 	}
 
@@ -36,6 +39,10 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 		_handler = gamePlayer;
 		_generator = new(DateTime.Now.Millisecond);
 		_splitCount = 3;
+		_debugPanel = new(_handler.ContentBucket.Fonts.FallbackFont, initialPosition)
+		{
+			Scale = Constants.MetersPerPixel,
+		};
 
 		Size = size;
 		Health = size switch
@@ -58,7 +65,7 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 
 			float unit = size / 2.0f;
 
-			Radius = unit;
+			Radius = unit * 0.8f;
 
 			_vertices = new Vertices([
 				new(-unit * 0.7f, unit * 0.8f),
@@ -97,11 +104,22 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 				Explode(bullet.Body.LinearVelocity);
 		}
 
+		// else if (fixtureB.Body.Tag is Asteroid otherAsteroid)
+		else if (fixtureB.Body.Tag is Spaceship ship)
+		{
+			// Subtract damamge based on mass of other asteroid and relative velocity
+			// int otherMass = otherAsteroid.Size;
+			var relativeVelocity = contact.TangentSpeed;
+			_debugPanel.AddLine($"tangent speed: {relativeVelocity}");
+		}
+
 		return true;
 	}
 
 	public void Update(GameTime gameTime)
 	{
+		_debugPanel.Position = Body.WorldCenter;
+
 		this.Wrap(_handler.Bounds);
 	}
 
@@ -120,6 +138,8 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 			Transform.Multiply(_vertices[^1], ref tf),
 			Transform.Multiply(_vertices[0], ref tf),
 			thickness: 1.0f / Constants.PixelsPerMeter, Color.White, 0.1f);
+
+		_debugPanel.Draw(spriteBatch);
 	}
 
 	private void Explode(Vector2 bulletDirection)

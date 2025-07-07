@@ -87,6 +87,8 @@ public class GamePlayer : IGamePlayer
 
 	public void Update(GameTime gameTime)
 	{
+		Camera.Update(gameTime);
+
 		ProcessInput();
 
 		// Update World
@@ -114,9 +116,11 @@ public class GamePlayer : IGamePlayer
 		}
 
 		// World Border
-		// Primitives.DrawRectangleOutline(Bounds, Color.Blue, 2.0f / Constants.PixelsPerMeter, 0);
+		if (_debugSettings.HasFlag(DebugFlags.WorldWrapView))
+			Primitives.DrawRectangleOutline(Bounds, Color.Blue, 2.0f / Constants.PixelsPerMeter, 0);
 
 		WorldSpaceDebugDraw();
+		
 
 		spriteBatch.End();
 
@@ -186,6 +190,8 @@ public class GamePlayer : IGamePlayer
 				_debugSettings ^= DebugFlags.SensorData;
 			if (InputManager.WasButtonPressed(Keys.F3))
 				_debugSettings ^= DebugFlags.AimVector;
+			if (InputManager.WasButtonPressed(Keys.F4))
+				ToggleWorldWrapView();
 		}
 
 		void MouseInput()
@@ -303,6 +309,18 @@ public class GamePlayer : IGamePlayer
 	{
 		_tiltController.Calibrate();
 		_sensorDebugSuite.Calibrate();
+	}
+
+	private void ToggleWorldWrapView()
+	{
+		_debugSettings ^= DebugFlags.WorldWrapView;
+
+		// Camera.SnapScale(Constants.PixelsPerMeter * (_debugSettings.HasFlag(DebugFlags.WorldWrapView) ? 0.6f : 1.0f));
+
+		if (_debugSettings.HasFlag(DebugFlags.WorldWrapView))
+			Camera.SnapScale(Constants.PixelsPerMeter * 0.6f);
+		else
+			Camera.SnapScale(Constants.PixelsPerMeter);
 	}
 
 	#endregion

@@ -6,6 +6,6 @@ public class Constants
 	// Ship is about 1 meter wide
 	// Screen is about 24 meters wide
 
-	public const int PixelsPerMeter = 80;
+	public const float PixelsPerMeter = 80;
 	public const float MetersPerPixel = 1 / 80f;
 }
