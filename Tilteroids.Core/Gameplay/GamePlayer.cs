@@ -218,25 +218,29 @@ public class GamePlayer : IGamePlayer
 		{
 			TouchCollection touchCollection = TouchPanel.GetState();
 
-			if (touchCollection.Count > 0)
+			if (touchCollection.Count == 0)
+				return;
+
+			TouchLocation touch = touchCollection[0];
+			if (touch.State == TouchLocationState.Pressed || touch.State == TouchLocationState.Moved)
 			{
-				TouchLocation touch = touchCollection[0];
-				if (touch.State == TouchLocationState.Pressed || touch.State == TouchLocationState.Moved)
+				// Top Left => Calibrate
+				if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y < ScreenHeight / 2)
+					Calibrate();
+
+				// Top Right => Reset
+				if (touch.Position.X > ScreenWidth / 2 && touch.Position.Y < ScreenHeight / 2)
+					Reset();
+
+				if (_spaceShip is not null)
 				{
-					// Top Left => Calibrate
-					if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y < ScreenHeight / 2)
-						Calibrate();
+					// Bottom Left => Thrust
+					if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
+						_spaceShip.Thrust();
 
-					if (_spaceShip is not null)
-					{
-						// Bottom Left => Thrust
-						if (touch.Position.X < ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
-							_spaceShip.Thrust();
-
-						// Bottom Right => Fire
-						if (touch.Position.X > ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
-							_spaceShip.Fire();
-					}
+					// Bottom Right => Fire
+					if (touch.Position.X > ScreenWidth / 2 && touch.Position.Y > ScreenHeight / 2)
+						_spaceShip.Fire();
 				}
 			}
 		}

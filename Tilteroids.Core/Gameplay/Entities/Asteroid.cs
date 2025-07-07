@@ -10,7 +10,7 @@ using Tilteroids.Core.Gameplay.Torus;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
-public class Asteroid : IGameObject, IPhysicsObject, IWrappable
+public class Asteroid : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 {
 	private const float Density = 1.0f;
 
@@ -21,10 +21,16 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 
 	private readonly TextPanel _debugPanel;
 
+	private Vector2 _previousLinearVelocity;
+	private float _previousAngularVelocity;
+	private Vector2 _pastColiderVelocity;
+
 	public Body Body { get; private init; }
 	public int Size { get; private init; }
+	public int InitialHealth { get; private init; }
 	public int Health { get; private set; }
 
+	public int DamageMass => Size;
 	public float Radius { get; private set; }
 	public Vector2 WorldCenter
 	{
@@ -36,6 +42,8 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 	// Eventually, Asteroids will be polygons
 	public Asteroid(IGamePlayer gamePlayer, int size, Vector2 initialPosition, float initialRotation, Vector2 initialVelocity, float initialAngularVelocity)
 	{
+		_previousLinearVelocity = initialVelocity;
+		_previousAngularVelocity = initialAngularVelocity;
 		_handler = gamePlayer;
 		_generator = new(DateTime.Now.Millisecond);
 		_splitCount = 3;
@@ -45,13 +53,14 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 		};
 
 		Size = size;
-		Health = size switch
+		InitialHealth = size switch
 		{
 			1 => 3,
 			2 => 6,
 			3 => 12,
 			_ => 1,
 		};
+		Health = InitialHealth;
 
 		// Create Body
 		{
@@ -89,6 +98,7 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 			body.AngularVelocity = initialAngularVelocity;
 
 			body.OnCollision += OnCollisionHandler;
+			body.OnSeparation += OnSeparationHandler;
 
 			Body = body;
 		}
@@ -96,29 +106,70 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 
 	private bool OnCollisionHandler(Fixture fixtureA, Fixture fixtureB, Contact contact)
 	{
+		_pastColiderVelocity = fixtureB.Body.LinearVelocity;
+
 		if (fixtureB.Body.Tag is Bullet bullet)
 		{
 			Health -= bullet.GunSettings.Damage;
-
-			if (Health <= 0)
-				Explode(bullet.Body.LinearVelocity);
 		}
 
-		// else if (fixtureB.Body.Tag is Asteroid otherAsteroid)
-		else if (fixtureB.Body.Tag is Spaceship ship)
+		else if (fixtureB.Body.Tag is IDamageColider)
 		{
-			// Subtract damamge based on mass of other asteroid and relative velocity
-			// int otherMass = otherAsteroid.Size;
-			var relativeVelocity = contact.TangentSpeed;
-			_debugPanel.AddLine($"tangent speed: {relativeVelocity}");
+			_previousLinearVelocity = Body.LinearVelocity;
+			_previousAngularVelocity = Body.AngularVelocity;
+
+			// // Subtract damamge based on mass of other asteroid and relative velocity
+			// int otherMass = colider.DamageMass;
+			// var relativeVelocitySquared = (colider.Body.LinearVelocity - Body.LinearVelocity).LengthSquared();
+
+			// int damage = (int)(otherMass * relativeVelocitySquared * 0.05f);
+
+			// // _debugPanel.AddLine($"Contact rel vel: {relativeVelocitySquared:F4}");
+			// _debugPanel.AddLine($"Damage: {damage}");
 		}
 
 		return true;
 	}
 
+	private void OnSeparationHandler(Fixture sender, Fixture other, Contact contact)
+	{
+		if (Size == 1)
+			return;
+
+		if (other.Body.Tag is IDamageColider)
+		{
+			// Determine change in kinetic energy
+			var linearDiff = _previousLinearVelocity - Body.LinearVelocity;
+			var angularDiff = _previousAngularVelocity - Body.AngularVelocity;
+
+			float linearKEChange = 0.5f * Body.Mass * (linearDiff).LengthSquared();
+			float angularKEChange = 0.5f * Body.Inertia * (angularDiff * angularDiff);
+
+			float KEChange = linearKEChange + angularKEChange;
+
+			float damage = KEChange * 0.3f;
+
+			if (other.Body.Tag is Asteroid asteroid)
+			{
+				int sizeDiff = this.Size - asteroid.Size;
+				float damageScale = PMath.Map(sizeDiff, -2, 2, 0, 2);
+				damage *= damageScale;
+			}
+
+			Health -= (int)damage;
+
+			// _debugPanel.AddLine($"KE: {KEChange:F2} | Damage: {damage}");
+		}
+	}
+
 	public void Update(GameTime gameTime)
 	{
+		if (Health <= 0)
+			Explode(_pastColiderVelocity);
+
 		_debugPanel.Position = Body.WorldCenter;
+		_debugPanel.ClearLines();
+		_debugPanel.AddLine($"{Health}/{InitialHealth}");
 
 		this.Wrap(_handler.Bounds);
 	}
@@ -139,25 +190,30 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 			Transform.Multiply(_vertices[0], ref tf),
 			thickness: 1.0f / Constants.PixelsPerMeter, Color.White, 0.1f);
 
+		// Primitives.DrawCircleOutline(WorldCenter, Radius, Color.Red, 1.0f);
+
 		_debugPanel.Draw(spriteBatch);
 	}
 
-	private void Explode(Vector2 bulletDirection)
+	private void Explode(Vector2 direction)
 	{
 		_handler.RemoveGameObject(this);
 
 		if (Size <= 1)
 			return;
 
-		var direction = Vector2.Normalize(bulletDirection);
+		if (direction == Vector2.Zero)
+			direction = Vector2.UnitX;
+		else
+			direction.Normalize();
 
 		for (int i = 0; i < _splitCount; i++)
 		{
 			var asteroid = new Asteroid(_handler,
 				size: Size - 1,
-				initialPosition: Body.Position + direction * Size * 0.3f,
+				initialPosition: Body.Position + direction * Size * 0.5f,
 				initialRotation: _generator.NextSingle() * MathHelper.TwoPi,
-				initialVelocity: direction * 2 * (4 - (Size - 1)),
+				initialVelocity: direction * 2.5f * (4 - Size),
 				initialAngularVelocity: _generator.NextSingle(-1, 1));
 
 			_handler.AddGameObject(asteroid);
