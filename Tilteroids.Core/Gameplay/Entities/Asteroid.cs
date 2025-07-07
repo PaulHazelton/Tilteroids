@@ -16,6 +16,7 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 	private readonly IGamePlayer _handler;
 	private readonly Random _generator;
 	private readonly Vertices _vertices;
+	private readonly int _splitCount;
 
 	public Body Body { get; private init; }
 	public int Size { get; private init; }
@@ -34,6 +35,7 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 	{
 		_handler = gamePlayer;
 		_generator = new(DateTime.Now.Millisecond);
+		_splitCount = 3;
 
 		Size = size;
 		Health = size switch
@@ -128,24 +130,19 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable
 			return;
 
 		var direction = Vector2.Normalize(bulletDirection);
-		direction.Rotate(MathHelper.PiOver2);
 
-		var asteroid1 = new Asteroid(_handler,
-			size: Size - 1,
-			initialPosition: Body.Position + direction * Size * 0.3f,
-			initialRotation: _generator.NextSingle() * MathHelper.TwoPi,
-			initialVelocity: direction * 2 * (4 - (Size - 1)),
-			initialAngularVelocity: _generator.NextSingle(-1, 1));
+		for (int i = 0; i < _splitCount; i++)
+		{
+			var asteroid = new Asteroid(_handler,
+				size: Size - 1,
+				initialPosition: Body.Position + direction * Size * 0.3f,
+				initialRotation: _generator.NextSingle() * MathHelper.TwoPi,
+				initialVelocity: direction * 2 * (4 - (Size - 1)),
+				initialAngularVelocity: _generator.NextSingle(-1, 1));
 
-		direction *= -1;
-		var asteroid2 = new Asteroid(_handler,
-			size: Size - 1,
-			initialPosition: Body.Position + direction * Size * 0.3f,
-			initialRotation: _generator.NextSingle() * MathHelper.TwoPi,
-			initialVelocity: direction * 2 * (4 - (Size - 1)),
-			initialAngularVelocity: _generator.NextSingle(-1, 1));
+			_handler.AddGameObject(asteroid);
 
-		_handler.AddGameObject(asteroid1);
-		_handler.AddGameObject(asteroid2);
+			direction.Rotate(MathHelper.TwoPi / _splitCount);
+		}
 	}
 }
