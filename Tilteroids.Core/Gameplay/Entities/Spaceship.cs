@@ -151,6 +151,9 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 			color: Health <= 0 ? Color.Red : Color.White,
 			0.1f);
 
+		// Debug circle for world wrap
+		Primitives.DrawCircleOutline(WorldCenter, Radius, Color.Red, 1.0f);
+
 		_debugPanel.Draw(spriteBatch);
 
 		// Draw Image

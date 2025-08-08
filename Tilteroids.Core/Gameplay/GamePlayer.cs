@@ -21,6 +21,9 @@ namespace Tilteroids.Core.Gameplay;
 
 public class GamePlayer : IGamePlayer
 {
+	// Initial Game Settings
+	private const int AsteroidCount = 0;
+
 	private readonly GameManager _gameManager;
 	private readonly GameObjectCollection _gameObjectCollection;
 	private readonly TiltController _tiltController;
@@ -35,7 +38,7 @@ public class GamePlayer : IGamePlayer
 	private Spaceship? _spaceShip;
 
 	// Settings
-	private DebugFlags _debugSettings = DebugFlags.None;
+	private DebugFlags _debugSettings = DebugFlags.WorldWrapView;
 
 	// Public Interface Stuff
 	public ContentBucket ContentBucket { get; }
@@ -60,7 +63,7 @@ public class GamePlayer : IGamePlayer
 
 		World = new World(Vector2.Zero);
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
-		Camera.SnapScale(Constants.PixelsPerMeter);
+		SetCameraScale();
 
 		_gameObjectCollection = new(World);
 
@@ -87,9 +90,12 @@ public class GamePlayer : IGamePlayer
 
 	public void Update(GameTime gameTime)
 	{
-		Camera.Update(gameTime);
-
 		ProcessInput();
+
+		if (_debugSettings.HasFlag(DebugFlags.ManualStepping) && !InputManager.WasButtonPressed(Keys.Right))
+			return;
+
+		Camera.Update(gameTime);
 
 		// Update World
 		World.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
@@ -120,7 +126,7 @@ public class GamePlayer : IGamePlayer
 			Primitives.DrawRectangleOutline(Bounds, Color.Blue, 2.0f / Constants.PixelsPerMeter, 0);
 
 		WorldSpaceDebugDraw();
-		
+
 
 		spriteBatch.End();
 
@@ -184,14 +190,15 @@ public class GamePlayer : IGamePlayer
 			if (InputManager.WasButtonPressed(Keys.R))
 				Reset();
 
-			if (InputManager.WasButtonPressed(Keys.F1))
-				_debugSettings ^= DebugFlags.Physics;
-			if (InputManager.WasButtonPressed(Keys.F2))
-				_debugSettings ^= DebugFlags.SensorData;
-			if (InputManager.WasButtonPressed(Keys.F3))
-				_debugSettings ^= DebugFlags.AimVector;
-			if (InputManager.WasButtonPressed(Keys.F4))
-				ToggleWorldWrapView();
+			// Debug Flags
+			foreach (var setting in Enum.GetValues<DebugFlags>())
+			{
+				if (InputManager.WasButtonPressed(setting.GetKey()))
+					_debugSettings ^= setting;
+			}
+
+			if (InputManager.WasButtonPressed(DebugFlags.WorldWrapView.GetKey()))
+				SetCameraScale();
 		}
 
 		void MouseInput()
@@ -269,7 +276,7 @@ public class GamePlayer : IGamePlayer
 		float maxX = worldSize.X / 2 - 2.0f;
 		float maxY = worldSize.Y / 2 - 2.0f;
 
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < AsteroidCount; i++)
 		{
 			int size = 3;//generator.NextInt(1, 4);
 
@@ -279,6 +286,10 @@ public class GamePlayer : IGamePlayer
 				initialRotation: generator.NextSingle() * MathHelper.TwoPi,
 				initialVelocity: generator.NextVector(1f, 4f) * (4 - size),
 				initialAngularVelocity: generator.NextSingle(-1, 1));
+				// initialPosition: Vector2.Zero,
+				// initialRotation: 0,
+				// initialVelocity: new(0, 6),
+				// initialAngularVelocity: 0);
 
 			AddGameObject(asteroid);
 		}
@@ -315,12 +326,8 @@ public class GamePlayer : IGamePlayer
 		_sensorDebugSuite.Calibrate();
 	}
 
-	private void ToggleWorldWrapView()
+	private void SetCameraScale()
 	{
-		_debugSettings ^= DebugFlags.WorldWrapView;
-
-		// Camera.SnapScale(Constants.PixelsPerMeter * (_debugSettings.HasFlag(DebugFlags.WorldWrapView) ? 0.6f : 1.0f));
-
 		if (_debugSettings.HasFlag(DebugFlags.WorldWrapView))
 			Camera.SnapScale(Constants.PixelsPerMeter * 0.6f);
 		else
