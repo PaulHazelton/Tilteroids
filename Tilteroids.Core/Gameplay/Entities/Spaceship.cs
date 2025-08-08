@@ -222,9 +222,15 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 
 			float KEChange = linearKEChange + angularKEChange;
 
-			int damage = (int)(KEChange * 0.5f);
+			float damage = (int)(KEChange * 0.5f);
 
-			Health -= damage;
+			if (other.Body.Tag is Asteroid asteroid)
+			{
+				float damageScale = PMath.Map(asteroid.Size, 1, 3, 1.5f, 0.5f);
+				damage *= damageScale;
+			}
+
+			Health -= (int)damage;
 
 			// _debugPanel.AddLine($"KE: {KEChange:F2} | Damage: {damage}");
 		}

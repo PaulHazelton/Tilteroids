@@ -147,7 +147,7 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 
 			float KEChange = linearKEChange + angularKEChange;
 
-			float damage = KEChange * 0.3f;
+			float damage = KEChange * 0.2f;
 
 			if (other.Body.Tag is Asteroid asteroid)
 			{
@@ -213,7 +213,7 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 				size: Size - 1,
 				initialPosition: Body.Position + direction * Size * 0.5f,
 				initialRotation: _generator.NextSingle() * MathHelper.TwoPi,
-				initialVelocity: direction * 2.5f * (4 - Size),
+				initialVelocity: direction * 3.0f * (4 - Size),
 				initialAngularVelocity: _generator.NextSingle(-1, 1));
 
 			_handler.AddGameObject(asteroid);
