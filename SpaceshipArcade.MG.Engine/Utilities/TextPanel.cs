@@ -13,20 +13,23 @@ public class TextPanel
 
 	private readonly SpriteFont _font;
 	private readonly List<string> _lines;
-	private readonly AnchorCorner _anchorCorner;
 
-	private Color _textColor;
-	private Vector2 _position;
+	// Required Parameters
+	public Vector2 Position { get; set; }
+
+	// Optional Parameters
+	public AnchorCorner Anchor { get; set; } = AnchorCorner.TopLeft;
+	public Color TextColor { get; set; } = Color.White;
+	public float Scale { get; set; } = 1.0f;
+	public float LayerDepth { get; set; } = 1.0f;
 
 	/// <param name="position">The top left corner of the panel</param>
-	public TextPanel(SpriteFont font, Vector2 position, AnchorCorner anchorCorner)
+	public TextPanel(SpriteFont font, Vector2 position)
 	{
 		_font = font;
 		_lines = [];
 
-		_textColor = Color.White;
-		_position = position;
-		_anchorCorner = anchorCorner;
+		Position = position;
 	}
 
 	public void AddLine(string line) => _lines.Add(line);
@@ -39,23 +42,33 @@ public class TextPanel
 
 		foreach (string line in _lines)
 		{
-			switch (_anchorCorner)
+			switch (Anchor)
 			{
 				case AnchorCorner.TopLeft:
-					linePosition = _position + new Vector2(0, i * _font.LineSpacing);
+					linePosition = Position + new Vector2(0, i * _font.LineSpacing * Scale);
 					break;
 				case AnchorCorner.TopRight:
-					linePosition = _position + new Vector2(-_font.MeasureString(line).X, i * _font.LineSpacing);
+					linePosition = Position + new Vector2(-_font.MeasureString(line).X, i * _font.LineSpacing * Scale);
 					break;
 				case AnchorCorner.BottomLeft:
-					linePosition = _position + new Vector2(0, (-_lines.Count + i) * _font.LineSpacing);
+					linePosition = Position + new Vector2(0, (-_lines.Count + i) * _font.LineSpacing * Scale);
 					break;
 				case AnchorCorner.BottomRight:
-					linePosition = _position + new Vector2(-_font.MeasureString(line).X, (-_lines.Count + i) * _font.LineSpacing);
+					linePosition = Position + new Vector2(-_font.MeasureString(line).X, (-_lines.Count + i) * _font.LineSpacing * Scale);
 					break;
 			}
 
-			spriteBatch.DrawString(_font, line, linePosition, _textColor);
+			spriteBatch.DrawString(
+				spriteFont: _font,
+				text: line,
+				position: linePosition,
+				color: TextColor,
+				rotation: 0,
+				origin: default,
+				scale: Scale,
+				effects: default,
+				layerDepth: LayerDepth);
+
 			i++;
 		}
 	}

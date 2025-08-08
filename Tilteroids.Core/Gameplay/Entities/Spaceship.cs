@@ -9,10 +9,11 @@ using Microsoft.Xna.Framework.Audio;
 using SpaceshipArcade.MG.Engine.Graphics;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Torus;
+using nkast.Aether.Physics2D.Dynamics.Contacts;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
-public class Spaceship : IGameObject, IPhysicsObject, IWrappable
+public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 {
 	// Private
 	private readonly IGamePlayer _handler;
@@ -22,13 +23,18 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable
 	private readonly TorqueController _torqueController;
 	private readonly Gun _gunSelection;
 	private readonly Vertices _vertices;
-
 	private readonly SoundEffect _gunShotSound;
 	private readonly Random _random;
+	private readonly TextPanel _debugPanel;
+	private Vector2 _previousLinearVelocity;
+	private float _previousAngularVelocity;
 
 	// Public
 	public Body Body { get; private init; }
 
+	public int Health { get; private set; } = 10;
+
+	public int DamageMass => 1;
 	public float Radius => 7.0f / 16.0f;
 	public Vector2 WorldCenter
 	{
@@ -51,6 +57,11 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable
 
 		_gunSelection = new Clipper();
 
+		_debugPanel = new(_handler.ContentBucket.Fonts.FallbackFont, startingPos)
+		{
+			Scale = Constants.MetersPerPixel,
+		};
+
 		{
 			_vertices = new Vertices([
 				new(-7, -7),
@@ -66,17 +77,19 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable
 				Restitution = 0.5f,
 			};
 
-			var body = new Body()
+			Body = new Body()
 			{
+				Tag = this,
 				Position = startingPos,
 				BodyType = BodyType.Dynamic,
 			};
 
-			body.Add(fixture);
+			Body.Add(fixture);
 
-			body.FixtureList[0].CollisionCategories = Category.Cat2;
+			Body.FixtureList[0].CollisionCategories = Category.Cat2;
 
-			Body = body;
+			Body.OnCollision += OnCollisionHandler;
+			Body.OnSeparation += OnSeparationHandler;
 		}
 
 		_torqueController = new(inertia: Body.Inertia);
@@ -111,6 +124,10 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable
 		_gunSelection.Update(gameTime);
 
 		this.Wrap(_handler.Bounds);
+
+		_debugPanel.Position = Body.Position;
+		_debugPanel.ClearLines();
+		_debugPanel.AddLine($"{Health}/10");
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
@@ -123,12 +140,18 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable
 			Primitives.DrawLine(
 				Transform.Multiply(_vertices[i], ref tf),
 				Transform.Multiply(_vertices[i + 1], ref tf),
-				thickness: 2.0f / Constants.PixelsPerMeter, Color.White, 0.1f);
+				thickness: 2.0f / Constants.PixelsPerMeter,
+				color: Health <= 0 ? Color.Red : Color.White,
+				0.1f);
 		}
 		Primitives.DrawLine(
 			Transform.Multiply(_vertices[^1], ref tf),
 			Transform.Multiply(_vertices[0], ref tf),
-			thickness: 2.0f / Constants.PixelsPerMeter, Color.White, 0.1f);
+			thickness: 2.0f / Constants.PixelsPerMeter,
+			color: Health <= 0 ? Color.Red : Color.White,
+			0.1f);
+
+		_debugPanel.Draw(spriteBatch);
 
 		// Draw Image
 		// spriteBatch.Draw(
@@ -164,5 +187,52 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable
 
 		// Play Sound
 		_gunShotSound.Play(0.5f, _random.NextSingle(-0.25f, 0.25f), 0);
+	}
+
+	private bool OnCollisionHandler(Fixture fixtureA, Fixture fixtureB, Contact contact)
+	{
+		if (fixtureB.Body.Tag is IDamageColider colider)
+		{
+			_previousLinearVelocity = Body.LinearVelocity;
+			_previousAngularVelocity = Body.AngularVelocity;
+
+			// // Subtract damamge based on mass of other asteroid and relative velocity
+			// int otherMass = colider.DamageMass;
+			// var relativeVelocitySquared = (colider.Body.LinearVelocity - Body.LinearVelocity).LengthSquared();
+
+			// int damage = (int)(otherMass * relativeVelocitySquared * 0.05f);
+
+			// // _debugPanel.AddLine($"Contact rel vel: {relativeVelocitySquared:F4}");
+			// _debugPanel.AddLine($"Damage: {damage}");
+		}
+
+		return true;
+	}
+
+	private void OnSeparationHandler(Fixture sender, Fixture other, Contact contact)
+	{
+		if (other.Body.Tag is IDamageColider)
+		{
+			// Determine change in kinetic energy
+			var linearDiff = _previousLinearVelocity - Body.LinearVelocity;
+			var angularDiff = _previousAngularVelocity - Body.AngularVelocity;
+
+			float linearKEChange = 0.5f * Body.Mass * (linearDiff).LengthSquared();
+			float angularKEChange = 0.5f * Body.Inertia * (angularDiff * angularDiff);
+
+			float KEChange = linearKEChange + angularKEChange;
+
+			float damage = (int)(KEChange * 0.5f);
+
+			if (other.Body.Tag is Asteroid asteroid)
+			{
+				float damageScale = PMath.Map(asteroid.Size, 1, 3, 1.5f, 0.5f);
+				damage *= damageScale;
+			}
+
+			Health -= (int)damage;
+
+			// _debugPanel.AddLine($"KE: {KEChange:F2} | Damage: {damage}");
+		}
 	}
 }

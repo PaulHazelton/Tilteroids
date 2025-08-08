@@ -7,4 +7,5 @@ public enum DebugFlags
 	Physics = 1,
 	SensorData = 2,
 	AimVector = 4,
+	WorldWrapView = 8,
 }
