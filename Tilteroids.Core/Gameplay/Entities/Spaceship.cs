@@ -39,7 +39,11 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 	public Vector2 WorldCenter
 	{
 		get => Body.WorldCenter;
-		set => Body.Position = value;
+		set
+		{
+			var offset = value - Body.WorldCenter;
+			Body.Position += offset;
+		}
 	}
 
 	public Spaceship(IGamePlayer handler, Vector2 startingPos)

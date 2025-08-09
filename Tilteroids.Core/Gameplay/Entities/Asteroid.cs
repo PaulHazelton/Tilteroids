@@ -34,8 +34,12 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 	public float Radius { get; private set; }
 	public Vector2 WorldCenter
 	{
-		get => Body.Position;
-		set => Body.Position = value;
+		get => Body.WorldCenter;
+		set
+		{
+			var offset = value - Body.WorldCenter;
+			Body.Position += offset;
+		}
 	}
 
 	// For now, Asteroids will just be squares
