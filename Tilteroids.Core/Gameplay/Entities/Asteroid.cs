@@ -11,13 +11,14 @@ using Tilteroids.Core.Gameplay.Torus;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
-public class Asteroid : IGameObject, IPhysicsObject, IWrappable, IDamageColider
+public class Asteroid : IGameObject, IPhysicsObject, IDamageColider
 {
 	private const float Density = 1.0f;
 
 	private readonly IGamePlayer _handler;
 	private readonly Random _generator;
 	private readonly Vertices _vertices;
+	private readonly Wrapper _wrapper;
 	private readonly int _splitCount;
 
 	private readonly TextPanel _debugPanel;
@@ -32,16 +33,6 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 	public int Health { get; private set; }
 
 	public int DamageMass => Size;
-	public float Radius { get; private set; }
-	public Vector2 WorldCenter
-	{
-		get => Body.WorldCenter;
-		set
-		{
-			var offset = value - Body.WorldCenter;
-			Body.Position += offset;
-		}
-	}
 
 	// For now, Asteroids will just be squares
 	// Eventually, Asteroids will be polygons
@@ -79,7 +70,7 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 
 			float unit = size / 2.0f;
 
-			Radius = unit * 0.8f;
+			var radius = unit * 0.8f;
 
 			_vertices = new Vertices([
 				new(-unit * 0.7f, unit * 0.8f),
@@ -106,6 +97,8 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 			body.OnSeparation += OnSeparationHandler;
 
 			Body = body;
+
+			_wrapper = new(radius, _handler.Bounds, Body);
 		}
 	}
 
@@ -176,7 +169,7 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 		_debugPanel.ClearLines();
 		_debugPanel.AddLine($"{Health}/{InitialHealth}");
 
-		this.Wrap(_handler.Bounds);
+		_wrapper.Wrap();
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
@@ -197,7 +190,7 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 
 		// Debug circle for world wrap
 		if (_handler.DebugSettings.HasFlag(DebugFlags.WorldWrapView))
-			Primitives.DrawCircleOutline(WorldCenter, Radius, Color.Red, 1.0f);
+			_wrapper.Draw();
 
 		_debugPanel.Draw(spriteBatch);
 	}

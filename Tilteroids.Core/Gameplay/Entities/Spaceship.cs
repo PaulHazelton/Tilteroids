@@ -14,12 +14,14 @@ using Tilteroids.Core.Debugging;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
-public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
+public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 {
 	// Image stuff
 	// private readonly Texture2D _shipTexture;
 	// private readonly Vector2 _origin;
 	// private readonly float _scale;
+	
+	public const float Radius = 7.0f / 16.0f;
 
 	// Private
 	private readonly IGamePlayer _handler;
@@ -29,6 +31,8 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 	private readonly SoundEffect _gunShotSound;
 	private readonly Random _random;
 	private readonly TextPanel _debugPanel;
+	private readonly Wrapper _wrapper;
+
 	private Vector2 _previousLinearVelocity;
 	private float _previousAngularVelocity;
 
@@ -38,16 +42,6 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 	public int Health { get; private set; } = 10;
 
 	public int DamageMass => 1;
-	public float Radius => 7.0f / 16.0f;
-	public Vector2 WorldCenter
-	{
-		get => Body.WorldCenter;
-		set
-		{
-			var offset = value - Body.WorldCenter;
-			Body.Position += offset;
-		}
-	}
 
 	public Spaceship(IGamePlayer handler, Vector2 startingPos)
 	{
@@ -97,6 +91,8 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 
 			Body.OnCollision += OnCollisionHandler;
 			Body.OnSeparation += OnSeparationHandler;
+
+			_wrapper = new(Radius, _handler.Bounds, Body);
 		}
 
 		_torqueController = new(inertia: Body.Inertia);
@@ -130,7 +126,7 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 		// Gun cooldowns
 		_gunSelection.Update(gameTime);
 
-		this.Wrap(_handler.Bounds);
+		_wrapper.Wrap();
 
 		_debugPanel.Position = Body.Position;
 		_debugPanel.ClearLines();
@@ -160,7 +156,7 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 
 		// Debug circle for world wrap
 		if (_handler.DebugSettings.HasFlag(DebugFlags.WorldWrapView))
-			Primitives.DrawCircleOutline(WorldCenter, Radius, Color.Red, 1.0f);
+			_wrapper.Draw();
 
 		_debugPanel.Draw(spriteBatch);
 
