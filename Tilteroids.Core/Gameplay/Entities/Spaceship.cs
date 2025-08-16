@@ -16,11 +16,13 @@ namespace Tilteroids.Core.Gameplay.Entities;
 
 public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 {
-	// Private
-	private readonly IGamePlayer _handler;
+	// Image stuff
 	// private readonly Texture2D _shipTexture;
 	// private readonly Vector2 _origin;
 	// private readonly float _scale;
+
+	// Private
+	private readonly IGamePlayer _handler;
 	private readonly TorqueController _torqueController;
 	private readonly Gun _gunSelection;
 	private readonly Vertices _vertices;

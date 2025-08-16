@@ -21,7 +21,11 @@ public class Bullet : IGameObject, IPhysicsObject, IWrappable
 	public Vector2 WorldCenter
 	{
 		get => Body.WorldCenter;
-		set => Body.Position = value;
+		set
+		{
+			var offset = value - Body.WorldCenter;
+			Body.Position += offset;
+		}
 	}
 
 	public Bullet(IGamePlayer handler, Vector2 position, float aimAngle, Gun gunSettings)
