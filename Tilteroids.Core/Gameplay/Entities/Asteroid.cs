@@ -6,6 +6,7 @@ using SpaceshipArcade.MG.Engine.Extensions;
 using SpaceshipArcade.MG.Engine.Graphics;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Data;
+using Tilteroids.Core.Debugging;
 using Tilteroids.Core.Gameplay.Torus;
 
 namespace Tilteroids.Core.Gameplay.Entities;
@@ -194,7 +195,9 @@ public class Asteroid : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 			Transform.Multiply(_vertices[0], ref tf),
 			thickness: 1.0f / Constants.PixelsPerMeter, Color.White, 0.1f);
 
-		// Primitives.DrawCircleOutline(WorldCenter, Radius, Color.Red, 1.0f);
+		// Debug circle for world wrap
+		if (_handler.DebugSettings.HasFlag(DebugFlags.WorldWrapView))
+			Primitives.DrawCircleOutline(WorldCenter, Radius, Color.Red, 1.0f);
 
 		_debugPanel.Draw(spriteBatch);
 	}

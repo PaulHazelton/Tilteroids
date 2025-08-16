@@ -10,6 +10,7 @@ using SpaceshipArcade.MG.Engine.Graphics;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Torus;
 using nkast.Aether.Physics2D.Dynamics.Contacts;
+using Tilteroids.Core.Debugging;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
@@ -17,9 +18,9 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 {
 	// Private
 	private readonly IGamePlayer _handler;
-	private readonly Texture2D _shipTexture;
-	private readonly Vector2 _origin;
-	private readonly float _scale;
+	// private readonly Texture2D _shipTexture;
+	// private readonly Vector2 _origin;
+	// private readonly float _scale;
 	private readonly TorqueController _torqueController;
 	private readonly Gun _gunSelection;
 	private readonly Vertices _vertices;
@@ -53,11 +54,11 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 
 		_handler = handler;
 
-		_shipTexture = handler.ContentBucket.Textures.Ship;
+		// _shipTexture = handler.ContentBucket.Textures.Ship;
 
-		_origin = new Vector2(_shipTexture.Width / 2, _shipTexture.Height / 2);
+		// _origin = new Vector2(_shipTexture.Width / 2, _shipTexture.Height / 2);
 
-		_scale = 1.0f / _shipTexture.Width;
+		// _scale = 1.0f / _shipTexture.Width;
 
 		_gunSelection = new Clipper();
 
@@ -156,7 +157,8 @@ public class Spaceship : IGameObject, IPhysicsObject, IWrappable, IDamageColider
 			0.1f);
 
 		// Debug circle for world wrap
-		Primitives.DrawCircleOutline(WorldCenter, Radius, Color.Red, 1.0f);
+		if (_handler.DebugSettings.HasFlag(DebugFlags.WorldWrapView))
+			Primitives.DrawCircleOutline(WorldCenter, Radius, Color.Red, 1.0f);
 
 		_debugPanel.Draw(spriteBatch);
 
