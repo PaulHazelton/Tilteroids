@@ -22,7 +22,7 @@ namespace Tilteroids.Core.Gameplay;
 public class GamePlayer : IGamePlayer
 {
 	// Initial Game Settings
-	private const int AsteroidCount = 0;
+	private const int AsteroidCount = 5;
 
 	private readonly GameManager _gameManager;
 	private readonly GameObjectCollection _gameObjectCollection;
@@ -37,10 +37,8 @@ public class GamePlayer : IGamePlayer
 	private Matrix _projection;
 	private Spaceship? _spaceShip;
 
-	// Settings
-	private DebugFlags _debugSettings = DebugFlags.WorldWrapView;
-
 	// Public Interface Stuff
+	public DebugFlags DebugSettings { get; private set; } = DebugFlags.None;
 	public ContentBucket ContentBucket { get; }
 	public int ScreenWidth { get; private set; }
 	public int ScreenHeight { get; private set; }
@@ -92,7 +90,7 @@ public class GamePlayer : IGamePlayer
 	{
 		ProcessInput();
 
-		if (_debugSettings.HasFlag(DebugFlags.ManualStepping) && !InputManager.WasButtonPressed(Keys.Right))
+		if (DebugSettings.HasFlag(DebugFlags.ManualStepping) && !InputManager.WasButtonPressed(Keys.Right))
 			return;
 
 		Camera.Update(gameTime);
@@ -115,14 +113,14 @@ public class GamePlayer : IGamePlayer
 		);
 
 		// Actual Game Objects
-		if (!_debugSettings.HasFlag(DebugFlags.Physics))
+		if (!DebugSettings.HasFlag(DebugFlags.Physics))
 		{
 			foreach (var gameObject in _gameObjectCollection.GameObjects)
 				gameObject.Draw(spriteBatch);
 		}
 
 		// World Border
-		if (_debugSettings.HasFlag(DebugFlags.WorldWrapView))
+		if (DebugSettings.HasFlag(DebugFlags.WorldWrapView))
 			Primitives.DrawRectangleOutline(Bounds, Color.Blue, 2.0f / Constants.PixelsPerMeter, 0);
 
 		WorldSpaceDebugDraw();
@@ -146,15 +144,15 @@ public class GamePlayer : IGamePlayer
 
 		void WorldSpaceDebugDraw(float alpha = 1.0f)
 		{
-			if (_debugSettings.HasFlag(DebugFlags.Physics))
+			if (DebugSettings.HasFlag(DebugFlags.Physics))
 				_debugView.RenderDebugData(_projection, Camera.SimView, blendState: BlendState.Opaque, alpha: alpha);
 		}
 		void ScreenSpaceDebugDraw()
 		{
-			if (_debugSettings.HasFlag(DebugFlags.SensorData))
+			if (DebugSettings.HasFlag(DebugFlags.SensorData))
 				_sensorDebugSuite.Draw(spriteBatch);
 
-			if (_debugSettings.HasFlag(DebugFlags.AimVector))
+			if (DebugSettings.HasFlag(DebugFlags.AimVector))
 				_aimDisplay.Draw(_tiltController.AimVector);
 		}
 
@@ -194,7 +192,7 @@ public class GamePlayer : IGamePlayer
 			foreach (var setting in Enum.GetValues<DebugFlags>())
 			{
 				if (InputManager.WasButtonPressed(setting.GetKey()))
-					_debugSettings ^= setting;
+					DebugSettings ^= setting;
 			}
 
 			if (InputManager.WasButtonPressed(DebugFlags.WorldWrapView.GetKey()))
@@ -286,10 +284,6 @@ public class GamePlayer : IGamePlayer
 				initialRotation: generator.NextSingle() * MathHelper.TwoPi,
 				initialVelocity: generator.NextVector(1f, 4f) * (4 - size),
 				initialAngularVelocity: generator.NextSingle(-1, 1));
-				// initialPosition: Vector2.Zero,
-				// initialRotation: 0,
-				// initialVelocity: new(0, 6),
-				// initialAngularVelocity: 0);
 
 			AddGameObject(asteroid);
 		}
@@ -328,7 +322,7 @@ public class GamePlayer : IGamePlayer
 
 	private void SetCameraScale()
 	{
-		if (_debugSettings.HasFlag(DebugFlags.WorldWrapView))
+		if (DebugSettings.HasFlag(DebugFlags.WorldWrapView))
 			Camera.SnapScale(Constants.PixelsPerMeter * 0.6f);
 		else
 			Camera.SnapScale(Constants.PixelsPerMeter);

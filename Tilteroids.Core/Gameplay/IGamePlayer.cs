@@ -1,11 +1,13 @@
 using nkast.Aether.Physics2D.Dynamics;
 using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Data;
+using Tilteroids.Core.Debugging;
 
 namespace Tilteroids.Core.Gameplay;
 
 public interface IGamePlayer
 {
+	DebugFlags DebugSettings { get; }
 	ContentBucket ContentBucket { get; }
 	int ScreenWidth { get; }
 	int ScreenHeight { get; }

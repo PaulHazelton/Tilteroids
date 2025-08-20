@@ -2,27 +2,23 @@ using nkast.Aether.Physics2D.Dynamics;
 using nkast.Aether.Physics2D.Dynamics.Contacts;
 using SpaceshipArcade.MG.Engine.Graphics;
 using SpaceshipArcade.MG.Engine.Utilities;
+using Tilteroids.Core.Debugging;
 using Tilteroids.Core.Gameplay.Guns;
 using Tilteroids.Core.Gameplay.Torus;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
-public class Bullet : IGameObject, IPhysicsObject, IWrappable
+public class Bullet : IGameObject, IPhysicsObject
 {
 	// Private
 	private readonly IGamePlayer _handler;
 	private TimeSpan _lifeTime;
+	private readonly Wrapper _wrapper;
 
 	// Public
 	public Body Body { get; private init; }
 	public readonly Gun GunSettings;
 
-	public float Radius => MathHelper.Max(GunSettings.Length, GunSettings.Width);
-	public Vector2 WorldCenter
-	{
-		get => Body.WorldCenter;
-		set => Body.Position = value;
-	}
 
 	public Bullet(IGamePlayer handler, Vector2 position, float aimAngle, Gun gunSettings)
 	{
@@ -30,6 +26,8 @@ public class Bullet : IGameObject, IPhysicsObject, IWrappable
 		GunSettings = gunSettings;
 
 		Body = CreateBody();
+
+		_wrapper = new(radius: MathHelper.Max(GunSettings.Length, GunSettings.Width), _handler.Bounds, Body);
 
 		Body CreateBody()
 		{
@@ -69,11 +67,15 @@ public class Bullet : IGameObject, IPhysicsObject, IWrappable
 		if (distance > _handler.Bounds.Height)
 			_handler.RemoveGameObject(this);
 
-		this.Wrap(_handler.Bounds);
+		_wrapper.Wrap();
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
 	{
 		Primitives.DrawRectangle(Body.Position, new Vector2(GunSettings.Length, GunSettings.Width), Body.Rotation, Color.White, layerDepth: 1);
+
+		// Debug circle for world wrap
+		if (_handler.DebugSettings.HasFlag(DebugFlags.WorldWrapView))
+			_wrapper.Draw();
 	}
 }
