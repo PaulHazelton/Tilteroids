@@ -10,7 +10,6 @@ using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Torus;
 using nkast.Aether.Physics2D.Dynamics.Contacts;
 using Tilteroids.Core.Debugging;
-using SpaceshipArcade.MG.Engine.Graphics;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
@@ -62,37 +61,39 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 			Scale = Constants.MetersPerPixel,
 		};
 
+		_vertices = new Vertices([
+			new(-6, -5),
+			new(0, -4),
+			new(3, -3),
+			new(6, 0),
+			new(3, 3),
+			new(0, 4),
+			new(-6, 5)
+		]);
+		_vertices.Scale(new(1 / 16f));
+
+		PolygonShape shipShape = new(_vertices, 1);
+
+		var fixture = new Fixture(shipShape)
 		{
-			_vertices = new Vertices([
-				new(-7, -7),
-				new(7, 0),
-				new(-7, 7)
-			]);
-			_vertices.Scale(new(1 / 16f));
+			Restitution = 0.5f,
+		};
 
-			PolygonShape shipShape = new(_vertices, 1);
+		Body = new Body()
+		{
+			Tag = this,
+			Position = startingPos,
+			BodyType = BodyType.Dynamic,
+		};
 
-			var fixture = new Fixture(shipShape)
-			{
-				Restitution = 0.5f,
-			};
+		Body.Add(fixture);
 
-			Body = new Body()
-			{
-				Tag = this,
-				Position = startingPos,
-				BodyType = BodyType.Dynamic,
-			};
+		Body.FixtureList[0].CollisionCategories = Category.Cat2;
 
-			Body.Add(fixture);
+		Body.OnCollision += OnCollisionHandler;
+		Body.OnSeparation += OnSeparationHandler;
 
-			Body.FixtureList[0].CollisionCategories = Category.Cat2;
-
-			Body.OnCollision += OnCollisionHandler;
-			Body.OnSeparation += OnSeparationHandler;
-
-			_wrapper = new(Radius, _handler.Bounds, Body);
-		}
+		_wrapper = new(Radius, _handler.Bounds, Body);
 
 		_torqueController = new(inertia: Body.Inertia);
 	}
@@ -151,23 +152,23 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 
 		#region DrawTriangle
 
-		var tf = Body.GetTransform();
+		// var tf = Body.GetTransform();
 
-		for (int i = 0; i < _vertices.Count - 1; i++)
-		{
-			Primitives.DrawLine(
-				Transform.Multiply(_vertices[i], ref tf),
-				Transform.Multiply(_vertices[i + 1], ref tf),
-				thickness: 2.0f / Constants.PixelsPerMeter,
-				color: Color.Red,
-				0.1f);
-		}
-		Primitives.DrawLine(
-			Transform.Multiply(_vertices[^1], ref tf),
-			Transform.Multiply(_vertices[0], ref tf),
-			thickness: 2.0f / Constants.PixelsPerMeter,
-			color: Color.Red,
-			0.1f);
+		// for (int i = 0; i < _vertices.Count - 1; i++)
+		// {
+		// 	Primitives.DrawLine(
+		// 		Transform.Multiply(_vertices[i], ref tf),
+		// 		Transform.Multiply(_vertices[i + 1], ref tf),
+		// 		thickness: 2.0f / Constants.PixelsPerMeter,
+		// 		color: Color.Red,
+		// 		0.1f);
+		// }
+		// Primitives.DrawLine(
+		// 	Transform.Multiply(_vertices[^1], ref tf),
+		// 	Transform.Multiply(_vertices[0], ref tf),
+		// 	thickness: 2.0f / Constants.PixelsPerMeter,
+		// 	color: Color.Red,
+		// 	0.1f);
 
 		#endregion
 
@@ -178,7 +179,7 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 
 		#endregion
 
-		_debugPanel.Draw(spriteBatch);
+		// _debugPanel.Draw(spriteBatch);
 	}
 
 	private void TryShoot(float aimAngle, Gun gunSettings)
