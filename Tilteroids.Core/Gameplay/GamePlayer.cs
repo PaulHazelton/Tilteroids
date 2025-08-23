@@ -16,6 +16,7 @@ using Tilteroids.Core.Controllers;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Debugging;
 using Tilteroids.Core.Gameplay.Entities;
+using Tilteroids.Core.Gui;
 
 namespace Tilteroids.Core.Gameplay;
 
@@ -32,9 +33,11 @@ public class GamePlayer : IGamePlayer
 	private readonly SensorDebugSuite _sensorDebugSuite;
 	private readonly Vector2CircleDisplay _aimDisplay;
 
+	// Gameplay objects
 	public World World { get; private set; }
 	private Camera Camera { get; set; }
 	private Matrix _projection;
+	private Hud _hud;
 	private Spaceship? _spaceShip;
 
 	// Public Interface Stuff
@@ -62,6 +65,8 @@ public class GamePlayer : IGamePlayer
 		World = new World(Vector2.Zero);
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
 		SetCameraScale();
+
+		_hud = new Hud(contentBucket);
 
 		_gameObjectCollection = new(World);
 
@@ -133,6 +138,8 @@ public class GamePlayer : IGamePlayer
 		#region Screen Space
 
 		spriteBatch.Begin();
+
+		_hud.Draw(spriteBatch);
 
 		ScreenSpaceDebugDraw();
 

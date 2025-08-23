@@ -70,7 +70,7 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 			new(0, 4),
 			new(-6, 5)
 		]);
-		_vertices.Scale(new(1 / 16f));
+		_vertices.Scale(new(1.4f / 16f));
 
 		PolygonShape shipShape = new(_vertices, 1);
 
