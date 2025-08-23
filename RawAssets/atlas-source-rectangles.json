@@ -1,0 +1,62 @@
+[
+	{
+		"Id": "Pause",
+		"Position": "0, 0",
+		"Dimensions": "5, 5"
+	},
+	{
+		"Id": "Play",
+		"Position": "5, 0",
+		"Dimensions": "5, 5"
+	},
+	{
+		"Id": "Weapon-1",
+		"Position": "10, 0",
+		"Dimensions": "5, 5"
+	},
+	{
+		"Id": "Weapon-2",
+		"Position": "15, 0",
+		"Dimensions": "5, 5"
+	},
+	{
+		"Id": "Weapon-3",
+		"Position": "20, 0",
+		"Dimensions": "5, 5"
+	},
+	{
+		"Id": "Weapon-4",
+		"Position": "25, 0",
+		"Dimensions": "5, 5"
+	},
+	{
+		"Id": "Safe-Zone",
+		"Position": "0, 5",
+		"Dimensions": "6, 6"
+	},
+	{
+		"Id": "Respawn-Indicator",
+		"Position": "0, 11",
+		"Dimensions": "6, 3"
+	},
+	{
+		"Id": "Ship",
+		"Position": "6, 5",
+		"Dimensions": "4, 4"
+	},
+	{
+		"Id": "Life",
+		"Position": "10, 5",
+		"Dimensions": "3, 3"
+	},
+	{
+		"Id": "Health",
+		"Position": "13, 5",
+		"Dimensions": "1, 2"
+	},
+	{
+		"Id": "Currency",
+		"Position": "13, 7",
+		"Dimensions": "1, 1"
+	}
+]
