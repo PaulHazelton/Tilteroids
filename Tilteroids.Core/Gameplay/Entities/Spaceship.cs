@@ -6,20 +6,19 @@ using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Gameplay.Guns;
 using Tilteroids.Core.Controllers;
 using Microsoft.Xna.Framework.Audio;
-using SpaceshipArcade.MG.Engine.Graphics;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Gameplay.Torus;
 using nkast.Aether.Physics2D.Dynamics.Contacts;
 using Tilteroids.Core.Debugging;
+using SpaceshipArcade.MG.Engine.Graphics;
 
 namespace Tilteroids.Core.Gameplay.Entities;
 
 public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 {
 	// Image stuff
-	// private readonly Texture2D _shipTexture;
-	// private readonly Vector2 _origin;
-	// private readonly float _scale;
+	private readonly Vector2 _origin;
+	private readonly float _scale;
 	
 	public const float Radius = 7.0f / 16.0f;
 
@@ -50,11 +49,11 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 
 		_handler = handler;
 
-		// _shipTexture = handler.ContentBucket.Textures.Ship;
+		var sourceRectangle = _handler.ContentBucket.SpriteSheets.MainSpriteSheet[SpriteIdentifiers.Ship];
 
-		// _origin = new Vector2(_shipTexture.Width / 2, _shipTexture.Height / 2);
+		_origin = sourceRectangle.Size.ToVector2() * 0.5f;
 
-		// _scale = 1.0f / _shipTexture.Width;
+		_scale = 1.0f / sourceRectangle.Width;
 
 		_gunSelection = new Clipper();
 
@@ -135,7 +134,23 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 
 	public void Draw(SpriteBatch spriteBatch)
 	{
-		// Draw Triangle
+		#region DrawImage
+
+		spriteBatch.Draw(
+			texture: _handler.ContentBucket.SpriteSheets.MainSpriteSheet.Texture,
+			position: Body.Position,
+			sourceRectangle: _handler.ContentBucket.SpriteSheets.MainSpriteSheet[SpriteIdentifiers.Ship],
+			color: Color.White,
+			rotation: Body.Rotation,
+			origin: _origin,
+			scale: _scale,
+			effects: SpriteEffects.None,
+			layerDepth: 0.1f);
+
+		#endregion
+
+		#region DrawTriangle
+
 		var tf = Body.GetTransform();
 
 		for (int i = 0; i < _vertices.Count - 1; i++)
@@ -144,33 +159,26 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 				Transform.Multiply(_vertices[i], ref tf),
 				Transform.Multiply(_vertices[i + 1], ref tf),
 				thickness: 2.0f / Constants.PixelsPerMeter,
-				color: Health <= 0 ? Color.Red : Color.White,
+				color: Color.Red,
 				0.1f);
 		}
 		Primitives.DrawLine(
 			Transform.Multiply(_vertices[^1], ref tf),
 			Transform.Multiply(_vertices[0], ref tf),
 			thickness: 2.0f / Constants.PixelsPerMeter,
-			color: Health <= 0 ? Color.Red : Color.White,
+			color: Color.Red,
 			0.1f);
 
-		// Debug circle for world wrap
+		#endregion
+
+		#region DrawDebugCircle
+
 		if (_handler.DebugSettings.HasFlag(DebugFlags.WorldWrapView))
 			_wrapper.Draw();
 
-		_debugPanel.Draw(spriteBatch);
+		#endregion
 
-		// Draw Image
-		// spriteBatch.Draw(
-		// 	texture: _shipTexture,
-		// 	position: Body.Position,
-		// 	sourceRectangle: null,
-		// 	color: Color.White,
-		// 	rotation: Body.Rotation,
-		// 	origin: _origin,
-		// 	scale: _scale,
-		// 	effects: SpriteEffects.None,
-		// 	layerDepth: 0.1f);
+		_debugPanel.Draw(spriteBatch);
 	}
 
 	private void TryShoot(float aimAngle, Gun gunSettings)

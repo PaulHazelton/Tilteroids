@@ -1,0 +1,17 @@
+{
+	"Scale": 24,
+	"SourceRectangles": {
+		"Pause": "0,0,5,5",
+		"Play": "5,0,5,5",
+		"Weapon1": "10,0,5,5",
+		"Weapon2": "15,0,5,5",
+		"Weapon3": "20,0,5,5",
+		"Weapon4": "25,0,5,5",
+		"SafeZone": "0,5,6,6",
+		"RespawnIndicator": "0,11,6,3",
+		"Ship": "6,5,4,4",
+		"Life": "10,5,3,3",
+		"Health": "13,5,1,2",
+		"Currency": "13,7,1,1"
+	}
+}
