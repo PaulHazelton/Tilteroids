@@ -8,4 +8,6 @@ public class Constants
 
 	public const float PixelsPerMeter = 80;
 	public const float MetersPerPixel = 1 / 80f;
+
+	public const int UiUnit = 24;
 }

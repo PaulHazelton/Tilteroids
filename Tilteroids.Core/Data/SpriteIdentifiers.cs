@@ -14,4 +14,8 @@ public static class SpriteIdentifiers
 	public const string Life = "Life";
 	public const string Health = "Health";
 	public const string Currency = "Currency";
+
+	private const string WeaponPrefix = "Weapon";
+
+	public static string Weapon(int index) => $"{WeaponPrefix}{index + 1}";
 }
