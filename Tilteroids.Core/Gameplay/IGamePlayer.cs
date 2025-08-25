@@ -7,6 +7,7 @@ namespace Tilteroids.Core.Gameplay;
 
 public interface IGamePlayer
 {
+	GameState GameState { get; }
 	DebugFlags DebugSettings { get; }
 	ContentBucket ContentBucket { get; }
 	int ScreenWidth { get; }

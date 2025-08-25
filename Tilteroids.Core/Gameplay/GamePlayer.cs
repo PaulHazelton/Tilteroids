@@ -28,6 +28,7 @@ public class GamePlayer : IGamePlayer
 	private readonly GameManager _gameManager;
 	private readonly GameObjectCollection _gameObjectCollection;
 	private readonly TiltController _tiltController;
+	private readonly Hud _hud;
 
 	private readonly DebugView _debugView;
 	private readonly SensorDebugSuite _sensorDebugSuite;
@@ -37,10 +38,10 @@ public class GamePlayer : IGamePlayer
 	public World World { get; private set; }
 	private Camera Camera { get; set; }
 	private Matrix _projection;
-	private Hud _hud;
 	private Spaceship? _spaceShip;
 
 	// Public Interface Stuff
+	public GameState GameState { get; private set; }
 	public DebugFlags DebugSettings { get; private set; } = DebugFlags.None;
 	public ContentBucket ContentBucket { get; }
 	public int ScreenWidth { get; private set; }
@@ -66,7 +67,9 @@ public class GamePlayer : IGamePlayer
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
 		SetCameraScale();
 
-		_hud = new Hud(contentBucket);
+		GameState = new();
+
+		_hud = new Hud(this, contentBucket);
 
 		_gameObjectCollection = new(World);
 
@@ -262,6 +265,8 @@ public class GamePlayer : IGamePlayer
 	{
 		_gameObjectCollection.Clear();
 		AddGameplayObjects();
+
+		GameState = new();
 	}
 
 	private void AddGameplayObjects()

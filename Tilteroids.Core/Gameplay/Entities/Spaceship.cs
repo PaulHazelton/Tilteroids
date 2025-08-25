@@ -28,7 +28,6 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 	private readonly Vertices _vertices;
 	private readonly SoundEffect _gunShotSound;
 	private readonly Random _random;
-	private readonly TextPanel _debugPanel;
 	private readonly Wrapper _wrapper;
 
 	private Vector2 _previousLinearVelocity;
@@ -36,8 +35,6 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 
 	// Public
 	public Body Body { get; private init; }
-
-	public int Health { get; private set; } = 10;
 
 	public int DamageMass => 1;
 
@@ -55,11 +52,6 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 		_scale = 1.0f / sourceRectangle.Width;
 
 		_gunSelection = new Clipper();
-
-		_debugPanel = new(_handler.ContentBucket.Fonts.FallbackFont, startingPos)
-		{
-			Scale = Constants.MetersPerPixel,
-		};
 
 		_vertices = new Vertices([
 			new(-6, -5),
@@ -127,10 +119,6 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 		_gunSelection.Update(gameTime);
 
 		_wrapper.Wrap();
-
-		_debugPanel.Position = Body.Position;
-		_debugPanel.ClearLines();
-		_debugPanel.AddLine($"{Health}/10");
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
@@ -246,7 +234,7 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 				damage *= damageScale;
 			}
 
-			Health -= (int)damage;
+			_handler.GameState.AddHealth(-(int)damage);
 
 			// _debugPanel.AddLine($"KE: {KEChange:F2} | Damage: {damage}");
 		}
