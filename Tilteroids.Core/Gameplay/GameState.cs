@@ -4,32 +4,56 @@ namespace Tilteroids.Core.Gameplay;
 
 public class GameState
 {
-	public int Lives { get; private set; }
-	public int Health { get; private set; }
-	public int Currency { get; private set; }
+	private readonly IGamePlayer _gamePlayer;
 
-	public GameState()
+	public int Lives
 	{
+		get => field;
+		private set => field = MathHelper.Clamp(value, 0, Constants.MaxLives);
+	}
+	public int Health
+	{
+		get => field;
+		private set => field = MathHelper.Clamp(value, 0, Constants.MaxHealth);
+	}
+	public int Currency
+	{
+		get => field;
+		private set => field = MathHelper.Clamp(value, 0, Constants.MaxCurrency);
+	}
+
+	public GameState(IGamePlayer gamePlayer)
+	{
+		_gamePlayer = gamePlayer;
+
 		Lives = Constants.InitialLives;
 		Health = Constants.InitialHealth;
 		Currency = Constants.InitialCurrency;
 	}
 
-	public void AddLives(int difference)
+	public void LoseLife()
 	{
-		Lives = MathHelper.Clamp(Lives + difference, 0, Constants.MaxLives);
+		Lives -= 1;
+
+		if (Lives == 0)
+			_gamePlayer.GameOver();
+		else
+		{
+			_gamePlayer.LoseLife();
+			Health = Constants.MaxHealth;
+		}
 	}
 
 	public void AddHealth(int difference)
 	{
-		Health = MathHelper.Clamp(Health + difference, 0, Constants.MaxHealth);
+		Health += difference;
 
 		if (Health == 0)
-			AddLives(-1);
+			LoseLife();
 	}
 
 	public void AddCurrency(int difference)
 	{
-		Currency = MathHelper.Clamp(Currency + difference, 0, Constants.MaxCurrency);
+		Currency += difference;
 	}
 }

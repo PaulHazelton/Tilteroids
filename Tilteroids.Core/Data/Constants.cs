@@ -17,6 +17,8 @@ public class Constants
 
 	#region Gameplay
 
+	public const int InitialAsteroidCount = 2;
+
 	public const int MaxLives = 5;
 	public const int MaxHealth = 12;
 	public const int MaxCurrency = 24;
@@ -26,6 +28,8 @@ public class Constants
 	public const int InitialCurrency = 0;
 
 	public const int NumberOfWeaponTypes = 4;
+
+	public static Vector2 RespawnPosition => new(3.5f * UiUnit, 3.5f * UiUnit);
 
 	#endregion
 }

@@ -22,30 +22,30 @@ namespace Tilteroids.Core.Gameplay;
 
 public class GamePlayer : IGamePlayer
 {
-	// Initial Game Settings
-	private const int AsteroidCount = 5;
+	// Implementation details for weird stuff
+	private readonly List<Action> _postWorldStepActions = [];
 
-	private readonly GameManager _gameManager;
 	private readonly GameObjectCollection _gameObjectCollection;
+	private readonly GameManager _gameManager;
 	private readonly TiltController _tiltController;
 	private readonly Hud _hud;
+	private readonly Camera Camera;
+	private readonly World World;
 
+	// Debugging
 	private readonly DebugView _debugView;
 	private readonly SensorDebugSuite _sensorDebugSuite;
 	private readonly Vector2CircleDisplay _aimDisplay;
 
-	// Gameplay objects
-	public World World { get; private set; }
-	private Camera Camera { get; set; }
 	private Matrix _projection;
 	private Spaceship? _spaceShip;
+	private int ScreenWidth;
+	private int ScreenHeight;
 
 	// Public Interface Stuff
-	public GameState GameState { get; private set; }
 	public DebugFlags DebugSettings { get; private set; } = DebugFlags.None;
-	public ContentBucket ContentBucket { get; }
-	public int ScreenWidth { get; private set; }
-	public int ScreenHeight { get; private set; }
+	public ContentBucket ContentBucket { get; private init; }
+	public GameState GameState { get; private set; }
 	public RectangleF Bounds { get; private set; }
 
 
@@ -67,7 +67,7 @@ public class GamePlayer : IGamePlayer
 		Camera = new Camera(ScreenWidth, ScreenHeight, Constants.MetersPerPixel);
 		SetCameraScale();
 
-		GameState = new();
+		GameState = new(this);
 
 		_hud = new Hud(this, contentBucket);
 
@@ -80,6 +80,7 @@ public class GamePlayer : IGamePlayer
 		_debugView.LoadContent(manager.GraphicsDevice, manager.Content);
 
 		AddGameplayObjects();
+		ResetSpaceShip();
 	}
 
 	public void UpdateSize(int screenWidth, int screenHeight)
@@ -108,6 +109,12 @@ public class GamePlayer : IGamePlayer
 
 		// Update all game objects
 		_gameObjectCollection.Update(gameTime);
+
+		// Flush all post world step actions
+		foreach (var action in _postWorldStepActions)
+			action();
+
+		_postWorldStepActions.Clear();
 	}
 
 	public void Draw(SpriteBatch spriteBatch)
@@ -171,6 +178,13 @@ public class GamePlayer : IGamePlayer
 
 	public void AddGameObject(IGameObject gameObject) => _gameObjectCollection.Add(gameObject);
 	public void RemoveGameObject(IGameObject gameObject) => _gameObjectCollection.Remove(gameObject);
+
+	public void LoseLife()
+	{
+		AfterWorldStep(ResetSpaceShip);
+	}
+
+	public void GameOver() { }
 
 	#region Private Functions
 
@@ -265,8 +279,27 @@ public class GamePlayer : IGamePlayer
 	{
 		_gameObjectCollection.Clear();
 		AddGameplayObjects();
+		ResetSpaceShip();
 
-		GameState = new();
+		GameState = new(this);
+	}
+
+	private void ResetSpaceShip()
+	{
+		if (_spaceShip is null)
+			return;
+
+		var spawnPosition = Camera.ScreenToWorldPosition(Constants.RespawnPosition);
+
+		_spaceShip.Body.Position = spawnPosition;
+		// _spaceShip.Body.LinearVelocity = Vector2.Zero;
+		// _spaceShip.Body.AngularVelocity = 0;
+		_spaceShip.Body.ResetDynamics();
+	}
+
+	private void AfterWorldStep(Action action)
+	{
+		_postWorldStepActions.Add(action);
 	}
 
 	private void AddGameplayObjects()
@@ -277,7 +310,7 @@ public class GamePlayer : IGamePlayer
 		AddWorldBorder(worldSize);
 
 		// Spaceship
-		_spaceShip = new Spaceship(this, new Vector2(0, 0));
+		_spaceShip = new Spaceship(this, Vector2.Zero);
 		AddGameObject(_spaceShip);
 
 		// Asteroids
@@ -286,7 +319,7 @@ public class GamePlayer : IGamePlayer
 		float maxX = worldSize.X / 2 - 2.0f;
 		float maxY = worldSize.Y / 2 - 2.0f;
 
-		for (int i = 0; i < AsteroidCount; i++)
+		for (int i = 0; i < Constants.InitialAsteroidCount; i++)
 		{
 			int size = 3;//generator.NextInt(1, 4);
 

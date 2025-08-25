@@ -61,7 +61,7 @@ public class Camera
 		MetersPerPixel = metersPerPixel;
 
 		ScreenCenter = new Vector2(screenX / 2, screenY / 2);
-		View = Matrix.Identity;
+		// View = Matrix.Identity;
 		UpdateView();
 	}
 
@@ -115,11 +115,13 @@ public class Camera
 	{
 		TargetPosition = position;
 		Position = position;
+		UpdateView();
 	}
 	public void SnapScale(float scale)
 	{
 		TargetScale = scale;
 		Scale = scale;
+		UpdateView();
 	}
 
 	public void SetPosition(Vector2 position)
@@ -147,6 +149,8 @@ public class Camera
 	}
 
 	// Utilities
+	public Vector2 ScreenToWorldPosition(Vector2 screenPosition) => Vector2.Transform(screenPosition, Matrix.Invert(View));
+
 	public Vector2 GetMouseWorld()
 	{
 		return Vector2.Transform(Mouse.GetState().Position.ToVector2(), Matrix.Invert(View));

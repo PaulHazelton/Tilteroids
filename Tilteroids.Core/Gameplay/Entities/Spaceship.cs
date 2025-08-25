@@ -234,7 +234,8 @@ public class Spaceship : IGameObject, IPhysicsObject, IDamageColider
 				damage *= damageScale;
 			}
 
-			_handler.GameState.AddHealth(-(int)damage);
+			_handler.GameState.AddHealth(-2);
+			// _handler.GameState.AddHealth(-(int)damage);
 
 			// _debugPanel.AddLine($"KE: {KEChange:F2} | Damage: {damage}");
 		}
