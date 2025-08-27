@@ -12,6 +12,8 @@
 		"Ship": "7,6,3,3",
 		"Life": "11,6,2,2",
 		"Health": "14,6,1,2",
-		"Currency": "14,9,1,1"
+		"Currency": "14,9,1,1",
+		"FrameClosed": "16,6,4,4",
+		"FrameOpen": "21,6,4,4"
 	}
 }

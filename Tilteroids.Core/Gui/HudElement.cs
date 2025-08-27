@@ -1,4 +1,5 @@
 using SpaceshipArcade.MG.Engine.SpriteSheets;
+using Tilteroids.Core.Data;
 
 namespace Tilteroids.Core.Gui;
 
@@ -17,6 +18,20 @@ public class HudElement
 		_spriteSheet = spriteSheet;
 		_identifier = identifier;
 		Position = position;
+	}
+
+	public void DrawFrame(SpriteBatch spriteBatch, bool active)
+	{
+		spriteBatch.Draw(
+			texture: _spriteSheet.Texture,
+			position: Position,
+			sourceRectangle: _spriteSheet[active ? SpriteIdentifiers.FrameClosed : SpriteIdentifiers.FrameOpen],
+			color: Color.White,
+			rotation: 0,
+			origin: Vector2.Zero,
+			scale: 1,
+			effects: SpriteEffects.None,
+			layerDepth: 0.1f);
 	}
 
 	public void Draw(SpriteBatch spriteBatch)

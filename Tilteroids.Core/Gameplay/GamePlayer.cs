@@ -45,6 +45,7 @@ public class GamePlayer : IGamePlayer
 	// Public Interface Stuff
 	public DebugFlags DebugSettings { get; private set; } = DebugFlags.None;
 	public ContentBucket ContentBucket { get; private init; }
+	public Point ScreenSize { get; private set; }
 	public GameState GameState { get; private set; }
 	public RectangleF Bounds { get; private set; }
 
@@ -56,6 +57,7 @@ public class GamePlayer : IGamePlayer
 		_gameManager = manager;
 		_tiltController = new(orientationSensor);
 		ContentBucket = contentBucket;
+		ScreenSize = new(screenWidth, screenHeight);
 		ScreenWidth = screenWidth;
 		ScreenHeight = screenHeight;
 
@@ -85,6 +87,7 @@ public class GamePlayer : IGamePlayer
 
 	public void UpdateSize(int screenWidth, int screenHeight)
 	{
+		ScreenSize = new(screenWidth, screenHeight);
 		ScreenWidth = screenWidth;
 		ScreenHeight = screenHeight;
 
@@ -99,7 +102,7 @@ public class GamePlayer : IGamePlayer
 	{
 		ProcessInput();
 
-		if (DebugSettings.HasFlag(DebugFlags.ManualStepping) && !InputManager.WasButtonPressed(Keys.Right))
+		if (GameState.IsPaused || (DebugSettings.HasFlag(DebugFlags.ManualStepping) && !InputManager.WasButtonPressed(Keys.Right)))
 			return;
 
 		Camera.Update(gameTime);
@@ -211,6 +214,30 @@ public class GamePlayer : IGamePlayer
 
 			if (InputManager.WasButtonPressed(Keys.R))
 				Reset();
+
+			if (InputManager.WasButtonPressed(Keys.P))
+				GameState.IsPaused = !GameState.IsPaused;
+
+			// Weapon selection
+			if (InputManager.WasButtonPressed(Keys.D1))
+			{
+				GameState.SelectedWeaponIndex = 0;
+			}
+			if (InputManager.WasButtonPressed(Keys.D2))
+			{
+				GameState.SelectedWeaponIndex = 1;
+
+			}
+			if (InputManager.WasButtonPressed(Keys.D3))
+			{
+				GameState.SelectedWeaponIndex = 2;
+
+			}
+			if (InputManager.WasButtonPressed(Keys.D4))
+			{
+				GameState.SelectedWeaponIndex = 3;
+
+			}
 
 			// Debug Flags
 			foreach (var setting in Enum.GetValues<DebugFlags>())

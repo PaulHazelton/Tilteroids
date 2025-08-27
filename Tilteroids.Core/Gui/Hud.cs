@@ -9,6 +9,8 @@ public class Hud
 
 	private readonly HudElement _safeZone;
 	private readonly HudElement _respawnIndicator;
+	private readonly HudElement _pauseButton;
+	private readonly HudElement _playButton;
 	private readonly HudElement[] _lives;
 	private readonly HudElement[] _health;
 	private readonly HudElement[] _currency;
@@ -24,6 +26,9 @@ public class Hud
 
 		_safeZone = new(spriteSheet, SpriteIdentifiers.SafeZone, new(unit, unit));
 		_respawnIndicator = new(spriteSheet, SpriteIdentifiers.RespawnIndicator, new(unit, 6 * unit));
+
+		_pauseButton = new(spriteSheet, SpriteIdentifiers.Pause, new(_gamePlayer.ScreenSize.X - (5 * unit), unit));
+		_playButton = new(spriteSheet, SpriteIdentifiers.Play, new(_gamePlayer.ScreenSize.X - (5 * unit), unit));
 
 		_lives = new HudElement[Constants.MaxLives];
 		for (int i = 0; i < _lives.Length; i++)
@@ -52,6 +57,11 @@ public class Hud
 
 		_respawnIndicator.Draw(spriteBatch);
 
+		if (_gamePlayer.GameState.IsPaused)
+			_playButton.Draw(spriteBatch);
+		else
+			_pauseButton.Draw(spriteBatch);
+
 		for (int i = 0; i < _gamePlayer.GameState.Lives; i++)
 			_lives[i].Draw(spriteBatch);
 
@@ -61,7 +71,11 @@ public class Hud
 		for (int i = 0; i < _gamePlayer.GameState.Currency; i++)
 			_currency[i].Draw(spriteBatch);
 
-		foreach (var element in _weapons)
-			element.Draw(spriteBatch);
+		for (int i = 0; i < _weapons.Length; i++)
+		{
+			_weapons[i].DrawFrame(spriteBatch, i == _gamePlayer.GameState.SelectedWeaponIndex);
+			_weapons[i].Draw(spriteBatch);
+		}
+
 	}
 }

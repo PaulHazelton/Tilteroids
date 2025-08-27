@@ -10,6 +10,8 @@ public interface IGamePlayer
 
 	ContentBucket ContentBucket { get; }
 
+	Point ScreenSize { get; }
+
 	GameState GameState { get; }
 
 	RectangleF Bounds { get; }

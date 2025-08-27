@@ -14,6 +14,8 @@ public static class SpriteIdentifiers
 	public const string Life = "Life";
 	public const string Health = "Health";
 	public const string Currency = "Currency";
+	public const string FrameClosed = "FrameClosed";
+	public const string FrameOpen = "FrameOpen";
 
 	private const string WeaponPrefix = "Weapon";
 

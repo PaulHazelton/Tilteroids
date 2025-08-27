@@ -6,6 +6,8 @@ public class GameState
 {
 	private readonly IGamePlayer _gamePlayer;
 
+	public bool IsPaused { get; set; }
+
 	public int Lives
 	{
 		get => field;
@@ -22,9 +24,13 @@ public class GameState
 		private set => field = MathHelper.Clamp(value, 0, Constants.MaxCurrency);
 	}
 
+	public int SelectedWeaponIndex { get; set; } = 0;
+
 	public GameState(IGamePlayer gamePlayer)
 	{
 		_gamePlayer = gamePlayer;
+
+		IsPaused = false;
 
 		Lives = Constants.InitialLives;
 		Health = Constants.InitialHealth;
