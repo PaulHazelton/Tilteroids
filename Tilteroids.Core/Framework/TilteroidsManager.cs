@@ -73,11 +73,24 @@ public sealed class TilteroidsManager : GameManager
 		Primitives.LoadContent(GraphicsDevice);
 		Services.AddService<IUserSettingsService>(new UserSettingsService());
 
-		// ChangeScene((gm) => new StartMenu(gm, contentBucket));
-		ChangeScene((gm) => new BasicGameplay(gm, contentBucket, Accelerometer, Compass, OrientationSensor));
+		void startGame() => ChangeScene(() => new BasicGameplay(this, contentBucket, Accelerometer, Compass, OrientationSensor, startMainMenu));
+		void startMainMenu() => ChangeScene(() => new StartMenu(this, contentBucket, startGame));
+
+		startMainMenu();
 
 		base.LoadContent();
 	}
+
+	// private class LoadedManager(SpriteBatch sb, ContentBucket cb)
+	// {
+	// 	private readonly SpriteBatch _spriteBatch = sb;
+	// 	private readonly ContentBucket _contentBucket = cb;
+
+	// 	public void StartGame()
+	// 	{
+	// 		ChangeScene((gm) => new BasicGameplay(gm, _contentBucket, Accelerometer, Compass, OrientationSensor));
+	// 	}
+	// }
 
 	protected override void Update(GameTime gameTime)
 	{

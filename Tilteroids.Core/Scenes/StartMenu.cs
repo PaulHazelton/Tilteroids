@@ -9,11 +9,13 @@ namespace Tilteroids.Core.Scenes;
 public class StartMenu : Scene
 {
 	private readonly ContentBucket ContentBucket;
+	private readonly Action _startGame;
 
-	public StartMenu(GameManager manager, ContentBucket contentBucket)
+	public StartMenu(GameManager manager, ContentBucket contentBucket, Action startGame)
 		: base(manager)
 	{
 		ContentBucket = contentBucket;
+		_startGame = startGame;
 	}
 
 	protected override void UpdateSize()
@@ -23,8 +25,10 @@ public class StartMenu : Scene
 
 	public override void Update(GameTime gameTime)
 	{
-		if(InputManager.WasButtonPressed(Keys.Escape))
+		if (InputManager.WasButtonPressed(Keys.Escape))
 			GameManager.Exit();
+		if (InputManager.WasButtonPressed(Keys.Enter) || InputManager.WasButtonPressed(Keys.Space))
+			_startGame();
 	}
 
 	public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
@@ -37,7 +41,7 @@ public class StartMenu : Scene
 		var pos = new Vector2(ScreenWidth / 2, ScreenHeight / 2);
 
 		Primitives.DrawRectangle(pos, new Vector2(400, 200), 0, Color.White);
-		spriteBatch.DrawString(ContentBucket.Fonts.FallbackFont, "Launch", pos, Color.Red);
+		spriteBatch.DrawString(ContentBucket.Fonts.FallbackFont, "Launch", pos, Color.Black);
 
 		spriteBatch.End();
 	}

@@ -7,7 +7,6 @@ using nkast.Aether.Physics2D.Dynamics;
 using SpaceshipArcade.MG.Engine.Cameras;
 using SpaceshipArcade.MG.Engine.Debugging;
 using SpaceshipArcade.MG.Engine.Extensions;
-using SpaceshipArcade.MG.Engine.Framework;
 using SpaceshipArcade.MG.Engine.Graphics;
 using SpaceshipArcade.MG.Engine.Input;
 using SpaceshipArcade.MG.Engine.Input.Sensors;
@@ -15,6 +14,7 @@ using SpaceshipArcade.MG.Engine.Utilities;
 using Tilteroids.Core.Controllers;
 using Tilteroids.Core.Data;
 using Tilteroids.Core.Debugging;
+using Tilteroids.Core.Framework;
 using Tilteroids.Core.Gameplay.Entities;
 
 namespace Tilteroids.Core.Gameplay;
@@ -24,7 +24,8 @@ public class GamePlayer : IGamePlayer
 	// Initial Game Settings
 	private const int AsteroidCount = 5;
 
-	private readonly GameManager _gameManager;
+	private readonly TilteroidsManager _gameManager;
+	private readonly Action _startMainMenu;
 	private readonly GameObjectCollection _gameObjectCollection;
 	private readonly TiltController _tiltController;
 
@@ -47,14 +48,22 @@ public class GamePlayer : IGamePlayer
 
 	// TODO PAUL: Only pass in what's needed.
 	// Pass a func for onExit or something
-	public GamePlayer(GameManager manager, ContentBucket contentBucket, int screenWidth, int screenHeight, Accelerometer accelerometer, Compass compass, OrientationSensor orientationSensor)
+	public GamePlayer(
+		TilteroidsManager manager,
+		ContentBucket contentBucket,
+		int screenWidth,
+		int screenHeight,
+		Accelerometer accelerometer,
+		Compass compass,
+		OrientationSensor orientationSensor,
+		Action startMainMenu)
 	{
 		_gameManager = manager;
 		_tiltController = new(orientationSensor);
 		ContentBucket = contentBucket;
 		ScreenWidth = screenWidth;
 		ScreenHeight = screenHeight;
-
+		_startMainMenu = startMainMenu;
 		int unit = screenWidth / 30;
 		_sensorDebugSuite = new(accelerometer, compass, orientationSensor, unit);
 		_aimDisplay = new(position: new(18 * unit, 9 * unit), radius: 1 * unit);
@@ -183,7 +192,7 @@ public class GamePlayer : IGamePlayer
 		void KeyboardInput()
 		{
 			if (InputManager.WasButtonPressed(Keys.Escape))
-				_gameManager.Exit();
+				_startMainMenu();
 
 			if (InputManager.WasButtonPressed(Keys.R))
 				Reset();

@@ -28,10 +28,10 @@ public abstract class GameManager : Game
 		Window.ClientSizeChanged += (sender, e) => WindowSizeChanged();
 	}
 
-	public void ChangeScene(Func<GameManager, Scene> createScene)
+	public void ChangeScene(Func<Scene> createScene)
 	{
 		_scene?.Dispose();
-		_scene = createScene(this);
+		_scene = createScene();
 		WindowSizeChanged();
 	}
 
